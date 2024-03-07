@@ -12,6 +12,7 @@
 		321C38B02B7C94F700F86B02 /* TrackerRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 321C38AF2B7C94F700F86B02 /* TrackerRecord.swift */; };
 		321C38B42B94AA6A00F86B02 /* TrackersCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 321C38B32B94AA6A00F86B02 /* TrackersCollectionViewCell.swift */; };
 		321C38B72B98AA3D00F86B02 /* MockData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 321C38B62B98AA3D00F86B02 /* MockData.swift */; };
+		321C38B92B98E93700F86B02 /* TrackersSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 321C38B82B98E93700F86B02 /* TrackersSectionHeader.swift */; };
 		32D7D1442B76E89B00D1FBF1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D7D1432B76E89B00D1FBF1 /* AppDelegate.swift */; };
 		32D7D1482B76E89B00D1FBF1 /* TrackersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D7D1472B76E89B00D1FBF1 /* TrackersViewController.swift */; };
 		32D7D14D2B76E89C00D1FBF1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 32D7D14C2B76E89C00D1FBF1 /* Assets.xcassets */; };
@@ -26,6 +27,7 @@
 		321C38AF2B7C94F700F86B02 /* TrackerRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerRecord.swift; sourceTree = "<group>"; };
 		321C38B32B94AA6A00F86B02 /* TrackersCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackersCollectionViewCell.swift; sourceTree = "<group>"; };
 		321C38B62B98AA3D00F86B02 /* MockData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockData.swift; sourceTree = "<group>"; };
+		321C38B82B98E93700F86B02 /* TrackersSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackersSectionHeader.swift; sourceTree = "<group>"; };
 		32D7D1402B76E89B00D1FBF1 /* Tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		32D7D1432B76E89B00D1FBF1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		32D7D1472B76E89B00D1FBF1 /* TrackersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackersViewController.swift; sourceTree = "<group>"; };
@@ -62,6 +64,7 @@
 			children = (
 				32D7D1472B76E89B00D1FBF1 /* TrackersViewController.swift */,
 				321C38B32B94AA6A00F86B02 /* TrackersCollectionViewCell.swift */,
+				321C38B82B98E93700F86B02 /* TrackersSectionHeader.swift */,
 			);
 			path = TrackersView;
 			sourceTree = "<group>";
@@ -181,6 +184,7 @@
 				321C38B42B94AA6A00F86B02 /* TrackersCollectionViewCell.swift in Sources */,
 				321C38B72B98AA3D00F86B02 /* MockData.swift in Sources */,
 				32D7D1482B76E89B00D1FBF1 /* TrackersViewController.swift in Sources */,
+				321C38B92B98E93700F86B02 /* TrackersSectionHeader.swift in Sources */,
 				32D7D1442B76E89B00D1FBF1 /* AppDelegate.swift in Sources */,
 				32D7D15A2B770D4900D1FBF1 /* TabBarViewController.swift in Sources */,
 				32D7D1582B770BF700D1FBF1 /* StatisticsViewController.swift in Sources */,

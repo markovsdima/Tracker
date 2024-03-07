@@ -11,10 +11,15 @@ class TrackersViewController: UIViewController {
     
     // MARK: - Public properties
     var categories: [TrackerCategory] = mockCategories
+
     var completedTrackers: [TrackerRecord] = []
     
-    // MARK: - UI Properties
     private var dataSource: UICollectionViewDiffableDataSource<TrackerCategory, Tracker>!
+    
+    private var snapshot: NSDiffableDataSourceSnapshot<TrackerCategory, Tracker>?
+    
+    // MARK: - UI Properties
+    
     
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewCompositionalLayout { _, _ in
@@ -33,6 +38,10 @@ class TrackersViewController: UIViewController {
             let section = NSCollectionLayoutSection(group: group)
             section.interGroupSpacing = 5
             section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
+            
+            let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(200))
+            let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: sectionHeaderSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
+            section.boundarySupplementaryItems = [sectionHeader]
             //let layout = UICollectionViewCompositionalLayout(section: section)
             return section
         }
@@ -112,6 +121,23 @@ class TrackersViewController: UIViewController {
         return label
     }()
     
+//    class DataSource: UICollectionViewDiffableDataSource<TrackerCategory, Tracker> {
+//        override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+//            var id: String
+//            switch kind {
+//            case UICollectionView.elementKindSectionHeader:
+//                id = "header"
+//            case UICollectionView.elementKindSectionFooter:
+//                id = "footer"
+//            default:
+//                id = ""
+//            }
+//            let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: id, for: indexPath) as! TrackersSectionHeader
+//            view.titleLabel.text = "123"
+//            return view
+//        }
+//    }
+    
     // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -120,9 +146,11 @@ class TrackersViewController: UIViewController {
         configureUI()
         setupCollectionView()
         setupDataSource()
+        configureHeader()
         reloadData()
         
         collectionView.register(TrackersCollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
+        collectionView.register(TrackersSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
         
         datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
     }
@@ -148,19 +176,43 @@ class TrackersViewController: UIViewController {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: IndexPath) as! TrackersCollectionViewCell
             cell.configure(with: ItemIdentifier)
             //cell.backgroundColor = .systemPink
+            
             return cell
+            
+        }
+        
+    }
+    
+    private func configureHeader() {
+        dataSource?.supplementaryViewProvider = { (collectionView: UICollectionView, kind: String, indexPath: IndexPath) -> UICollectionReusableView? in
+//            guard let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header", for: indexPath) as? TrackersSectionHeader else {
+//                fatalError("Could not dequeue sectionHeader")
+//            }
+//            sectionHeader.configure(with: self.categories[indexPath])
+//            return sectionHeader
+            let header: TrackersSectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header", for: indexPath) as! TrackersSectionHeader
+            //header.backgroundColor = .ypBlack
+            
+            if let section = self.snapshot?.sectionIdentifiers[indexPath.section] {
+                header.configure(with: section)
+            }
+            
+            return header
         }
     }
     
+    
+    
     private func reloadData() {
-        var snapshot = NSDiffableDataSourceSnapshot<TrackerCategory, Tracker>()
-        snapshot.appendSections(categories)
+        snapshot = NSDiffableDataSourceSnapshot<TrackerCategory, Tracker>()
+        snapshot?.appendSections(categories)
         
         for category in categories {
-            snapshot.appendItems(category.trackers, toSection: category)
+            
+            snapshot?.appendItems(category.trackers, toSection: category)
         }
         
-        dataSource.apply(snapshot, animatingDifferences: true)
+        dataSource.apply(snapshot!, animatingDifferences: true)
     }
     
     private func configureNavBar() {
@@ -226,6 +278,8 @@ class TrackersViewController: UIViewController {
         ])
     }
     
+    
+    
     @objc private func didTapAddTrackerButton() {
         NSLog("123")
     }
@@ -262,21 +316,29 @@ extension TrackersViewController: UICollectionViewDataSource {
     
 }
 */
-extension TrackersViewController {
-    
-    
-    private func createLayout() -> UICollectionViewLayout {
-        // section -> groups -> items -> size
-        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1/2), heightDimension: .fractionalHeight(1.0))
-        
-        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(0.2))
-        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-        let section = NSCollectionLayoutSection(group: group)
-        let layout = UICollectionViewCompositionalLayout(section: section)
-        return layout
-    }
-}
+
+
+//extension TrackersViewController {
+//    
+//    
+//    private func createLayout() -> UICollectionViewLayout {
+//        // section -> groups -> items -> size
+//        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1/2), heightDimension: .fractionalHeight(1.0))
+//        
+//        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+//        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(0.2))
+//        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
+//        let section = NSCollectionLayoutSection(group: group)
+//        
+//        let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(200))
+//        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: sectionHeaderSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
+//        section.boundarySupplementaryItems = [sectionHeader]
+//        let layout = UICollectionViewCompositionalLayout(section: section)
+//        return layout
+//    }
+//}
+
+
 
 // MARK: Collection Delegate
 /*
