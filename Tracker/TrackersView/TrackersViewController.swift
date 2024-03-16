@@ -11,8 +11,9 @@ class TrackersViewController: UIViewController {
     
     // MARK: - Public properties
     var categories: [TrackerCategory] = mockCategories
-
+    
     var completedTrackers: [TrackerRecord] = []
+    var currentDate: Date?
     
     private var dataSource: UICollectionViewDiffableDataSource<TrackerCategory, Tracker>!
     
@@ -71,6 +72,7 @@ class TrackersViewController: UIViewController {
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .compact
         datePicker.locale = Locale(identifier: "ru_RU")
+        datePicker.addTarget(self, action: #selector(datePickerValueChanged), for: .valueChanged)
         
         return datePicker
     }()
@@ -100,16 +102,24 @@ class TrackersViewController: UIViewController {
         return searchBar
     }()
     
-    //    private lazy var noTrackersYetView: UIView = {
-    //        let view = UIView()
-    //        view.backgroundColor = .lightGray
-    //
-    //        return view
-    //    }()
+    private lazy var searchField: UISearchTextField = {
+        let field = UISearchTextField()
+        field.placeholder = "Поиск"
+        
+        return field
+    }()
+    
+//        private lazy var noTrackersYetView: UIView = {
+//            let view = UIView()
+//            view.backgroundColor = .lightGray
+//    
+//            return view
+//        }()
     
     private lazy var noTrackersYetImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage.noTrackersYet
+        imageView.translatesAutoresizingMaskIntoConstraints = false
         
         return imageView
     }()
@@ -117,32 +127,18 @@ class TrackersViewController: UIViewController {
     private lazy var noTrackersYetLabel: UILabel = {
         let label = UILabel()
         label.text = "Что будем отслеживать?"
+        label.translatesAutoresizingMaskIntoConstraints = false
         
         return label
     }()
-    
-//    class DataSource: UICollectionViewDiffableDataSource<TrackerCategory, Tracker> {
-//        override func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-//            var id: String
-//            switch kind {
-//            case UICollectionView.elementKindSectionHeader:
-//                id = "header"
-//            case UICollectionView.elementKindSectionFooter:
-//                id = "footer"
-//            default:
-//                id = ""
-//            }
-//            let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: id, for: indexPath) as! TrackersSectionHeader
-//            view.titleLabel.text = "123"
-//            return view
-//        }
-//    }
     
     // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
         configureNavBar()
+        
+        
         configureUI()
         setupCollectionView()
         setupDataSource()
@@ -153,19 +149,44 @@ class TrackersViewController: UIViewController {
         collectionView.register(TrackersSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
         
         datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
+        emptyCheck()
+        
     }
     
     // MARK: - Private Methods
+    private func emptyCheck() {
+        if categories.count == 0 {
+            
+            view.addSubview(noTrackersYetImageView)
+            
+            view.addSubview(noTrackersYetLabel)
+            
+            noTrackersYetImageView.layer.zPosition = 10
+            noTrackersYetLabel.layer.zPosition = 10
+            
+            NSLayoutConstraint.activate([
+                noTrackersYetImageView.widthAnchor.constraint(equalToConstant: 80),
+                noTrackersYetImageView.heightAnchor.constraint(equalToConstant: 80),
+                noTrackersYetImageView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+                noTrackersYetImageView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 230),
+                
+                noTrackersYetLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+                noTrackersYetLabel.topAnchor.constraint(equalTo: noTrackersYetImageView.bottomAnchor, constant: 8)
+                
+            ])
+        }
+    }
+    
     private func setupCollectionView() {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(collectionView)
         NSLayoutConstraint.activate([
-            collectionView.topAnchor.constraint(equalTo: view.topAnchor),
+            collectionView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 8),
             collectionView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
-
+        
         //collectionView.dataSource = self
         //collectionView.delegate = self
     }
@@ -185,11 +206,11 @@ class TrackersViewController: UIViewController {
     
     private func configureHeader() {
         dataSource?.supplementaryViewProvider = { (collectionView: UICollectionView, kind: String, indexPath: IndexPath) -> UICollectionReusableView? in
-//            guard let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header", for: indexPath) as? TrackersSectionHeader else {
-//                fatalError("Could not dequeue sectionHeader")
-//            }
-//            sectionHeader.configure(with: self.categories[indexPath])
-//            return sectionHeader
+            //            guard let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header", for: indexPath) as? TrackersSectionHeader else {
+            //                fatalError("Could not dequeue sectionHeader")
+            //            }
+            //            sectionHeader.configure(with: self.categories[indexPath])
+            //            return sectionHeader
             let header: TrackersSectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header", for: indexPath) as! TrackersSectionHeader
             //header.backgroundColor = .ypBlack
             
@@ -220,7 +241,6 @@ class TrackersViewController: UIViewController {
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.leftBarButtonItem = addTrackerButton
         navigationItem.rightBarButtonItem = datePickerButton
-        
     }
     
     private func configureUI() {
@@ -230,50 +250,47 @@ class TrackersViewController: UIViewController {
         //view.addSubview(currentDateLabel)
         //currentDateLabel.translatesAutoresizingMaskIntoConstraints = false
         
-//        view.addSubview(largeTitle)
-//        largeTitle.translatesAutoresizingMaskIntoConstraints = false
+        //        view.addSubview(largeTitle)
+        //        largeTitle.translatesAutoresizingMaskIntoConstraints = false
         
-        view.addSubview(searchBar)
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(searchField)
+        searchField.translatesAutoresizingMaskIntoConstraints = false
         
         //        view.addSubview(noTrackersYetView)
         //        noTrackersYetView.translatesAutoresizingMaskIntoConstraints = false
         
-        view.addSubview(noTrackersYetImageView)
-        noTrackersYetImageView.translatesAutoresizingMaskIntoConstraints = false
         
-        view.addSubview(noTrackersYetLabel)
-        noTrackersYetLabel.translatesAutoresizingMaskIntoConstraints = false
         
         
         NSLayoutConstraint.activate([
-//            addTrackerButton.widthAnchor.constraint(equalToConstant: 44),
-//            addTrackerButton.heightAnchor.constraint(equalToConstant: 44),
-//            addTrackerButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 6),
-//            addTrackerButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 1),
+            //            addTrackerButton.widthAnchor.constraint(equalToConstant: 44),
+            //            addTrackerButton.heightAnchor.constraint(equalToConstant: 44),
+            //            addTrackerButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 6),
+            //            addTrackerButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 1),
             
-//            currentDateLabel.widthAnchor.constraint(equalToConstant: 77),
-//            currentDateLabel.heightAnchor.constraint(equalToConstant: 34),
-//            currentDateLabel.centerYAnchor.constraint(equalTo: addTrackerButton.centerYAnchor),
-//            currentDateLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            //            currentDateLabel.widthAnchor.constraint(equalToConstant: 77),
+            //            currentDateLabel.heightAnchor.constraint(equalToConstant: 34),
+            //            currentDateLabel.centerYAnchor.constraint(equalTo: addTrackerButton.centerYAnchor),
+            //            currentDateLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             
-//            largeTitle.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-//            largeTitle.topAnchor.constraint(equalTo: addTrackerButton.bottomAnchor, constant: 1),
+            //            largeTitle.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            //            largeTitle.topAnchor.constraint(equalTo: addTrackerButton.bottomAnchor, constant: 1),
             
-            searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 7),
-            searchBar.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 8),
-            searchBar.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -8),
+            searchField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 7),
+            searchField.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            searchField.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            searchField.heightAnchor.constraint(equalToConstant: 36),
             
             //            noTrackersYetView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
             //            noTrackersYetView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor)
             
-            noTrackersYetImageView.widthAnchor.constraint(equalToConstant: 80),
-            noTrackersYetImageView.heightAnchor.constraint(equalToConstant: 80),
-            noTrackersYetImageView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-            noTrackersYetImageView.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 230),
-            
-            noTrackersYetLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-            noTrackersYetLabel.topAnchor.constraint(equalTo: noTrackersYetImageView.bottomAnchor, constant: 8)
+//            noTrackersYetImageView.widthAnchor.constraint(equalToConstant: 80),
+//            noTrackersYetImageView.heightAnchor.constraint(equalToConstant: 80),
+//            noTrackersYetImageView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+//            noTrackersYetImageView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 230),
+//            
+//            noTrackersYetLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+//            noTrackersYetLabel.topAnchor.constraint(equalTo: noTrackersYetImageView.bottomAnchor, constant: 8)
             
         ])
     }
@@ -281,13 +298,15 @@ class TrackersViewController: UIViewController {
     
     
     @objc private func didTapAddTrackerButton() {
-        NSLog("123")
+        let view = CreateTrackerViewController()
+        
+        present(view, animated: true)
     }
     
-    @objc func datePickerValueChanged(_ sender: UIDatePicker) {
+    @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
         let selectedDate = sender.date
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd.MM.yyyy" // Формат даты
+        dateFormatter.dateFormat = "dd.MM.yyyy"
         let formattedDate = dateFormatter.string(from: selectedDate)
         print("Выбранная дата: \(formattedDate)")
     }
@@ -298,38 +317,38 @@ class TrackersViewController: UIViewController {
 
 // MARK: Collection Data Source
 /*
-extension TrackersViewController: UICollectionViewDataSource {
-    
-    
-    
-    /*
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        3
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! TrackersCollectionViewCell
-        
-        return cell
-    }
-    */
-    
-}
-*/
+ extension TrackersViewController: UICollectionViewDataSource {
+ 
+ 
+ 
+ /*
+  func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+  3
+  }
+  
+  func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+  let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! TrackersCollectionViewCell
+  
+  return cell
+  }
+  */
+ 
+ }
+ */
 
 
 //extension TrackersViewController {
-//    
-//    
+//
+//
 //    private func createLayout() -> UICollectionViewLayout {
 //        // section -> groups -> items -> size
 //        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1/2), heightDimension: .fractionalHeight(1.0))
-//        
+//
 //        let item = NSCollectionLayoutItem(layoutSize: itemSize)
 //        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(0.2))
 //        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
 //        let section = NSCollectionLayoutSection(group: group)
-//        
+//
 //        let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(200))
 //        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: sectionHeaderSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
 //        section.boundarySupplementaryItems = [sectionHeader]
@@ -342,24 +361,24 @@ extension TrackersViewController: UICollectionViewDataSource {
 
 // MARK: Collection Delegate
 /*
-extension TrackersViewController: UICollectionViewDelegateFlowLayout {
-    func collectionView(
-        _ collectionView: UICollectionView,
-        layout collectionViewLayout: UICollectionViewLayout,
-        sizeForItemAt indexPath: IndexPath
-    ) -> CGSize {
-        return CGSize(width: collectionView.bounds.width / 2, height: 148)
-    }
-    
-    func collectionView(
-        _ collectionView: UICollectionView,
-        layout collectionViewLayout: UICollectionViewLayout,
-        minimumInteritemSpacingForSectionAt section: Int
-    ) -> CGFloat {
-        return 0
-    }
-}
-*/
+ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
+ func collectionView(
+ _ collectionView: UICollectionView,
+ layout collectionViewLayout: UICollectionViewLayout,
+ sizeForItemAt indexPath: IndexPath
+ ) -> CGSize {
+ return CGSize(width: collectionView.bounds.width / 2, height: 148)
+ }
+ 
+ func collectionView(
+ _ collectionView: UICollectionView,
+ layout collectionViewLayout: UICollectionViewLayout,
+ minimumInteritemSpacingForSectionAt section: Int
+ ) -> CGFloat {
+ return 0
+ }
+ }
+ */
 
 // MARK: - SwiftUI Preview
 import SwiftUI

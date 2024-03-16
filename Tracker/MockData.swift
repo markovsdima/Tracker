@@ -14,7 +14,7 @@ let trackers: [Tracker] = [
         title: "Полет в стратосферу",
         color: .ypGreen,
         emoji: "🌏",
-        schedule: nil,
+        schedule: [.monday, .friday],
         trackerType: .oneTimeEvent
     )
 ]
