@@ -7,7 +7,14 @@
 
 import UIKit
 
+protocol TrackersCollectionViewCellDelegate: AnyObject {
+    func changeTrackerCompletionState()
+}
+
 class TrackersCollectionViewCell: UICollectionViewCell {
+    
+    // MARK: - Public Properties
+    weak var delegate: TrackersCollectionViewCellDelegate?
     
     // MARK: - UI Properties
     private lazy var cardView: UIView = {
@@ -76,6 +83,10 @@ class TrackersCollectionViewCell: UICollectionViewCell {
         return button
     }()
     
+    private var trackerColor: UIColor = .ypGray
+    
+    
+    
     // MARK: - View Life Cycles
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -99,6 +110,7 @@ class TrackersCollectionViewCell: UICollectionViewCell {
         titleLabel.text = tracker.title
         cardView.backgroundColor = tracker.color
         taskCompletedButton.backgroundColor = tracker.color
+        self.trackerColor = tracker.color
     }
     
     func setupConstraints() {
@@ -136,8 +148,10 @@ class TrackersCollectionViewCell: UICollectionViewCell {
     }
     
     @objc func taskCompletedButtonDidTap() {
-        
+        print("123")
+        taskCompletedButton.setImage(UIImage(systemName: "checkmark"), for: .normal)
+        taskCompletedButton.backgroundColor = trackerColor.withAlphaComponent(0.3)
+        delegate?.changeTrackerCompletionState()
     }
     
 }
-

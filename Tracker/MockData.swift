@@ -8,19 +8,7 @@
 import Foundation
 import UIKit
 
-let trackers: [Tracker] = [
-    Tracker(
-        id: UUID(uuidString: "1307ebcb-8414-4660-855f-8296bfb65cac")!,
-        title: "Полет в стратосферу",
-        color: .ypGreen,
-        emoji: "🌏",
-        schedule: [.monday, .friday],
-        trackerType: .oneTimeEvent
-    )
-]
-
-
-let mockCategories: [TrackerCategory] = [
+var mockCategories: [TrackerCategory] = [
     TrackerCategory(
         title: "Космос",
         trackers: [
@@ -29,7 +17,7 @@ let mockCategories: [TrackerCategory] = [
                 title: "Полет в стратосферу",
                 color: .ypGreen,
                 emoji: "🌏",
-                schedule: nil,
+                schedule: [.monday],
                 trackerType: .oneTimeEvent
             ),
             Tracker(
@@ -37,7 +25,7 @@ let mockCategories: [TrackerCategory] = [
                 title: "Высадка на луне",
                 color: .ypOrange,
                 emoji: "🌒",
-                schedule: nil,
+                schedule: [.sunday],
                 trackerType: .oneTimeEvent
             )
         ]
@@ -50,7 +38,7 @@ let mockCategories: [TrackerCategory] = [
                 title: "Снежный человек, начало",
                 color: .ypGray,
                 emoji: "☃️",
-                schedule: nil,
+                schedule: [.wednesday],
                 trackerType: .oneTimeEvent
             ),
             Tracker(
@@ -58,9 +46,14 @@ let mockCategories: [TrackerCategory] = [
                 title: "Поиск Атлантиды",
                 color: .ypGray,
                 emoji: "🧊",
-                schedule: nil,
+                schedule: [.tuesday],
                 trackerType: .oneTimeEvent
             )
         ]
     )
+]
+
+
+var mockCompletedTrackers: Set<TrackerRecord> = [
+TrackerRecord(id: UUID(uuidString: "78c2a018-b10a-4a45-af80-ed55e8de9de2")!, date: Date())
 ]

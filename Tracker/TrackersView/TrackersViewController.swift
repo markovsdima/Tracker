@@ -11,9 +11,10 @@ class TrackersViewController: UIViewController {
     
     // MARK: - Public properties
     var categories: [TrackerCategory] = mockCategories
+    var filteredCategories: [TrackerCategory] = []
     
-    var completedTrackers: [TrackerRecord] = []
-    var currentDate: Date?
+    var completedTrackers = Set<TrackerRecord>()
+    var currentDate = Date()
     
     private var dataSource: UICollectionViewDiffableDataSource<TrackerCategory, Tracker>!
     
@@ -54,6 +55,7 @@ class TrackersViewController: UIViewController {
         )
         //collectionView.backgroundColor = .green
         //collectionView.register(TrackersCollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
+        
         return collectionView
     }()
     
@@ -109,13 +111,6 @@ class TrackersViewController: UIViewController {
         return field
     }()
     
-//        private lazy var noTrackersYetView: UIView = {
-//            let view = UIView()
-//            view.backgroundColor = .lightGray
-//    
-//            return view
-//        }()
-    
     private lazy var noTrackersYetImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = UIImage.noTrackersYet
@@ -143,7 +138,9 @@ class TrackersViewController: UIViewController {
         setupCollectionView()
         setupDataSource()
         configureHeader()
-        reloadData()
+        filterCategoriesByWeekDay()
+        //reloadData()
+        
         
         collectionView.register(TrackersCollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
         collectionView.register(TrackersSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
@@ -196,10 +193,9 @@ class TrackersViewController: UIViewController {
             (collectionView, IndexPath, ItemIdentifier) -> UICollectionViewCell? in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: IndexPath) as! TrackersCollectionViewCell
             cell.configure(with: ItemIdentifier)
-            //cell.backgroundColor = .systemPink
+            cell.delegate = self
             
             return cell
-            
         }
         
     }
@@ -226,9 +222,8 @@ class TrackersViewController: UIViewController {
     
     private func reloadData() {
         snapshot = NSDiffableDataSourceSnapshot<TrackerCategory, Tracker>()
-        snapshot?.appendSections(categories)
-        
-        for category in categories {
+        snapshot?.appendSections(filteredCategories)
+        for category in filteredCategories {
             
             snapshot?.appendItems(category.trackers, toSection: category)
         }
@@ -244,57 +239,37 @@ class TrackersViewController: UIViewController {
     }
     
     private func configureUI() {
-        //view.addSubview(addTrackerButton)
-        //addTrackerButton.translatesAutoresizingMaskIntoConstraints = false
-        
-        //view.addSubview(currentDateLabel)
-        //currentDateLabel.translatesAutoresizingMaskIntoConstraints = false
-        
-        //        view.addSubview(largeTitle)
-        //        largeTitle.translatesAutoresizingMaskIntoConstraints = false
-        
         view.addSubview(searchField)
         searchField.translatesAutoresizingMaskIntoConstraints = false
         
-        //        view.addSubview(noTrackersYetView)
-        //        noTrackersYetView.translatesAutoresizingMaskIntoConstraints = false
-        
-        
-        
-        
         NSLayoutConstraint.activate([
-            //            addTrackerButton.widthAnchor.constraint(equalToConstant: 44),
-            //            addTrackerButton.heightAnchor.constraint(equalToConstant: 44),
-            //            addTrackerButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 6),
-            //            addTrackerButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 1),
-            
-            //            currentDateLabel.widthAnchor.constraint(equalToConstant: 77),
-            //            currentDateLabel.heightAnchor.constraint(equalToConstant: 34),
-            //            currentDateLabel.centerYAnchor.constraint(equalTo: addTrackerButton.centerYAnchor),
-            //            currentDateLabel.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            
-            //            largeTitle.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            //            largeTitle.topAnchor.constraint(equalTo: addTrackerButton.bottomAnchor, constant: 1),
             
             searchField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 7),
             searchField.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             searchField.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
             searchField.heightAnchor.constraint(equalToConstant: 36),
-            
-            //            noTrackersYetView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
-            //            noTrackersYetView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor)
-            
-//            noTrackersYetImageView.widthAnchor.constraint(equalToConstant: 80),
-//            noTrackersYetImageView.heightAnchor.constraint(equalToConstant: 80),
-//            noTrackersYetImageView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-//            noTrackersYetImageView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 230),
-//            
-//            noTrackersYetLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-//            noTrackersYetLabel.topAnchor.constraint(equalTo: noTrackersYetImageView.bottomAnchor, constant: 8)
-            
         ])
     }
     
+    private func filterCategoriesByWeekDay() {
+        let selectedWeekDay = Calendar.current.component(.weekday, from: datePicker.date)
+        
+        filteredCategories = categories.compactMap { category in
+            let filteredTrackers = category.trackers.filter { tracker in
+                guard let schedule = tracker.schedule else { return true }
+                return schedule.contains { weekDay in
+                    weekDay.rawValue == selectedWeekDay
+                }
+            }
+            if filteredTrackers.isEmpty {
+                return nil
+            }
+            
+            return TrackerCategory(title: category.title, trackers: filteredTrackers)
+        }
+        
+        reloadData()
+    }
     
     
     @objc private func didTapAddTrackerButton() {
@@ -304,14 +279,19 @@ class TrackersViewController: UIViewController {
     }
     
     @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
-        let selectedDate = sender.date
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "dd.MM.yyyy"
-        let formattedDate = dateFormatter.string(from: selectedDate)
-        print("Выбранная дата: \(formattedDate)")
+        currentDate = sender.date
+        filterCategoriesByWeekDay()
     }
     
     
+    
+}
+
+extension TrackersViewController: TrackersCollectionViewCellDelegate {
+    func changeTrackerCompletionState() {
+        print("State has been changed")
+    }
+
     
 }
 
