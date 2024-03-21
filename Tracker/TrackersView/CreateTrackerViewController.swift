@@ -7,7 +7,13 @@
 
 import UIKit
 
+protocol CreateTrackerViewControllerDelegate: AnyObject {
+    func updateTrackersCollection()
+}
+
 class CreateTrackerViewController: UIViewController {
+    
+    weak var delegate: CreateTrackerViewControllerDelegate?
     
     // MARK: - UI Properties
     private lazy var titleLabel: UILabel = {
@@ -74,14 +80,22 @@ class CreateTrackerViewController: UIViewController {
     
     @objc private func didTapRegularEvent() {
         let view = CreateEventViewController(eventType: .regularEvent)
-        
+        view.delegate = self
         present(view, animated: true)
     }
     
     @objc private func didTapOneTimeEvent() {
         let view = CreateEventViewController(eventType: .oneTimeEvent)
+        view.delegate = self
         
         present(view, animated: true)
     }
     
+}
+
+
+extension CreateTrackerViewController: CreateEventViewControllerDelegate {
+    func updateTrackersCollection() {
+        delegate?.updateTrackersCollection()
+    }
 }

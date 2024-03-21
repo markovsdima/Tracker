@@ -7,7 +7,14 @@
 
 import UIKit
 
+protocol CreateEventViewControllerDelegate: AnyObject {
+    func updateTrackersCollection()
+}
+
 class CreateEventViewController: UIViewController {
+    
+    // MARK: - Public properties
+    weak var delegate: CreateEventViewControllerDelegate?
     
     // MARK: - UI Properties
     private lazy var mainTitle: UILabel = {
@@ -40,11 +47,10 @@ class CreateEventViewController: UIViewController {
         button.backgroundColor = .ypGrayAlpha
         button.contentHorizontalAlignment = .leading
         button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 0)
-        //button.setImage(.chevron, for: .normal)
-        //button.imageEdgeInsets = UIEdgeInsets(top: 5, left: (button.layer.bounds.width), bottom: 5, right: 5)
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
-        button.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        //button.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+        button.addTarget(self, action: #selector(didTapCategoryButton), for: .touchUpInside)
         
         button.translatesAutoresizingMaskIntoConstraints = false
         
@@ -119,7 +125,7 @@ class CreateEventViewController: UIViewController {
         //button.contentHorizontalAlignment = .leading
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
-        
+        button.addTarget(self, action: #selector(didTapCreateButton), for: .touchUpInside)
         
         button.translatesAutoresizingMaskIntoConstraints = false
         
@@ -154,11 +160,36 @@ class CreateEventViewController: UIViewController {
         view.addSubview(trackerNameTextField)
         view.addSubview(categoryButton)
         categoryButton.addSubview(categoryButtonImage)
-        categoryButton.addSubview(categoryButtonBottomLineView)
-        view.addSubview(scheduleButton)
-        scheduleButton.addSubview(scheduleButtonImage)
+        
         view.addSubview(cancelButton)
         view.addSubview(createButton)
+        
+        if eventType == .regularEvent {
+            categoryButton.addSubview(categoryButtonBottomLineView)
+            categoryButton.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
+            view.addSubview(scheduleButton)
+            scheduleButton.addSubview(scheduleButtonImage)
+            NSLayoutConstraint.activate([
+                categoryButtonBottomLineView.bottomAnchor.constraint(equalTo: categoryButton.bottomAnchor),
+                categoryButtonBottomLineView.heightAnchor.constraint(equalToConstant: 1),
+                categoryButtonBottomLineView.leadingAnchor.constraint(equalTo: categoryButton.leadingAnchor, constant: 16),
+                categoryButtonBottomLineView.trailingAnchor.constraint(equalTo: categoryButton.trailingAnchor, constant: -16),
+                
+                scheduleButton.topAnchor.constraint(equalTo: categoryButton.bottomAnchor, constant: 0),
+                scheduleButton.heightAnchor.constraint(equalToConstant: 75),
+                scheduleButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+                scheduleButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+                
+                scheduleButtonImage.trailingAnchor.constraint(equalTo: scheduleButton.trailingAnchor, constant: -16),
+                scheduleButtonImage.centerYAnchor.constraint(equalTo: scheduleButton.centerYAnchor),
+                scheduleButtonImage.heightAnchor.constraint(equalToConstant: 24),
+                scheduleButtonImage.widthAnchor.constraint(equalToConstant: 24)
+            ])
+        }
+        
+        if eventType == .oneTimeEvent {
+            scheduleButton.layer.maskedCorners = [.layerMinXMinYCorner, .layerMinXMaxYCorner, .layerMaxXMaxYCorner, .layerMaxXMinYCorner]
+        }
         
         NSLayoutConstraint.activate([
             mainTitle.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor,constant: 27),
@@ -179,20 +210,7 @@ class CreateEventViewController: UIViewController {
             categoryButtonImage.heightAnchor.constraint(equalToConstant: 24),
             categoryButtonImage.widthAnchor.constraint(equalToConstant: 24),
             
-            categoryButtonBottomLineView.bottomAnchor.constraint(equalTo: categoryButton.bottomAnchor),
-            categoryButtonBottomLineView.heightAnchor.constraint(equalToConstant: 1),
-            categoryButtonBottomLineView.leadingAnchor.constraint(equalTo: categoryButton.leadingAnchor, constant: 16),
-            categoryButtonBottomLineView.trailingAnchor.constraint(equalTo: categoryButton.trailingAnchor, constant: -16),
             
-            scheduleButton.topAnchor.constraint(equalTo: categoryButton.bottomAnchor, constant: 0),
-            scheduleButton.heightAnchor.constraint(equalToConstant: 75),
-            scheduleButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            scheduleButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            
-            scheduleButtonImage.trailingAnchor.constraint(equalTo: scheduleButton.trailingAnchor, constant: -16),
-            scheduleButtonImage.centerYAnchor.constraint(equalTo: scheduleButton.centerYAnchor),
-            scheduleButtonImage.heightAnchor.constraint(equalToConstant: 24),
-            scheduleButtonImage.widthAnchor.constraint(equalToConstant: 24),
             
             cancelButton.heightAnchor.constraint(equalToConstant: 60),
             cancelButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
@@ -206,10 +224,45 @@ class CreateEventViewController: UIViewController {
         ])
     }
     
+    private func addTracker() {
+        print("123")
+        let uuid = UUID()
+        
+        let categoryName = "Планета"
+        
+        let tracker: Tracker = Tracker(
+            id: uuid,
+            title: "Проверка создания трекера",
+            color: .ypGreen,
+            emoji: "😊",
+            schedule: [.thursday, .friday],
+            trackerType: self.eventType)
+        
+        var categories = MockData.shared.mockCategories
+        
+        let newCategory = TrackerCategory(title: categoryName, trackers: [tracker])
+        categories.append(newCategory)
+        
+        MockData.shared.mockCategories = categories
+        
+        delegate?.updateTrackersCollection()
+        
+    }
+    
     @objc private func didTapScheduleButton() {
         let view = ScheduleViewController()
         
         present(view, animated: true)
+    }
+    
+    @objc private func didTapCategoryButton() {
+        let view = CategoriesViewController()
+        
+        present(view, animated: true)
+    }
+    
+    @objc private func didTapCreateButton() {
+        addTracker()
     }
     
     

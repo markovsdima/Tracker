@@ -7,10 +7,13 @@
 
 import UIKit
 
+
+
 class TrackersViewController: UIViewController {
     
-    // MARK: - Public properties
-    var categories: [TrackerCategory] = mockCategories
+    
+    
+    var categories: [TrackerCategory] = MockData.shared.mockCategories
     var filteredCategories: [TrackerCategory] = []
     
     var completedTrackers = Set<TrackerRecord>()
@@ -19,6 +22,8 @@ class TrackersViewController: UIViewController {
     private var dataSource: UICollectionViewDiffableDataSource<TrackerCategory, Tracker>!
     
     private var snapshot: NSDiffableDataSourceSnapshot<TrackerCategory, Tracker>?
+    
+    private var categoriesObserver: NSObjectProtocol?
     
     // MARK: - UI Properties
     
@@ -44,7 +49,7 @@ class TrackersViewController: UIViewController {
             let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(200))
             let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: sectionHeaderSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
             section.boundarySupplementaryItems = [sectionHeader]
-            //let layout = UICollectionViewCompositionalLayout(section: section)
+            
             return section
         }
         
@@ -53,8 +58,6 @@ class TrackersViewController: UIViewController {
             frame: .zero,
             collectionViewLayout: layout
         )
-        //collectionView.backgroundColor = .green
-        //collectionView.register(TrackersCollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
         
         return collectionView
     }()
@@ -81,7 +84,6 @@ class TrackersViewController: UIViewController {
     
     private lazy var datePickerButton: UIBarButtonItem = {
         let button = UIBarButtonItem(customView: datePicker)
-        //button.text = "12.34.56"
         button.tintColor = .ypBlack
         
         return button
@@ -127,20 +129,18 @@ class TrackersViewController: UIViewController {
         return label
     }()
     
+    
+    
     // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
         configureNavBar()
-        
-        
         configureUI()
         setupCollectionView()
         setupDataSource()
         configureHeader()
         filterCategoriesByWeekDay()
-        //reloadData()
-        
         
         collectionView.register(TrackersCollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
         collectionView.register(TrackersSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
@@ -148,6 +148,8 @@ class TrackersViewController: UIViewController {
         datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
         emptyCheck()
         
+        //categoriesObserver = NotificationCenter.default.addObserver(forName: <#T##NSNotification.Name?#>, object: <#T##Any?#>, queue: <#T##OperationQueue?#>, using: <#T##(Notification) -> Void#>)
+        //delegate?.updateTrackersCollection()
     }
     
     // MARK: - Private Methods
@@ -202,11 +204,7 @@ class TrackersViewController: UIViewController {
     
     private func configureHeader() {
         dataSource?.supplementaryViewProvider = { (collectionView: UICollectionView, kind: String, indexPath: IndexPath) -> UICollectionReusableView? in
-            //            guard let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "header", for: indexPath) as? TrackersSectionHeader else {
-            //                fatalError("Could not dequeue sectionHeader")
-            //            }
-            //            sectionHeader.configure(with: self.categories[indexPath])
-            //            return sectionHeader
+
             let header: TrackersSectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header", for: indexPath) as! TrackersSectionHeader
             //header.backgroundColor = .ypBlack
             
@@ -272,8 +270,11 @@ class TrackersViewController: UIViewController {
     }
     
     
+    
+    
     @objc private func didTapAddTrackerButton() {
         let view = CreateTrackerViewController()
+        view.delegate = self
         
         present(view, animated: true)
     }
@@ -291,7 +292,16 @@ extension TrackersViewController: TrackersCollectionViewCellDelegate {
     func changeTrackerCompletionState() {
         print("State has been changed")
     }
+    
+}
 
+extension TrackersViewController: CreateTrackerViewControllerDelegate {
+    
+    func updateTrackersCollection() {
+        categories = MockData.shared.mockCategories
+        filterCategoriesByWeekDay()
+    }
+    
     
 }
 
