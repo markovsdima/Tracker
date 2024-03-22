@@ -16,7 +16,7 @@ struct Tracker: Hashable {
     let trackerType: TrackerTypes
 }
 
-enum WeekDay: Int, Hashable {
+enum WeekDay: Int, Hashable, CaseIterable {
     case monday = 2
     case tuesday = 3
     case wednesday = 4

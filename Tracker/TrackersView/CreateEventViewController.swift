@@ -9,12 +9,16 @@ import UIKit
 
 protocol CreateEventViewControllerDelegate: AnyObject {
     func updateTrackersCollection()
+    func dismissAnimated()
 }
 
 class CreateEventViewController: UIViewController {
     
     // MARK: - Public properties
     weak var delegate: CreateEventViewControllerDelegate?
+    
+    var willDismiss:(() -> Void)?
+    var didDismiss:(() -> Void)?
     
     // MARK: - UI Properties
     private lazy var mainTitle: UILabel = {
@@ -31,10 +35,10 @@ class CreateEventViewController: UIViewController {
         let field = UITextField()
         field.placeholder = "Введите название трекера"
         field.backgroundColor = .ypGrayAlpha
-        
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: field.frame.height))
         field.leftViewMode = .always
         field.layer.cornerRadius = 16
+        field.addTarget(self, action: #selector(didChangedNameField), for: .editingChanged)
         field.translatesAutoresizingMaskIntoConstraints = false
         
         return field
@@ -136,6 +140,10 @@ class CreateEventViewController: UIViewController {
     // MARK: - Private Properties
     private var eventType: TrackerTypes
     
+    private var trackerTitle: String?
+    private var category = String()
+    private var schedule = [WeekDay]()
+    
     
     // MARK: - Initializers
     init(eventType: TrackerTypes) {
@@ -225,17 +233,18 @@ class CreateEventViewController: UIViewController {
     }
     
     private func addTracker() {
-        print("123")
         let uuid = UUID()
         
         let categoryName = "Планета"
         
+        guard let trackerTitle else { return }
+        
         let tracker: Tracker = Tracker(
             id: uuid,
-            title: "Проверка создания трекера",
+            title: trackerTitle,
             color: .ypGreen,
             emoji: "😊",
-            schedule: [.thursday, .friday],
+            schedule: schedule,
             trackerType: self.eventType)
         
         var categories = MockData.shared.mockCategories
@@ -245,12 +254,13 @@ class CreateEventViewController: UIViewController {
         
         MockData.shared.mockCategories = categories
         
-        delegate?.updateTrackersCollection()
+        //delegate?.updateTrackersCollection()
         
     }
     
     @objc private func didTapScheduleButton() {
         let view = ScheduleViewController()
+        view.delegate = self
         
         present(view, animated: true)
     }
@@ -262,7 +272,26 @@ class CreateEventViewController: UIViewController {
     }
     
     @objc private func didTapCreateButton() {
+        willDismiss?()
         addTracker()
+        dismiss(animated: true) {
+            self.didDismiss?()
+        }
+        delegate?.dismissAnimated()
+    }
+    
+    @objc private func didChangedNameField() {
+        self.trackerTitle = trackerNameTextField.text
+    }
+    
+    
+}
+
+
+extension CreateEventViewController: ScheduleViewControllerDelegate {
+    func configWeekDays(_ schedule: [WeekDay]) {
+        self.schedule = schedule
+        //print(self.schedule)
     }
     
     

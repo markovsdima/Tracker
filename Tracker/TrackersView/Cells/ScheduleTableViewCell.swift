@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol ScheduleTableViewCellDelegate: AnyObject {
+    func switchChanged(for day: WeekDay, enabled: Bool)
+}
+
 final class ScheduleTableViewCell: UITableViewCell {
     
     // MARK: - UI Properties
@@ -23,6 +27,7 @@ final class ScheduleTableViewCell: UITableViewCell {
     lazy var switchButton: UISwitch = {
         let switchButton = UISwitch()
         switchButton.onTintColor = .ypBlue
+        switchButton.addTarget(self, action: #selector(didTapSwitchButton), for: .valueChanged)
         switchButton.translatesAutoresizingMaskIntoConstraints = false
         
         return switchButton
@@ -30,6 +35,10 @@ final class ScheduleTableViewCell: UITableViewCell {
     
     // MARK: - Public Properties
     static let reuseIdentifier = "ScheduleTableViewCell"
+    
+    var weekDay: WeekDay?
+    
+    weak var delegate: ScheduleTableViewCellDelegate?
    // weak var delegate: ScheduleTableViewCellDelegate?
     
 
@@ -61,4 +70,12 @@ final class ScheduleTableViewCell: UITableViewCell {
             switchButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
     }
+    
+    @objc private func didTapSwitchButton(sender: UISwitch) {
+        guard let weekDay else { return }
+        delegate?.switchChanged(for: weekDay, enabled: sender.isOn)
+        //print(weekDay)
+    }
+    
+    
 }

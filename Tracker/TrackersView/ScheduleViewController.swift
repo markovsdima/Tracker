@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol ScheduleViewControllerDelegate: AnyObject {
+    func configWeekDays(_: [WeekDay])
+}
+
 final class ScheduleViewController: UIViewController {
     
     // MARK: - UI Properties
@@ -46,12 +50,19 @@ final class ScheduleViewController: UIViewController {
     
     private var weekDaysNames = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
     
+    private var selectedWeekDays = [WeekDay]()
+    
+    weak var delegate: ScheduleViewControllerDelegate?
+    
+    
+    
     // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
         tableView.dataSource = self
         tableView.delegate = self
+        
         configureUI()
         
             //tableView.register(ScheduleTableViewCell.self, forCellReuseIdentifier: "ScheduleTableViewCell")
@@ -84,7 +95,8 @@ final class ScheduleViewController: UIViewController {
     
     
     @objc private func didTapFinishButton() {
-        
+        delegate?.configWeekDays(selectedWeekDays)
+        dismiss(animated: true)
     }
 }
 
@@ -94,11 +106,12 @@ extension ScheduleViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: ScheduleTableViewCell.reuseIdentifier, for: indexPath)
         guard let cell = cell as? ScheduleTableViewCell else { return UITableViewCell() }
         
-        
+        cell.delegate = self
         cell.cellTitle.text = weekDaysNames[indexPath.row]
         //cell.backgroundColor = .ypBlue
         cell.selectionStyle = .none
         cell.backgroundColor = .ypGrayAlpha
+        cell.weekDay = WeekDay.allCases[indexPath.row]
         
         return cell
     }
@@ -112,4 +125,17 @@ extension ScheduleViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         75
     }
+}
+
+extension ScheduleViewController: ScheduleTableViewCellDelegate {
+    func switchChanged(for day: WeekDay, enabled: Bool) {
+        if enabled == true {
+            selectedWeekDays.append(day)
+        } else {
+            selectedWeekDays.removeAll { $0 == day }
+        }
+        //print(selectedWeekDays)
+    }
+    
+    
 }

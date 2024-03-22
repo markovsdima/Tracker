@@ -81,12 +81,25 @@ class CreateTrackerViewController: UIViewController {
     @objc private func didTapRegularEvent() {
         let view = CreateEventViewController(eventType: .regularEvent)
         view.delegate = self
+        view.willDismiss = {
+            self.view.isHidden = true
+        }
+        view.didDismiss = {
+            self.dismiss(animated: false)
+        }
+        
         present(view, animated: true)
     }
     
     @objc private func didTapOneTimeEvent() {
         let view = CreateEventViewController(eventType: .oneTimeEvent)
         view.delegate = self
+        view.willDismiss = {
+            self.view.isHidden = true
+        }
+        view.didDismiss = {
+            self.dismiss(animated: false)
+        }
         
         present(view, animated: true)
     }
@@ -95,7 +108,16 @@ class CreateTrackerViewController: UIViewController {
 
 
 extension CreateTrackerViewController: CreateEventViewControllerDelegate {
-    func updateTrackersCollection() {
-        delegate?.updateTrackersCollection()
+    func dismissAnimated() {
+        dismiss(animated: true) {
+            self.delegate?.updateTrackersCollection()
+        }
     }
+    
+    func updateTrackersCollection() {
+        dismiss(animated: true) {
+            self.delegate?.updateTrackersCollection()
+        }
+    }
+    
 }
