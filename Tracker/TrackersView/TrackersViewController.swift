@@ -124,6 +124,8 @@ class TrackersViewController: UIViewController {
     private lazy var noTrackersYetLabel: UILabel = {
         let label = UILabel()
         label.text = "Что будем отслеживать?"
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 12, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         
         return label
@@ -135,6 +137,7 @@ class TrackersViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
+        //categories = []
         configureNavBar()
         configureUI()
         setupCollectionView()
@@ -148,8 +151,6 @@ class TrackersViewController: UIViewController {
         datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
         emptyCheck()
         
-        //categoriesObserver = NotificationCenter.default.addObserver(forName: <#T##NSNotification.Name?#>, object: <#T##Any?#>, queue: <#T##OperationQueue?#>, using: <#T##(Notification) -> Void#>)
-        //delegate?.updateTrackersCollection()
     }
     
     // MARK: - Private Methods
@@ -185,9 +186,6 @@ class TrackersViewController: UIViewController {
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
-        
-        //collectionView.dataSource = self
-        //collectionView.delegate = self
     }
     
     private func setupDataSource() {
@@ -209,6 +207,9 @@ class TrackersViewController: UIViewController {
             //header.backgroundColor = .ypBlack
             
             if let section = self.snapshot?.sectionIdentifiers[indexPath.section] {
+                if section.trackers.count == 0 {
+                    print("58902790382727932523")
+                }
                 header.configure(with: section)
             }
             
@@ -217,12 +218,10 @@ class TrackersViewController: UIViewController {
     }
     
     
-    
     private func reloadData() {
         snapshot = NSDiffableDataSourceSnapshot<TrackerCategory, Tracker>()
         snapshot?.appendSections(filteredCategories)
         for category in filteredCategories {
-            
             snapshot?.appendItems(category.trackers, toSection: category)
         }
         
@@ -253,18 +252,25 @@ class TrackersViewController: UIViewController {
         let selectedWeekDay = Calendar.current.component(.weekday, from: datePicker.date)
         
         filteredCategories = categories.compactMap { category in
+            
             let filteredTrackers = category.trackers.filter { tracker in
-                guard let schedule = tracker.schedule else { return true }
+                guard let schedule = tracker.schedule else {
+                    return true
+                }
+
                 return schedule.contains { weekDay in
                     weekDay.rawValue == selectedWeekDay
                 }
             }
+            
             if filteredTrackers.isEmpty {
                 return nil
             }
             
             return TrackerCategory(title: category.title, trackers: filteredTrackers)
         }
+        
+        //print(filteredCategories)
         
         reloadData()
     }
@@ -275,7 +281,8 @@ class TrackersViewController: UIViewController {
     @objc private func didTapAddTrackerButton() {
         let view = CreateTrackerViewController()
         view.delegate = self
-        
+        //categories = MockData.shared.mockCategories2forTest
+        //filterCategoriesByWeekDay()
         present(view, animated: true)
     }
     
@@ -299,6 +306,7 @@ extension TrackersViewController: CreateTrackerViewControllerDelegate {
     
     func updateTrackersCollection() {
         categories = MockData.shared.mockCategories
+        print("second array\(categories)")
         filterCategoriesByWeekDay()
     }
     

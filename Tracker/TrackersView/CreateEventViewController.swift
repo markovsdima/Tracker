@@ -143,6 +143,7 @@ class CreateEventViewController: UIViewController {
     private var trackerTitle: String?
     private var category = String()
     private var schedule = [WeekDay]()
+    private var tracker: Tracker?
     
     
     // MARK: - Initializers
@@ -160,7 +161,7 @@ class CreateEventViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
         configureUI(with: eventType)
-        print(eventType)
+        //print(eventType)
     }
     
     private func configureUI(with type: TrackerTypes) {
@@ -232,29 +233,75 @@ class CreateEventViewController: UIViewController {
         ])
     }
     
+    private func addCategory(name: String) {
+        
+    }
+    
     private func addTracker() {
         let uuid = UUID()
         
-        let categoryName = "Планета"
+        let categoryName = category
         
         guard let trackerTitle else { return }
         
-        let tracker: Tracker = Tracker(
-            id: uuid,
-            title: trackerTitle,
-            color: .ypGreen,
-            emoji: "😊",
-            schedule: schedule,
-            trackerType: self.eventType)
+        if eventType == .regularEvent {
+            self.tracker = Tracker(
+                id: uuid,
+                title: trackerTitle,
+                color: .ypGreen,
+                emoji: "😊",
+                schedule: schedule,
+                trackerType: self.eventType)
+        } else {
+            self.tracker = Tracker(
+                id: uuid,
+                title: trackerTitle,
+                color: .ypGreen,
+                emoji: "😊",
+                schedule: nil,
+                trackerType: self.eventType)
+        }
+        
+        
         
         var categories = MockData.shared.mockCategories
         
-        let newCategory = TrackerCategory(title: categoryName, trackers: [tracker])
-        categories.append(newCategory)
+        guard let tracker else { return }
         
-        MockData.shared.mockCategories = categories
+        var index = 0
+        if categories.contains(where: { $0.title == categoryName }) {
+            for category in categories {
+                if category.title == categoryName {
+                    let updated = TrackerCategory(title: categoryName, trackers: category.trackers + [tracker])
+                    categories.remove(at: index)
+                    categories.insert(updated, at: 0)
+                }
+                index += 1
+            }
+            
+            index = 0
+            
+            var newCategories = [TrackerCategory]()
+            newCategories = categories
+            
+            MockData.shared.mockCategories = newCategories
+            //print("NEW CATEGORIES ARRAY: \(newCategories)")
+            //print(MockData.shared.mockCategories)
+        } else {
+            let newCategory = TrackerCategory(title: categoryName, trackers: [tracker])
+            var newCategories = categories
+            newCategories.append(newCategory)
+            categories = newCategories
+            
+            MockData.shared.mockCategories = newCategories
+        }
         
-        //delegate?.updateTrackersCollection()
+//        let newCategory = TrackerCategory(title: categoryName, trackers: [tracker])
+//        categories.append(newCategory)
+//        
+//        MockData.shared.mockCategories = categories
+        
+        delegate?.updateTrackersCollection()
         
     }
     
@@ -267,6 +314,7 @@ class CreateEventViewController: UIViewController {
     
     @objc private func didTapCategoryButton() {
         let view = CategoriesViewController()
+        view.delegate = self
         
         present(view, animated: true)
     }
@@ -293,6 +341,12 @@ extension CreateEventViewController: ScheduleViewControllerDelegate {
         self.schedule = schedule
         //print(self.schedule)
     }
-    
-    
+}
+
+extension CreateEventViewController: CategoriesViewControllerDelegate {
+    func selectCategory(indexPath: IndexPath) {
+        
+        self.category = MockData.shared.mockCategories[indexPath.row].title
+    }
+
 }

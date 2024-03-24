@@ -7,7 +7,15 @@
 
 import UIKit
 
+protocol NewCategoryViewControllerDelegate: AnyObject {
+    func addNewCategory(name: String)
+}
+
 final class NewCategoryViewController: UIViewController {
+    
+    weak var delegate: NewCategoryViewControllerDelegate?
+    
+    private var categoryName: String?
     
     // MARK: - UI Properties
     private lazy var mainTitle: UILabel = {
@@ -24,10 +32,10 @@ final class NewCategoryViewController: UIViewController {
         let field = UITextField()
         field.placeholder = "Введите название категории"
         field.backgroundColor = .ypGrayAlpha
-        
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: field.frame.height))
         field.leftViewMode = .always
         field.layer.cornerRadius = 16
+        field.addTarget(self, action: #selector(didChangedNameField), for: .editingChanged)
         field.translatesAutoresizingMaskIntoConstraints = false
         
         return field
@@ -74,6 +82,14 @@ final class NewCategoryViewController: UIViewController {
     }
     
     @objc func didTapFinishButton() {
-        
+        guard let categoryName else {
+            return
+        }
+        delegate?.addNewCategory(name: categoryName)
+        dismiss(animated: true)
+    }
+    
+    @objc func didChangedNameField() {
+        self.categoryName = categoryNameTextField.text
     }
 }

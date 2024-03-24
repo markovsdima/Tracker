@@ -7,6 +7,10 @@
 
 import UIKit
 
+protocol CategoriesViewControllerDelegate: AnyObject {
+    func selectCategory(indexPath: IndexPath)
+}
+
 final class CategoriesViewController: UIViewController {
     
     // MARK: - UI Properties
@@ -25,8 +29,8 @@ final class CategoriesViewController: UIViewController {
         table.register(CategoriesTableViewCell.self, forCellReuseIdentifier: "CategoriesTableViewCell")
         //table.backgroundColor = .blue
         table.layer.cornerRadius = 16
-        table.allowsSelection = false
-        table.isScrollEnabled = false
+        table.allowsMultipleSelection = false
+        table.isScrollEnabled = true
         table.translatesAutoresizingMaskIntoConstraints = false
         
         return table
@@ -44,14 +48,60 @@ final class CategoriesViewController: UIViewController {
         return button
     }()
     
+    private lazy var noCategoriesYetImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = UIImage.noTrackersYet
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        return imageView
+    }()
+    
+    private lazy var noCategoriesYetLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Привычки и события можно \n объединить по смыслу"
+        label.numberOfLines = 2
+        label.textAlignment = .center
+        label.font = .systemFont(ofSize: 12, weight: .medium)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        return label
+    }()
+    
+    weak var delegate: CategoriesViewControllerDelegate?
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        MockData.shared.mockCategories = []
         view.backgroundColor = .ypWhite
         tableView.dataSource = self
         tableView.delegate = self
         configureUI()
-        //var categories = mockCategories
+        emptyCheck()
+        tableView.dataSource = self
+        tableView.delegate = self
+    }
+    
+    private func emptyCheck() {
+        if MockData.shared.mockCategories.count == 0 {
+            
+            view.addSubview(noCategoriesYetImageView)
+            
+            view.addSubview(noCategoriesYetLabel)
+            
+            noCategoriesYetImageView.layer.zPosition = 10
+            noCategoriesYetLabel.layer.zPosition = 10
+            
+            NSLayoutConstraint.activate([
+                noCategoriesYetImageView.widthAnchor.constraint(equalToConstant: 80),
+                noCategoriesYetImageView.heightAnchor.constraint(equalToConstant: 80),
+                noCategoriesYetImageView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+                noCategoriesYetImageView.topAnchor.constraint(equalTo: mainTitle.bottomAnchor, constant: 246),
+                
+                noCategoriesYetLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+                noCategoriesYetLabel.topAnchor.constraint(equalTo: noCategoriesYetImageView.bottomAnchor, constant: 8)
+                
+            ])
+        }
     }
     
     private func configureUI() {
@@ -77,6 +127,7 @@ final class CategoriesViewController: UIViewController {
     
     @objc func didTapAddCategoryButton() {
         let view = NewCategoryViewController()
+        view.delegate = self
         
         present(view, animated: true)
     }
@@ -106,5 +157,30 @@ extension CategoriesViewController: UITableViewDataSource {
 extension CategoriesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         75
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        //print(indexPath.row)
+        guard let cell = tableView.cellForRow(at: indexPath) as? CategoriesTableViewCell else { return }
+        cell.showImageForSelected(true)
+        
+        delegate?.selectCategory(indexPath: indexPath)
+    }
+    
+    func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
+        //print(indexPath.row)
+        guard let cell = tableView.cellForRow(at: indexPath) as? CategoriesTableViewCell else { return }
+        cell.showImageForSelected(false)
+    }
+}
+
+extension CategoriesViewController: NewCategoryViewControllerDelegate{
+    func addNewCategory(name: String) {
+        if MockData.shared.mockCategories.contains(where: { $0.title == name }) {
+            return
+        } else {
+            MockData.shared.mockCategories.append(TrackerCategory(title: name, trackers: []))
+            tableView.reloadData()
+        }
     }
 }
