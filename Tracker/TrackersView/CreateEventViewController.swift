@@ -110,6 +110,7 @@ class CreateEventViewController: UIViewController {
         button.layer.cornerRadius = 16
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.ypRed.cgColor
+        button.addTarget(self, action: #selector(didTapCancelButton), for: .touchUpInside)
         button.translatesAutoresizingMaskIntoConstraints = false
         
         return button
@@ -291,6 +292,14 @@ class CreateEventViewController: UIViewController {
         view.delegate = self
         
         present(view, animated: true)
+    }
+    
+    @objc private func didTapCancelButton() {
+        willDismiss?()
+        dismiss(animated: true) {
+            self.didDismiss?()
+        }
+        delegate?.dismissAnimated()
     }
     
     @objc private func didTapCreateButton() {
