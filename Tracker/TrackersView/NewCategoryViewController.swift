@@ -13,8 +13,10 @@ protocol NewCategoryViewControllerDelegate: AnyObject {
 
 final class NewCategoryViewController: UIViewController {
     
+    // MARK: - Public Properties
     weak var delegate: NewCategoryViewControllerDelegate?
     
+    // MARK: - Private Properties
     private var categoryName: String?
     
     // MARK: - UI Properties
@@ -53,6 +55,7 @@ final class NewCategoryViewController: UIViewController {
         return button
     }()
     
+    // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -60,6 +63,7 @@ final class NewCategoryViewController: UIViewController {
         configureUI()
     }
     
+    // MARK: - Private Methods
     private func configureUI() {
         view.addSubview(mainTitle)
         view.addSubview(finishButton)

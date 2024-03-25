@@ -9,15 +9,16 @@ import UIKit
 
 class TabBarViewController: UITabBarController {
     
+    // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         
         configureTabs()
     }
     
+    // MARK: - Private Methods
     private func configureTabs() {
         let vc1 = UINavigationController(rootViewController: TrackersViewController())
-        //let vc1 = TrackersViewController()
         let vc2 = StatisticsViewController()
         
         // Set Tab Images
@@ -28,14 +29,9 @@ class TabBarViewController: UITabBarController {
         vc1.tabBarItem.title = "Трекеры"
         vc2.tabBarItem.title = "Статистика"
         
-//        let tab1 = UINavigationController(rootViewController: vc1)
-//        let tab2 = UINavigationController(rootViewController: vc2)
-        
         tabBar.tintColor = UIColor.ypBlue
         tabBar.backgroundColor = UIColor.ypWhite
         
         setViewControllers([vc1, vc2], animated: true)
     }
-    
-    
 }

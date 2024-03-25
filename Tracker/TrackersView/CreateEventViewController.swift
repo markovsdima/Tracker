@@ -53,9 +53,7 @@ class CreateEventViewController: UIViewController {
         button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 0)
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
-        //button.layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         button.addTarget(self, action: #selector(didTapCategoryButton), for: .touchUpInside)
-        
         button.translatesAutoresizingMaskIntoConstraints = false
         
         return button
@@ -89,7 +87,6 @@ class CreateEventViewController: UIViewController {
         button.layer.cornerRadius = 16
         button.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         button.addTarget(self, action: #selector(didTapScheduleButton), for: .touchUpInside)
-        
         button.translatesAutoresizingMaskIntoConstraints = false
         
         return button
@@ -109,13 +106,10 @@ class CreateEventViewController: UIViewController {
         button.setTitle("Отменить", for: .normal)
         button.setTitleColor(.ypRed, for: .normal)
         button.backgroundColor = .ypWhite
-        //button.contentHorizontalAlignment = .leading
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor.ypRed.cgColor
-        
-        
         button.translatesAutoresizingMaskIntoConstraints = false
         
         return button
@@ -126,25 +120,20 @@ class CreateEventViewController: UIViewController {
         button.setTitle("Создать", for: .normal)
         button.setTitleColor(.ypWhite, for: .normal)
         button.backgroundColor = .ypGray
-        //button.contentHorizontalAlignment = .leading
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(didTapCreateButton), for: .touchUpInside)
-        
         button.translatesAutoresizingMaskIntoConstraints = false
         
         return button
     }()
     
-    
     // MARK: - Private Properties
     private var eventType: TrackerTypes
-    
     private var trackerTitle: String?
     private var category = String()
     private var schedule = [WeekDay]()
     private var tracker: Tracker?
-    
     
     // MARK: - Initializers
     init(eventType: TrackerTypes) {
@@ -161,9 +150,9 @@ class CreateEventViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
         configureUI(with: eventType)
-        //print(eventType)
     }
     
+    // MARK: - Private Methods
     private func configureUI(with type: TrackerTypes) {
         view.addSubview(mainTitle)
         view.addSubview(trackerNameTextField)
@@ -219,8 +208,6 @@ class CreateEventViewController: UIViewController {
             categoryButtonImage.heightAnchor.constraint(equalToConstant: 24),
             categoryButtonImage.widthAnchor.constraint(equalToConstant: 24),
             
-            
-            
             cancelButton.heightAnchor.constraint(equalToConstant: 60),
             cancelButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
             cancelButton.trailingAnchor.constraint(equalTo: createButton.leadingAnchor, constant: -8),
@@ -231,10 +218,6 @@ class CreateEventViewController: UIViewController {
             createButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
             createButton.widthAnchor.constraint(equalTo: cancelButton.widthAnchor)
         ])
-    }
-    
-    private func addCategory(name: String) {
-        
     }
     
     private func addTracker() {
@@ -262,8 +245,6 @@ class CreateEventViewController: UIViewController {
                 trackerType: self.eventType)
         }
         
-        
-        
         var categories = MockData.shared.mockCategories
         
         guard let tracker else { return }
@@ -285,8 +266,7 @@ class CreateEventViewController: UIViewController {
             newCategories = categories
             
             MockData.shared.mockCategories = newCategories
-            //print("NEW CATEGORIES ARRAY: \(newCategories)")
-            //print(MockData.shared.mockCategories)
+            
         } else {
             let newCategory = TrackerCategory(title: categoryName, trackers: [tracker])
             var newCategories = categories
@@ -296,13 +276,7 @@ class CreateEventViewController: UIViewController {
             MockData.shared.mockCategories = newCategories
         }
         
-//        let newCategory = TrackerCategory(title: categoryName, trackers: [tracker])
-//        categories.append(newCategory)
-//        
-//        MockData.shared.mockCategories = categories
-        
         delegate?.updateTrackersCollection()
-        
     }
     
     @objc private func didTapScheduleButton() {
@@ -331,22 +305,18 @@ class CreateEventViewController: UIViewController {
     @objc private func didChangedNameField() {
         self.trackerTitle = trackerNameTextField.text
     }
-    
-    
 }
 
-
+// MARK: - ScheduleViewControllerDelegate
 extension CreateEventViewController: ScheduleViewControllerDelegate {
     func configWeekDays(_ schedule: [WeekDay]) {
         self.schedule = schedule
-        //print(self.schedule)
     }
 }
 
+// MARK: - CategoriesViewControllerDelegate
 extension CreateEventViewController: CategoriesViewControllerDelegate {
     func selectCategory(indexPath: IndexPath) {
-        
         self.category = MockData.shared.mockCategories[indexPath.row].title
     }
-
 }

@@ -13,6 +13,13 @@ protocol ScheduleTableViewCellDelegate: AnyObject {
 
 final class ScheduleTableViewCell: UITableViewCell {
     
+    // MARK: - Public Properties
+    static let reuseIdentifier = "ScheduleTableViewCell"
+    
+    var weekDay: WeekDay?
+    
+    weak var delegate: ScheduleTableViewCellDelegate?
+    
     // MARK: - UI Properties
     lazy var cellTitle: UILabel = {
         let label = UILabel()
@@ -33,21 +40,6 @@ final class ScheduleTableViewCell: UITableViewCell {
         return switchButton
     }()
     
-    // MARK: - Public Properties
-    static let reuseIdentifier = "ScheduleTableViewCell"
-    
-    var weekDay: WeekDay?
-    
-    weak var delegate: ScheduleTableViewCellDelegate?
-   // weak var delegate: ScheduleTableViewCellDelegate?
-    
-
-//    override func prepareForReuse() {
-//        super.prepareForReuse()
-//        
-//        configureUI()
-//    }
-    
     // MARK: - Override Methods
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -58,6 +50,7 @@ final class ScheduleTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Private Methods
     private func configureUI() {
         contentView.addSubview(cellTitle)
         contentView.addSubview(switchButton)
@@ -74,7 +67,6 @@ final class ScheduleTableViewCell: UITableViewCell {
     @objc private func didTapSwitchButton(sender: UISwitch) {
         guard let weekDay else { return }
         delegate?.switchChanged(for: weekDay, enabled: sender.isOn)
-        //print(weekDay)
     }
     
     

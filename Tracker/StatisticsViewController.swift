@@ -8,8 +8,11 @@
 import UIKit
 
 class StatisticsViewController: UIViewController {
+    
+    // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
-        //view.backgroundColor = .cyan
+        view.backgroundColor = .ypWhite
     }
+    
 }

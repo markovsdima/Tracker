@@ -11,23 +11,15 @@ import UIKit
 
 class TrackersViewController: UIViewController {
     
-    
-    
-    var categories: [TrackerCategory] = MockData.shared.mockCategories
-    var filteredCategories: [TrackerCategory] = []
-    
-    var completedTrackers = Set<TrackerRecord>()
-    var currentDate = Date()
-    
+    // MARK: - Private Properties
+    private var categories: [TrackerCategory] = MockData.shared.mockCategories
+    private var filteredCategories: [TrackerCategory] = []
+    private var completedTrackers = Set<TrackerRecord>()
+    private var currentDate = Date()
     private var dataSource: UICollectionViewDiffableDataSource<TrackerCategory, Tracker>!
-    
     private var snapshot: NSDiffableDataSourceSnapshot<TrackerCategory, Tracker>?
     
-    private var categoriesObserver: NSObjectProtocol?
-    
     // MARK: - UI Properties
-    
-    
     private let collectionView: UICollectionView = {
         let layout = UICollectionViewCompositionalLayout { _, _ in
             let itemSize = NSCollectionLayoutSize(
@@ -52,7 +44,6 @@ class TrackersViewController: UIViewController {
             
             return section
         }
-        
         
         let collectionView = UICollectionView(
             frame: .zero,
@@ -131,13 +122,11 @@ class TrackersViewController: UIViewController {
         return label
     }()
     
-    
-    
     // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
-        //categories = []
+        
         configureNavBar()
         configureUI()
         setupCollectionView()
@@ -172,7 +161,6 @@ class TrackersViewController: UIViewController {
                 
                 noTrackersYetLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
                 noTrackersYetLabel.topAnchor.constraint(equalTo: noTrackersYetImageView.bottomAnchor, constant: 8)
-                
             ])
         }
     }
@@ -192,31 +180,49 @@ class TrackersViewController: UIViewController {
         dataSource = UICollectionViewDiffableDataSource<TrackerCategory, Tracker>(collectionView: collectionView) {
             (collectionView, IndexPath, ItemIdentifier) -> UICollectionViewCell? in
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: IndexPath) as! TrackersCollectionViewCell
-            cell.configure(with: ItemIdentifier)
+            let completion = self.checkForCompletionToday(id: ItemIdentifier.id)
+            let completedDaysCount = self.checkForCompletedDaysCount(id: ItemIdentifier.id)
+            cell.configure(with: ItemIdentifier, completion: completion, count: completedDaysCount, isFuture: self.checkIsFuture())
             cell.delegate = self
             
             return cell
         }
-        
+    }
+    
+    private func checkIsFuture() -> Bool {
+        if currentDate.timeIntervalSinceNow.sign == .plus {
+            return true
+        }
+        return false
+    }
+    
+    private func checkForCompletedDaysCount(id: UUID) -> Int {
+        let count = MockData.shared.mockCompletedTrackers.filter { tracker in
+            tracker.id == id
+        }.count
+        return count
+    }
+    
+    private func checkForCompletionToday(id: UUID) -> Bool {
+        if MockData.shared.mockCompletedTrackers.contains(TrackerRecord(id: id, date: currentDate)) {
+            return true
+        } else {
+            return false
+        }
     }
     
     private func configureHeader() {
         dataSource?.supplementaryViewProvider = { (collectionView: UICollectionView, kind: String, indexPath: IndexPath) -> UICollectionReusableView? in
-
+            
             let header: TrackersSectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header", for: indexPath) as! TrackersSectionHeader
-            //header.backgroundColor = .ypBlack
             
             if let section = self.snapshot?.sectionIdentifiers[indexPath.section] {
-                if section.trackers.count == 0 {
-                    print("58902790382727932523")
-                }
                 header.configure(with: section)
             }
             
             return header
         }
     }
-    
     
     private func reloadData() {
         snapshot = NSDiffableDataSourceSnapshot<TrackerCategory, Tracker>()
@@ -240,11 +246,10 @@ class TrackersViewController: UIViewController {
         searchField.translatesAutoresizingMaskIntoConstraints = false
         
         NSLayoutConstraint.activate([
-            
             searchField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 7),
             searchField.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             searchField.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            searchField.heightAnchor.constraint(equalToConstant: 36),
+            searchField.heightAnchor.constraint(equalToConstant: 36)
         ])
     }
     
@@ -257,7 +262,7 @@ class TrackersViewController: UIViewController {
                 guard let schedule = tracker.schedule else {
                     return true
                 }
-
+                
                 return schedule.contains { weekDay in
                     weekDay.rawValue == selectedWeekDay
                 }
@@ -270,113 +275,44 @@ class TrackersViewController: UIViewController {
             return TrackerCategory(title: category.title, trackers: filteredTrackers)
         }
         
-        //print(filteredCategories)
-        
         reloadData()
     }
-    
-    
-    
     
     @objc private func didTapAddTrackerButton() {
         let view = CreateTrackerViewController()
         view.delegate = self
-        //categories = MockData.shared.mockCategories2forTest
-        //filterCategoriesByWeekDay()
+        
         present(view, animated: true)
     }
     
     @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
         currentDate = sender.date
         filterCategoriesByWeekDay()
+        collectionView.reloadData()
     }
-    
-    
     
 }
 
+// MARK: - TrackersCollectionViewCellDelegate
 extension TrackersViewController: TrackersCollectionViewCellDelegate {
-    func changeTrackerCompletionState() {
-        print("State has been changed")
+    func changeTrackerCompletionState(id: UUID) {
+        if MockData.shared.mockCompletedTrackers.contains(TrackerRecord(id: id, date: currentDate)) {
+            MockData.shared.mockCompletedTrackers.remove(TrackerRecord(id: id, date: currentDate))
+            completedTrackers = MockData.shared.mockCompletedTrackers
+        } else {
+            MockData.shared.mockCompletedTrackers.insert(TrackerRecord(id: id, date: currentDate))
+            completedTrackers = MockData.shared.mockCompletedTrackers
+        }
     }
-    
 }
 
+// MARK: - CreateTrackerViewControllerDelegate
 extension TrackersViewController: CreateTrackerViewControllerDelegate {
-    
     func updateTrackersCollection() {
         categories = MockData.shared.mockCategories
-        print("second array\(categories)")
         filterCategoriesByWeekDay()
     }
-    
-    
 }
-
-// MARK: Collection Data Source
-/*
- extension TrackersViewController: UICollectionViewDataSource {
- 
- 
- 
- /*
-  func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-  3
-  }
-  
-  func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-  let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: indexPath) as! TrackersCollectionViewCell
-  
-  return cell
-  }
-  */
- 
- }
- */
-
-
-//extension TrackersViewController {
-//
-//
-//    private func createLayout() -> UICollectionViewLayout {
-//        // section -> groups -> items -> size
-//        let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1/2), heightDimension: .fractionalHeight(1.0))
-//
-//        let item = NSCollectionLayoutItem(layoutSize: itemSize)
-//        let groupSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(0.2))
-//        let group = NSCollectionLayoutGroup.horizontal(layoutSize: groupSize, subitems: [item])
-//        let section = NSCollectionLayoutSection(group: group)
-//
-//        let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(200))
-//        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: sectionHeaderSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
-//        section.boundarySupplementaryItems = [sectionHeader]
-//        let layout = UICollectionViewCompositionalLayout(section: section)
-//        return layout
-//    }
-//}
-
-
-
-// MARK: Collection Delegate
-/*
- extension TrackersViewController: UICollectionViewDelegateFlowLayout {
- func collectionView(
- _ collectionView: UICollectionView,
- layout collectionViewLayout: UICollectionViewLayout,
- sizeForItemAt indexPath: IndexPath
- ) -> CGSize {
- return CGSize(width: collectionView.bounds.width / 2, height: 148)
- }
- 
- func collectionView(
- _ collectionView: UICollectionView,
- layout collectionViewLayout: UICollectionViewLayout,
- minimumInteritemSpacingForSectionAt section: Int
- ) -> CGFloat {
- return 0
- }
- }
- */
 
 // MARK: - SwiftUI Preview
 import SwiftUI
@@ -392,8 +328,6 @@ struct FlowProvider: PreviewProvider {
             return tabBar
         }
         
-        func updateUIViewController(_ uiViewController: FlowProvider.ContainerView.UIViewControllerType, context: UIViewControllerRepresentableContext<FlowProvider.ContainerView>) {
-            
-        }
+        func updateUIViewController(_ uiViewController: FlowProvider.ContainerView.UIViewControllerType, context: UIViewControllerRepresentableContext<FlowProvider.ContainerView>) { }
     }
 }

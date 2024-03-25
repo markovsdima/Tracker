@@ -13,6 +13,7 @@ protocol CreateTrackerViewControllerDelegate: AnyObject {
 
 class CreateTrackerViewController: UIViewController {
     
+    // MARK: - Public Properties
     weak var delegate: CreateTrackerViewControllerDelegate?
     
     // MARK: - UI Properties
@@ -57,13 +58,16 @@ class CreateTrackerViewController: UIViewController {
         configureUI()
     }
     
-    func configureUI() {
+    // MARK: - Private Methods
+    private func configureUI() {
         view.addSubview(titleLabel)
         view.addSubview(regularEvent)
         view.addSubview(oneTimeEvent)
+        
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 27),
             titleLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+            
             regularEvent.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 295),
             regularEvent.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             regularEvent.heightAnchor.constraint(equalToConstant: 60),
@@ -106,7 +110,7 @@ class CreateTrackerViewController: UIViewController {
     
 }
 
-
+// MARK: - CreateEventViewControllerDelegate
 extension CreateTrackerViewController: CreateEventViewControllerDelegate {
     func dismissAnimated() {
         dismiss(animated: true) {

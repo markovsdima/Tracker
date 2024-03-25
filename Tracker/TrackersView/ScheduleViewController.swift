@@ -12,6 +12,12 @@ protocol ScheduleViewControllerDelegate: AnyObject {
 }
 
 final class ScheduleViewController: UIViewController {
+    // MARK: - Public Properties
+    weak var delegate: ScheduleViewControllerDelegate?
+    
+    // MARK: - Private Properties
+    private var weekDaysNames = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
+    private var selectedWeekDays = [WeekDay]()
     
     // MARK: - UI Properties
     private lazy var mainTitle: UILabel = {
@@ -48,40 +54,26 @@ final class ScheduleViewController: UIViewController {
         return button
     }()
     
-    private var weekDaysNames = ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота", "Воскресенье"]
-    
-    private var selectedWeekDays = [WeekDay]()
-    
-    weak var delegate: ScheduleViewControllerDelegate?
-    
-    
-    
     // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
         tableView.dataSource = self
         tableView.delegate = self
-        
         configureUI()
-        
-            //tableView.register(ScheduleTableViewCell.self, forCellReuseIdentifier: "ScheduleTableViewCell")
     }
     
+    // MARK: - Private Methods
     private func configureUI() {
         view.addSubview(mainTitle)
         view.addSubview(tableView)
         view.addSubview(finishButton)
-        
-        
-        //tableView.backgroundColor = .black
         
         NSLayoutConstraint.activate([
             mainTitle.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor,constant: 27),
             mainTitle.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             
             tableView.topAnchor.constraint(equalTo: mainTitle.bottomAnchor, constant: 38),
-            //tableView.bottomAnchor.constraint(equalTo: finishButton.topAnchor, constant: -39),
             tableView.heightAnchor.constraint(equalToConstant: 524),
             tableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
             tableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
@@ -92,7 +84,6 @@ final class ScheduleViewController: UIViewController {
             finishButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
         ])
     }
-    
     
     @objc private func didTapFinishButton() {
         delegate?.configWeekDays(selectedWeekDays)
@@ -108,7 +99,6 @@ extension ScheduleViewController: UITableViewDataSource {
         
         cell.delegate = self
         cell.cellTitle.text = weekDaysNames[indexPath.row]
-        //cell.backgroundColor = .ypBlue
         cell.selectionStyle = .none
         cell.backgroundColor = .ypGrayAlpha
         cell.weekDay = WeekDay.allCases[indexPath.row]
@@ -127,6 +117,7 @@ extension ScheduleViewController: UITableViewDelegate {
     }
 }
 
+// MARK: - ScheduleTableViewCellDelegate
 extension ScheduleViewController: ScheduleTableViewCellDelegate {
     func switchChanged(for day: WeekDay, enabled: Bool) {
         if enabled == true {
@@ -134,8 +125,5 @@ extension ScheduleViewController: ScheduleTableViewCellDelegate {
         } else {
             selectedWeekDays.removeAll { $0 == day }
         }
-        //print(selectedWeekDays)
     }
-    
-    
 }

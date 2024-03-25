@@ -13,6 +13,9 @@ protocol CategoriesViewControllerDelegate: AnyObject {
 
 final class CategoriesViewController: UIViewController {
     
+    // MARK: - Public Properties
+    weak var delegate: CategoriesViewControllerDelegate?
+    
     // MARK: - UI Properties
     private lazy var mainTitle: UILabel = {
         let label = UILabel()
@@ -27,7 +30,6 @@ final class CategoriesViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let table = UITableView()
         table.register(CategoriesTableViewCell.self, forCellReuseIdentifier: "CategoriesTableViewCell")
-        //table.backgroundColor = .blue
         table.layer.cornerRadius = 16
         table.allowsMultipleSelection = false
         table.isScrollEnabled = true
@@ -67,11 +69,10 @@ final class CategoriesViewController: UIViewController {
         return label
     }()
     
-    weak var delegate: CategoriesViewControllerDelegate?
-    
+    // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
-        MockData.shared.mockCategories = []
+        
         view.backgroundColor = .ypWhite
         tableView.dataSource = self
         tableView.delegate = self
@@ -81,11 +82,11 @@ final class CategoriesViewController: UIViewController {
         tableView.delegate = self
     }
     
+    // MARK: - Private Methods
     private func emptyCheck() {
         if MockData.shared.mockCategories.count == 0 {
             
             view.addSubview(noCategoriesYetImageView)
-            
             view.addSubview(noCategoriesYetLabel)
             
             noCategoriesYetImageView.layer.zPosition = 10
@@ -99,7 +100,6 @@ final class CategoriesViewController: UIViewController {
                 
                 noCategoriesYetLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
                 noCategoriesYetLabel.topAnchor.constraint(equalTo: noCategoriesYetImageView.bottomAnchor, constant: 8)
-                
             ])
         }
     }
@@ -125,13 +125,12 @@ final class CategoriesViewController: UIViewController {
         ])
     }
     
-    @objc func didTapAddCategoryButton() {
+    @objc private func didTapAddCategoryButton() {
         let view = NewCategoryViewController()
         view.delegate = self
         
         present(view, animated: true)
     }
-    
 }
 
 // MARK: - Table View Methods
@@ -140,9 +139,7 @@ extension CategoriesViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: CategoriesTableViewCell.reuseIdentifier, for: indexPath)
         guard let cell = cell as? CategoriesTableViewCell else { return UITableViewCell() }
         
-        
         cell.cellTitle.text = MockData.shared.mockCategories[indexPath.row].title
-        //cell.backgroundColor = .ypBlue
         cell.selectionStyle = .none
         cell.backgroundColor = .ypGrayAlpha
         
@@ -160,7 +157,6 @@ extension CategoriesViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //print(indexPath.row)
         guard let cell = tableView.cellForRow(at: indexPath) as? CategoriesTableViewCell else { return }
         cell.showImageForSelected(true)
         
@@ -168,12 +164,12 @@ extension CategoriesViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {
-        //print(indexPath.row)
         guard let cell = tableView.cellForRow(at: indexPath) as? CategoriesTableViewCell else { return }
         cell.showImageForSelected(false)
     }
 }
 
+// MARK: - NewCategoryViewControllerDelegate
 extension CategoriesViewController: NewCategoryViewControllerDelegate{
     func addNewCategory(name: String) {
         if MockData.shared.mockCategories.contains(where: { $0.title == name }) {

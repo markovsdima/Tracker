@@ -9,6 +9,9 @@ import UIKit
 
 final class CategoriesTableViewCell: UITableViewCell {
     
+    // MARK: - Public Properties
+    static let reuseIdentifier = "CategoriesTableViewCell"
+    
     // MARK: - UI Properties
     lazy var cellTitle: UILabel = {
         let label = UILabel()
@@ -28,17 +31,6 @@ final class CategoriesTableViewCell: UITableViewCell {
         return image
     }()
     
-    // MARK: - Public Properties
-    static let reuseIdentifier = "CategoriesTableViewCell"
-   // weak var delegate: ScheduleTableViewCellDelegate?
-    
-
-//    override func prepareForReuse() {
-//        super.prepareForReuse()
-//
-//        configureUI()
-//    }
-    
     // MARK: - Override Methods
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -50,6 +42,12 @@ final class CategoriesTableViewCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Public Methods
+    func showImageForSelected(_ isHidden: Bool) {
+        selectedImage.isHidden = !isHidden
+    }
+    
+    // MARK: - Private Methods
     private func configureUI() {
         contentView.addSubview(cellTitle)
         contentView.addSubview(selectedImage)
@@ -62,12 +60,6 @@ final class CategoriesTableViewCell: UITableViewCell {
             selectedImage.widthAnchor.constraint(equalToConstant: 24),
             selectedImage.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             selectedImage.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16)
-            
         ])
     }
-    
-    func showImageForSelected(_ isHidden: Bool) {
-        selectedImage.isHidden = !isHidden
-    }
 }
-

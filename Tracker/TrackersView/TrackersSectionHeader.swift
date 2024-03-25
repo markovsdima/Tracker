@@ -8,12 +8,13 @@
 import UIKit
 
 class TrackersSectionHeader: UICollectionReusableView {
+    
+    // MARK: - Public Properties
     let titleLabel = UILabel()
     
+    // MARK: - Initializers
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
-        //backgroundColor = .blue
         
         addSubview(titleLabel)
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -31,6 +32,7 @@ class TrackersSectionHeader: UICollectionReusableView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    // MARK: - Public Methods
     func configure(with section: TrackerCategory) {
         titleLabel.text = section.title
     }
