@@ -85,9 +85,9 @@ class CreateTrackerViewController: UIViewController {
     @objc private func didTapRegularEvent() {
         let view = CreateEventViewController(eventType: .regularEvent)
         view.delegate = self
-        view.willDismiss = {
-            self.view.isHidden = true
-        }
+        //        view.willDismiss = {
+        //            self.view.isHidden = true
+        //        }
         view.didDismiss = {
             self.dismiss(animated: false)
         }

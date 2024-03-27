@@ -79,6 +79,7 @@ class CreateEventViewController: UIViewController {
     private lazy var scheduleButton: UIButton = {
         let button = UIButton()
         button.setTitle("Расписание", for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .regular)
         button.setTitleColor(.ypBlack, for: .normal)
         button.backgroundColor = .ypGrayAlpha
         button.contentHorizontalAlignment = .leading
@@ -90,6 +91,16 @@ class CreateEventViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         
         return button
+    }()
+    
+    private lazy var scheduleButtonSubtitle: UILabel = {
+        let label = UILabel()
+        label.text = "Дни недели"
+        label.font = .systemFont(ofSize: 17, weight: .regular)
+        label.textColor = .ypGray
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        return label
     }()
     
     private lazy var scheduleButtonImage: UIImageView = {
@@ -124,6 +135,7 @@ class CreateEventViewController: UIViewController {
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(didTapCreateButton), for: .touchUpInside)
+        button.isEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         
         return button
@@ -131,7 +143,7 @@ class CreateEventViewController: UIViewController {
     
     // MARK: - Private Properties
     private var eventType: TrackerTypes
-    private var trackerTitle: String?
+    private var trackerTitle: String? = ""
     private var category = String()
     private var schedule = [WeekDay]()
     private var tracker: Tracker?
@@ -150,6 +162,7 @@ class CreateEventViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
+        self.hideKeyboardWhenTappedAround()
         configureUI(with: eventType)
     }
     
@@ -221,6 +234,41 @@ class CreateEventViewController: UIViewController {
         ])
     }
     
+    private func createScheduleDaysText() -> String {
+        if schedule == [] {
+            return ""
+        }
+        let daysShortNames = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"]
+        var daysSelected = [String]()
+        for day in schedule {
+            daysSelected.append(daysShortNames[(day.rawValue) - 1])
+        }
+        if daysSelected.count == 7 {
+            return "Каждый день"
+        }
+        
+        return daysSelected.joined(separator: ", ")
+    }
+    
+    private func updateScheduleButtonSubtitle() {
+        let text = createScheduleDaysText()
+        if text.isEmpty {
+            scheduleButtonSubtitle.isHidden = true
+            scheduleButton.titleEdgeInsets.top = 0
+        } else {
+            scheduleButton.addSubview(scheduleButtonSubtitle)
+            scheduleButton.titleEdgeInsets = UIEdgeInsets(top: -24, left: 16, bottom: 0, right: 0)
+            scheduleButtonSubtitle.text = text
+            scheduleButtonSubtitle.isHidden = false
+            
+            NSLayoutConstraint.activate([
+                scheduleButtonSubtitle.bottomAnchor.constraint(equalTo: scheduleButton.bottomAnchor, constant: -16),
+                scheduleButtonSubtitle.leadingAnchor.constraint(equalTo: scheduleButton.leadingAnchor, constant: 16),
+                scheduleButtonSubtitle.heightAnchor.constraint(equalToConstant: 22)
+            ])
+        }
+    }
+    
     private func addTracker() {
         let uuid = UUID()
         
@@ -280,6 +328,26 @@ class CreateEventViewController: UIViewController {
         delegate?.updateTrackersCollection()
     }
     
+    private func updateCreateButton() {
+        if eventType == .regularEvent {
+            if trackerTitle != "" && category != "" && schedule != [] {
+                createButton.isEnabled = true
+                createButton.backgroundColor = .ypBlack
+            } else {
+                createButton.isEnabled = false
+                createButton.backgroundColor = .ypGray
+            }
+        } else {
+            if trackerTitle != "" && category != "" {
+                createButton.isEnabled = true
+                createButton.backgroundColor = .ypBlack
+            } else {
+                createButton.isEnabled = false
+                createButton.backgroundColor = .ypGray
+            }
+        }
+    }
+    
     @objc private func didTapScheduleButton() {
         let view = ScheduleViewController()
         view.delegate = self
@@ -313,6 +381,7 @@ class CreateEventViewController: UIViewController {
     
     @objc private func didChangedNameField() {
         self.trackerTitle = trackerNameTextField.text
+        updateCreateButton()
     }
 }
 
@@ -320,6 +389,8 @@ class CreateEventViewController: UIViewController {
 extension CreateEventViewController: ScheduleViewControllerDelegate {
     func configWeekDays(_ schedule: [WeekDay]) {
         self.schedule = schedule
+        self.updateScheduleButtonSubtitle()
+        self.updateCreateButton()
     }
 }
 
@@ -327,5 +398,6 @@ extension CreateEventViewController: ScheduleViewControllerDelegate {
 extension CreateEventViewController: CategoriesViewControllerDelegate {
     func selectCategory(indexPath: IndexPath) {
         self.category = MockData.shared.mockCategories[indexPath.row].title
+        self.updateCreateButton()
     }
 }

@@ -18,20 +18,20 @@ class TabBarViewController: UITabBarController {
     
     // MARK: - Private Methods
     private func configureTabs() {
-        let vc1 = UINavigationController(rootViewController: TrackersViewController())
-        let vc2 = StatisticsViewController()
+        let trackersViewController = UINavigationController(rootViewController: TrackersViewController())
+        let statisticsViewController = StatisticsViewController()
         
         // Set Tab Images
-        vc1.tabBarItem.image = UIImage(named: "Trackers Tab Icon")
-        vc2.tabBarItem.image = UIImage(named: "Statistics Tab Icon")
+        trackersViewController.tabBarItem.image = UIImage(named: "Trackers Tab Icon")
+        statisticsViewController.tabBarItem.image = UIImage(named: "Statistics Tab Icon")
         
         // Set Titles
-        vc1.tabBarItem.title = "Трекеры"
-        vc2.tabBarItem.title = "Статистика"
+        trackersViewController.tabBarItem.title = "Трекеры"
+        statisticsViewController.tabBarItem.title = "Статистика"
         
         tabBar.tintColor = UIColor.ypBlue
         tabBar.backgroundColor = UIColor.ypWhite
         
-        setViewControllers([vc1, vc2], animated: true)
+        setViewControllers([trackersViewController, statisticsViewController], animated: true)
     }
 }

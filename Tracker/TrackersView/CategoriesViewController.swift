@@ -161,6 +161,7 @@ extension CategoriesViewController: UITableViewDelegate {
         cell.showImageForSelected(true)
         
         delegate?.selectCategory(indexPath: indexPath)
+        dismiss(animated: true)
     }
     
     func tableView(_ tableView: UITableView, didDeselectRowAt indexPath: IndexPath) {

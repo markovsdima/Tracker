@@ -58,8 +58,9 @@ final class NewCategoryViewController: UIViewController {
     // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         view.backgroundColor = .ypWhite
+        self.hideKeyboardWhenTappedAround()
+        
         configureUI()
     }
     
