@@ -5,9 +5,8 @@
 //  Created by Dmitry Markovskiy on 10.02.2024.
 //
 
+import CoreData
 import UIKit
-
-
 
 class TrackersViewController: UIViewController {
     
@@ -18,6 +17,7 @@ class TrackersViewController: UIViewController {
     private var currentDate = Date()
     private var dataSource: UICollectionViewDiffableDataSource<TrackerCategory, Tracker>!
     private var snapshot: NSDiffableDataSourceSnapshot<TrackerCategory, Tracker>?
+    private var coreDataManager = CoreDataManager.shared
     
     // MARK: - UI Properties
     private let collectionView: UICollectionView = {
