@@ -26,6 +26,8 @@
 		328C0EE52BB50149006ECD5B /* TrackerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328C0EE42BB50149006ECD5B /* TrackerStore.swift */; };
 		328C0EE72BB5015E006ECD5B /* TrackerCategoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328C0EE62BB5015E006ECD5B /* TrackerCategoryStore.swift */; };
 		328C0EE92BB50176006ECD5B /* TrackerRecordStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328C0EE82BB50176006ECD5B /* TrackerRecordStore.swift */; };
+		328C0F112BB67498006ECD5B /* TrackerCoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328C0F102BB67498006ECD5B /* TrackerCoreDataProperties.swift */; };
+		328C0F132BB67815006ECD5B /* UIColorTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328C0F122BB67815006ECD5B /* UIColorTransformer.swift */; };
 		32D7D1442B76E89B00D1FBF1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D7D1432B76E89B00D1FBF1 /* AppDelegate.swift */; };
 		32D7D1482B76E89B00D1FBF1 /* TrackersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D7D1472B76E89B00D1FBF1 /* TrackersViewController.swift */; };
 		32D7D14D2B76E89C00D1FBF1 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 32D7D14C2B76E89C00D1FBF1 /* Assets.xcassets */; };
@@ -54,6 +56,8 @@
 		328C0EE42BB50149006ECD5B /* TrackerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerStore.swift; sourceTree = "<group>"; };
 		328C0EE62BB5015E006ECD5B /* TrackerCategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCategoryStore.swift; sourceTree = "<group>"; };
 		328C0EE82BB50176006ECD5B /* TrackerRecordStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerRecordStore.swift; sourceTree = "<group>"; };
+		328C0F102BB67498006ECD5B /* TrackerCoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCoreDataProperties.swift; sourceTree = "<group>"; };
+		328C0F122BB67815006ECD5B /* UIColorTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorTransformer.swift; sourceTree = "<group>"; };
 		32D7D1402B76E89B00D1FBF1 /* Tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		32D7D1432B76E89B00D1FBF1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		32D7D1472B76E89B00D1FBF1 /* TrackersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackersViewController.swift; sourceTree = "<group>"; };
@@ -117,6 +121,8 @@
 				328C0EE42BB50149006ECD5B /* TrackerStore.swift */,
 				328C0EE62BB5015E006ECD5B /* TrackerCategoryStore.swift */,
 				328C0EE82BB50176006ECD5B /* TrackerRecordStore.swift */,
+				328C0F102BB67498006ECD5B /* TrackerCoreDataProperties.swift */,
+				328C0F122BB67815006ECD5B /* UIColorTransformer.swift */,
 			);
 			path = Domain;
 			sourceTree = "<group>";
@@ -245,6 +251,7 @@
 				321C38BF2BAA8FFF00F86B02 /* ScheduleViewController.swift in Sources */,
 				321C38C62BABBBBD00F86B02 /* NewCategoryViewController.swift in Sources */,
 				321C38EE2BB2585D00F86B02 /* Tracker.xcdatamodeld in Sources */,
+				328C0F132BB67815006ECD5B /* UIColorTransformer.swift in Sources */,
 				328C0EE92BB50176006ECD5B /* TrackerRecordStore.swift in Sources */,
 				321C38AC2B7C912100F86B02 /* Tracker.swift in Sources */,
 				321C38B02B7C94F700F86B02 /* TrackerRecord.swift in Sources */,
@@ -256,6 +263,7 @@
 				321C38BB2B9A3C2500F86B02 /* CreateTrackerViewController.swift in Sources */,
 				321C38B92B98E93700F86B02 /* TrackersSectionHeader.swift in Sources */,
 				321C38C12BAA950A00F86B02 /* ScheduleTableViewCell.swift in Sources */,
+				328C0F112BB67498006ECD5B /* TrackerCoreDataProperties.swift in Sources */,
 				32D7D1442B76E89B00D1FBF1 /* AppDelegate.swift in Sources */,
 				328C0EE72BB5015E006ECD5B /* TrackerCategoryStore.swift in Sources */,
 				328C0EE52BB50149006ECD5B /* TrackerStore.swift in Sources */,

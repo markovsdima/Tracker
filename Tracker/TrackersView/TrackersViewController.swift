@@ -11,13 +11,13 @@ import UIKit
 class TrackersViewController: UIViewController {
     
     // MARK: - Private Properties
-    private var categories: [TrackerCategory] = MockData.shared.mockCategories
+    private var categories: [TrackerCategory] = TrackerCategoryStore.shared.trackerCategories
     private var filteredCategories: [TrackerCategory] = []
     private var completedTrackers = Set<TrackerRecord>()
     private var currentDate = Date()
     private var dataSource: UICollectionViewDiffableDataSource<TrackerCategory, Tracker>!
     private var snapshot: NSDiffableDataSourceSnapshot<TrackerCategory, Tracker>?
-    private var coreDataManager = CoreDataManager.shared
+    //private var coreDataManager = CoreDataManager.shared
     
     // MARK: - UI Properties
     private let collectionView: UICollectionView = {

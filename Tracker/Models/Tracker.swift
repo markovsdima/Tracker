@@ -24,6 +24,27 @@ enum WeekDay: Int, Hashable, CaseIterable {
     case friday = 6
     case saturday = 7
     case sunday = 1
+    
+    static func convertScheduleToString(_ weekDays: [WeekDay]?) -> String? {
+        guard let weekDays else { return nil }
+        var scheduleString = ""
+        for day in weekDays {
+            scheduleString.append(contentsOf: "\(day.rawValue),")
+        }
+        
+        return scheduleString
+    }
+    
+    static func getScheduleFromString(daysString: String) -> [WeekDay] {
+        var schedule = [WeekDay]()
+        let weekDaysStringArray = daysString.split(separator: ",")
+        for index in weekDaysStringArray {
+            guard let weekDay = WeekDay(rawValue: Int(index)!) else { return schedule }
+            schedule.append(weekDay)
+        }
+        
+        return schedule
+    }
 }
 
 enum TrackerTypes: String {
@@ -36,6 +57,22 @@ enum TrackerTypes: String {
             return "Новое нерегулярное событие"
         case .regularEvent:
             return "Новая привычка"
+        }
+    }
+    
+    static func convertTrackerTypeToInt(trackerType: TrackerTypes) -> Int {
+        if trackerType == .oneTimeEvent {
+            return 1
+        } else {
+            return 7
+        }
+    }
+    
+    static func getTrackerTypeFromInt(integer16: Int16) -> TrackerTypes {
+        if integer16 == 1 {
+            return TrackerTypes.oneTimeEvent
+        } else {
+            return TrackerTypes.regularEvent
         }
     }
 }

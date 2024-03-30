@@ -14,6 +14,8 @@ final class MockData {
     
     static let didChangeNotification = Notification.Name("CategoriesDidChange")
     
+    
+    
     var mockCategories: [TrackerCategory] = [
         TrackerCategory(
             title: "Космос",

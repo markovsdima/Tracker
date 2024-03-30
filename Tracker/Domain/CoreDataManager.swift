@@ -9,21 +9,22 @@ import CoreData
 import UIKit
 
 // MARK: CRUD
-public final class CoreDataManager: NSObject {
-    public static let shared = CoreDataManager()
-    private override init() { }
-    
-    private var appDelegate: AppDelegate {
-        UIApplication.shared.delegate as! AppDelegate
-    }
-    
-    private var context: NSManagedObjectContext {
-        appDelegate.persistentContainer.viewContext
-    }
-    
-    func getTracker() -> TrackerCoreData {
-        let tracker = TrackerCoreData(context: context)
-        return tracker
-    }
-    
-}
+
+//public final class CoreDataManager: NSObject {
+//    public static let shared = CoreDataManager()
+//    private override init() { }
+//    
+//    private var appDelegate: AppDelegate {
+//        UIApplication.shared.delegate as! AppDelegate
+//    }
+//    
+//    private var context: NSManagedObjectContext {
+//        appDelegate.persistentContainer.viewContext
+//    }
+//    
+//    func getTracker() -> TrackerCoreData {
+//        let tracker = TrackerCoreData(context: context)
+//        return tracker
+//    }
+//    
+//}
