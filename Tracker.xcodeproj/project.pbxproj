@@ -156,6 +156,7 @@
 			children = (
 				321C38AA2B7C90D300F86B02 /* Models */,
 				321C38B52B94AB7000F86B02 /* TrackersView */,
+				328C0EE22BB500FC006ECD5B /* Domain */,
 				32D7D1592B770D4900D1FBF1 /* TabBarViewController.swift */,
 				32D7D1572B770BF700D1FBF1 /* StatisticsViewController.swift */,
 				32D7D1432B76E89B00D1FBF1 /* AppDelegate.swift */,
@@ -164,7 +165,6 @@
 				32D7D14E2B76E89C00D1FBF1 /* LaunchScreen.storyboard */,
 				32D7D1512B76E89C00D1FBF1 /* Info.plist */,
 				321C38B62B98AA3D00F86B02 /* MockData.swift */,
-				328C0EE22BB500FC006ECD5B /* Domain */,
 				328C0EE32BB50114006ECD5B /* CoreData */,
 			);
 			path = Tracker;

@@ -12,6 +12,7 @@ private enum TrackerCategoryStoreError: Error {
     case decodingErrorInvalidTitle
     case decodingErrorInvalidTrackers
     case trackerMappingFailed
+    case getTrackerCategoriesFromCoreDataError
 }
 
 final class TrackerCategoryStore: NSObject {
@@ -28,8 +29,9 @@ final class TrackerCategoryStore: NSObject {
         appDelegate.persistentContainer.viewContext
     }
     
-    private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCategoryCoreData> = {
+    lazy var fetchedResultsController: NSFetchedResultsController<TrackerCategoryCoreData> = {
         let fetchRequest = TrackerCategoryCoreData.fetchRequest()
+        //let fetchRequest = NSFetchRequest<TrackerCategoryCoreData>(entityName: "TrackerCategoryCoreData")
         
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \TrackerCategoryCoreData.title, ascending: true)]
         
@@ -45,14 +47,29 @@ final class TrackerCategoryStore: NSObject {
         return controller
     }()
     
-    var trackerCategories: [TrackerCategory] {
-        guard
-            let objects = self.fetchedResultsController.fetchedObjects,
-            let trackerCategories = try? objects.map({ try self.trackerCategory(from: $0)})
-        else { return [TrackerCategory]() }
-        return trackerCategories
+    var categories = [TrackerCategory]()
+    
+//    var trackerCategories: [TrackerCategory] {
+//        guard
+//            let objects = self.fetchedResultsController.fetchedObjects,
+//            let trackerCategories = try? objects.map({ try self.trackerCategory(from: $0)})
+//        else { return [TrackerCategory]() }
+//        return trackerCategories
+//    }
+    
+    func getTrackerCategories() throws -> [TrackerCategory] {
+        guard let objects = fetchedResultsController.fetchedObjects else {
+            throw TrackerCategoryStoreError.getTrackerCategoriesFromCoreDataError
+        }
+        let categories = try objects.map {
+            try trackerCategory(from: $0)
+            //print("123")
+        }
+        return categories
     }
     
+    
+    // Circle !!!
     func trackerCategory(from trackerCategoriesCoreData: TrackerCategoryCoreData) throws -> TrackerCategory {
         guard let title = trackerCategoriesCoreData.title else {
             throw TrackerCategoryStoreError.decodingErrorInvalidTitle
@@ -72,7 +89,45 @@ final class TrackerCategoryStore: NSObject {
         return TrackerCategory(title: title, trackers: trackers)
     }
     
-    func addTrackerCategorie(title: String) throws {
+//    func addTrackerCategory(_ category: TrackerCategory) throws {
+//        let trackerCoreData = try trackerStore.addTracker(category.trackers[0], to: category)
+//        let categoryCoreData = TrackerCategoryCoreData(context: context)
+//        categoryCoreData.title = category.title
+//        categoryCoreData.trackers = category.trackers
+//        appDelegate.saveContext()
+//    }
+    
+    func AddCategory(title: String) {
+        //check unique
+        let categoryCoreData = TrackerCategoryCoreData(context: context)
+        categoryCoreData.title = title
+        categoryCoreData.trackers = NSSet()
+        appDelegate.saveContext()
+    }
+    
+    func newCategory(title: String) throws -> TrackerCategoryCoreData? {
+        var trackerCategoryCoreData: TrackerCategoryCoreData?
+        
+        if let categories = fetchedResultsController.fetchedObjects {
+            categories.forEach { category in
+                if category.title == title {
+                    trackerCategoryCoreData = category
+                }
+            }
+        }
+        return trackerCategoryCoreData
+        
+        /*
+        let request = TrackerCategoryCoreData.fetchRequest()
+        request.predicate = NSPredicate(
+            format: "%K = %@",
+            #keyPath(TrackerCategoryCoreData.title), title
+        )
+        guard let categoryCoreData = try context.fetch(request).first else {
+            throw TrackerCategoryStoreError.trackerMappingFailed
+        }
+        return categoryCoreData
+        */
         
     }
     

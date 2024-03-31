@@ -11,13 +11,15 @@ import UIKit
 class TrackersViewController: UIViewController {
     
     // MARK: - Private Properties
-    private var categories: [TrackerCategory] = TrackerCategoryStore.shared.trackerCategories
+    private var categories: [TrackerCategory] = MockData.shared.mockCategories
     private var filteredCategories: [TrackerCategory] = []
     private var completedTrackers = Set<TrackerRecord>()
     private var currentDate = Date()
     private var dataSource: UICollectionViewDiffableDataSource<TrackerCategory, Tracker>!
     private var snapshot: NSDiffableDataSourceSnapshot<TrackerCategory, Tracker>?
     //private var coreDataManager = CoreDataManager.shared
+    private var trackerStore = TrackerStore.shared
+    private var trackerCategoryStore = TrackerCategoryStore.shared
     
     // MARK: - UI Properties
     private let collectionView: UICollectionView = {
@@ -128,12 +130,20 @@ class TrackersViewController: UIViewController {
         view.backgroundColor = .ypWhite
         self.hideKeyboardWhenTappedAround()
         
+        trackerStore.delegate = self
         configureNavBar()
         configureUI()
         setupCollectionView()
         setupDataSource()
         configureHeader()
-        filterCategoriesByWeekDay()
+        
+        do {
+            try filterCategoriesByWeekDay()
+        } catch {
+            print("filterCategoriesByWeekDayWhenViewDidLoadError")
+        }
+        
+        
         
         collectionView.register(TrackersCollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
         collectionView.register(TrackersSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
@@ -180,6 +190,9 @@ class TrackersViewController: UIViewController {
     private func setupDataSource() {
         dataSource = UICollectionViewDiffableDataSource<TrackerCategory, Tracker>(collectionView: collectionView) {
             (collectionView, IndexPath, ItemIdentifier) -> UICollectionViewCell? in
+            
+            //let trackerCategoryCoreData = self.trackerCategoryStore.fetchedResultsController.object(at: IndexPath)
+            
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: IndexPath) as! TrackersCollectionViewCell
             let completion = self.checkForCompletionToday(id: ItemIdentifier.id)
             let completedDaysCount = self.checkForCompletedDaysCount(id: ItemIdentifier.id)
@@ -254,30 +267,58 @@ class TrackersViewController: UIViewController {
         ])
     }
     
-    private func filterCategoriesByWeekDay() {
+    private func filterCategoriesByWeekDay() throws {
         let selectedWeekDay = Calendar.current.component(.weekday, from: datePicker.date)
-        
-        filteredCategories = categories.compactMap { category in
-            
-            let filteredTrackers = category.trackers.filter { tracker in
-                guard let schedule = tracker.schedule else {
-                    return true
-                }
-                
-                return schedule.contains { weekDay in
-                    weekDay.rawValue == selectedWeekDay
-                }
-            }
-            
-            if filteredTrackers.isEmpty {
-                return nil
-            }
-            
-            return TrackerCategory(title: category.title, trackers: filteredTrackers)
-        }
-        
+        trackerStore.filterCategoriesByWeekDay(selectedWeekDay: selectedWeekDay)
+        filteredCategories = try TrackerCategoryStore.shared.getTrackerCategories()
         reloadData()
+        print("\n Filtered Categories From Core Data ----------------: \(filteredCategories) \n")
+        //print("Categories From Mock Data ----------------: \(MockData.shared.mockCategories)")
+        //reloadData()
+//        let selectedWeekDay = Calendar.current.component(.weekday, from: datePicker.date)
+//        
+//        filteredCategories = categories.compactMap { category in
+//            
+//            let filteredTrackers = category.trackers.filter { tracker in
+//                guard let schedule = tracker.schedule else {
+//                    return true
+//                }
+//                
+//                return schedule.contains { weekDay in
+//                    weekDay.rawValue == selectedWeekDay
+//                }
+//            }
+//            
+//            if filteredTrackers.isEmpty {
+//                return nil
+//            }
+//            
+//            return TrackerCategory(title: category.title, trackers: filteredTrackers)
+//        }
+//        
+//        reloadData()
     }
+    
+//    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference) {
+//        guard let dataSource = collectionView.dataSource as? UICollectionViewDiffableDataSource<Int, NSManagedObjectID> else {
+//            assertionFailure("The data source has not implemented snapshot support while it should")
+//            return
+//        }
+//        var snapshot = snapshot as NSDiffableDataSourceSnapshot<Int, NSManagedObjectID>
+//        let currentSnapshot = dataSource.snapshot() as NSDiffableDataSourceSnapshot<Int, NSManagedObjectID>
+//
+//        let reloadIdentifiers: [NSManagedObjectID] = snapshot.itemIdentifiers.compactMap { itemIdentifier in
+//            guard let currentIndex = currentSnapshot.indexOfItem(itemIdentifier), let index = snapshot.indexOfItem(itemIdentifier), index == currentIndex else {
+//                return nil
+//            }
+//            guard let existingObject = try? controller.managedObjectContext.existingObject(with: itemIdentifier), existingObject.isUpdated else { return nil }
+//            return itemIdentifier
+//        }
+//        snapshot.reloadItems(reloadIdentifiers)
+//
+//        let shouldAnimate = collectionView.numberOfSections != 0
+//        dataSource.apply(snapshot as NSDiffableDataSourceSnapshot<Int, NSManagedObjectID>, animatingDifferences: shouldAnimate)
+//    }
     
     @objc private func didTapAddTrackerButton() {
         let view = CreateTrackerViewController()
@@ -288,7 +329,11 @@ class TrackersViewController: UIViewController {
     
     @objc private func datePickerValueChanged(_ sender: UIDatePicker) {
         currentDate = sender.date
-        filterCategoriesByWeekDay()
+        do {
+            try filterCategoriesByWeekDay()
+        } catch {
+            print("filterCategoriesByWeekDayWhenViewDidLoadError")
+        }
         collectionView.reloadData()
     }
     
@@ -307,11 +352,38 @@ extension TrackersViewController: TrackersCollectionViewCellDelegate {
     }
 }
 
+extension TrackersViewController: TrackerStoreDelegate {
+    func didChangeData(in store: TrackerStore) {
+        //filterCategoriesByWeekDay()
+        collectionView.reloadData()
+    }
+}
+
 // MARK: - CreateTrackerViewControllerDelegate
 extension TrackersViewController: CreateTrackerViewControllerDelegate {
     func updateTrackersCollection() {
-        categories = MockData.shared.mockCategories
-        filterCategoriesByWeekDay()
+//        do {
+//            categories = try TrackerCategoryStore.shared.getTrackerCategories()
+//        } catch {
+//            print("")
+//        }
+        //self.categories = TrackerStore.shared.categories
+        do {
+            try filterCategoriesByWeekDay()
+        } catch {
+            print("filterCategoriesByWeekDayWhenViewDidLoadError")
+        }
+        //print(categories)
+        //print("And --------------- \(TrackerCategoryStore.shared.trackerCategories)")
+    }
+}
+
+extension TrackersViewController: NSFetchedResultsControllerDelegate {
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference) {
+        guard let dataSource = collectionView.dataSource as? UICollectionViewDiffableDataSourceReference else {
+            fatalError("The data source has not implemented snapshot support while it should")
+        }
+        dataSource.applySnapshot(snapshot, animatingDifferences: true)
     }
 }
 

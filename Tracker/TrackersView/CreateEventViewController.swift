@@ -269,7 +269,7 @@ class CreateEventViewController: UIViewController {
         }
     }
     
-    private func addTracker() {
+    private func addTracker() throws {
         let uuid = UUID()
         
         let categoryName = category
@@ -299,7 +299,7 @@ class CreateEventViewController: UIViewController {
         guard let tracker else { return }
         
         var index = 0
-        if categories.contains(where: { $0.title == categoryName }) {
+        if categories.contains(where: { $0.title == "768" }) {
             for category in categories {
                 if category.title == categoryName {
                     let updated = TrackerCategory(title: categoryName, trackers: category.trackers + [tracker])
@@ -317,12 +317,13 @@ class CreateEventViewController: UIViewController {
             MockData.shared.mockCategories = newCategories
             
         } else {
-            let newCategory = TrackerCategory(title: categoryName, trackers: [tracker])
-            var newCategories = categories
-            newCategories.append(newCategory)
-            categories = newCategories
-            
-            MockData.shared.mockCategories = newCategories
+            let newCategory = TrackerCategory(title: "123", trackers: [tracker])
+//            var newCategories = categories
+//            newCategories.append(newCategory)
+//            categories = newCategories
+            //print(tracker, newCategory)
+            //MockData.shared.mockCategories = newCategories
+            try TrackerStore.shared.addTracker(tracker, to: newCategory)
         }
         
         delegate?.updateTrackersCollection()
@@ -370,9 +371,9 @@ class CreateEventViewController: UIViewController {
         delegate?.dismissAnimated()
     }
     
-    @objc private func didTapCreateButton() {
+    @objc private func didTapCreateButton() throws {
         willDismiss?()
-        addTracker()
+        try addTracker()
         dismiss(animated: true) {
             self.didDismiss?()
         }
