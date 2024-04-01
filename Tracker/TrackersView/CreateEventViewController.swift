@@ -288,45 +288,24 @@ class CreateEventViewController: UIViewController {
             self.tracker = Tracker(
                 id: uuid,
                 title: trackerTitle,
-                color: .ypGreen,
+                color: .ypOrange,
                 emoji: "😊",
                 schedule: nil,
                 trackerType: self.eventType)
         }
         
-        var categories = MockData.shared.mockCategories
+        //var categories = MockData.shared.mockCategories
         
         guard let tracker else { return }
         
-        var index = 0
-        if categories.contains(where: { $0.title == "768" }) {
-            for category in categories {
-                if category.title == categoryName {
-                    let updated = TrackerCategory(title: categoryName, trackers: category.trackers + [tracker])
-                    categories.remove(at: index)
-                    categories.insert(updated, at: 0)
-                }
-                index += 1
-            }
-            
-            index = 0
-            
-            var newCategories = [TrackerCategory]()
-            newCategories = categories
-            
-            MockData.shared.mockCategories = newCategories
-            
-        } else {
-            let newCategory = TrackerCategory(title: "123", trackers: [tracker])
-//            var newCategories = categories
-//            newCategories.append(newCategory)
-//            categories = newCategories
-            //print(tracker, newCategory)
-            //MockData.shared.mockCategories = newCategories
-            try TrackerStore.shared.addTracker(tracker, to: newCategory)
-        }
+        //print("Tracker---------: \(tracker)")
         
-        delegate?.updateTrackersCollection()
+        let newCategory = TrackerCategory(title: categoryName, trackers: [tracker])
+        try TrackerStore.shared.addTracker(tracker, to: newCategory)
+        
+        
+        
+        //delegate?.updateTrackersCollection()
     }
     
     private func updateCreateButton() {

@@ -24,7 +24,7 @@ extension TrackerCoreData {
     @NSManaged public var id: UUID?
     @NSManaged public var schedule: String?
     @NSManaged public var title: String?
-    @NSManaged public var trackerType: Int16
+    @NSManaged public var trackerType: String?
     @NSManaged public var category: TrackerCategoryCoreData?
     @NSManaged public var records: NSSet?
 

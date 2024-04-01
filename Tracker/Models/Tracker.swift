@@ -60,16 +60,16 @@ enum TrackerTypes: String {
         }
     }
     
-    static func convertTrackerTypeToInt(trackerType: TrackerTypes) -> Int16 {
+    static func convertTrackerTypeToString(trackerType: TrackerTypes) -> String {
         if trackerType == .oneTimeEvent {
-            return 1
+            return "1"
         } else {
-            return 7
+            return "7"
         }
     }
     
-    static func getTrackerTypeFromInt(integer16: Int16) -> TrackerTypes {
-        if integer16 == 1 {
+    static func getTrackerTypeFromString(string: String) -> TrackerTypes {
+        if string == "1" {
             return TrackerTypes.oneTimeEvent
         } else {
             return TrackerTypes.regularEvent

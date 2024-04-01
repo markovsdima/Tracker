@@ -15,8 +15,15 @@ private enum TrackerCategoryStoreError: Error {
     case getTrackerCategoriesFromCoreDataError
 }
 
+protocol TrackerCategoryStoreDelegate: AnyObject {
+    func didChangeData(in store: TrackerCategoryStore)
+}
+
 final class TrackerCategoryStore: NSObject {
     static let shared = TrackerCategoryStore()
+    
+    weak var delegate: TrackerCategoryStoreDelegate?
+    
     private override init() {}
     
     private var trackerStore = TrackerStore.shared
@@ -34,6 +41,14 @@ final class TrackerCategoryStore: NSObject {
         //let fetchRequest = NSFetchRequest<TrackerCategoryCoreData>(entityName: "TrackerCategoryCoreData")
         
         fetchRequest.sortDescriptors = [NSSortDescriptor(keyPath: \TrackerCategoryCoreData.title, ascending: true)]
+        fetchRequest.predicate = NSPredicate(
+            format: "%K == %@ AND %K CONTAINS[cd] %@",
+            #keyPath(TrackerCoreData.trackerType),
+            TrackerTypes.regularEvent.rawValue,
+            #keyPath(TrackerCoreData.schedule),
+            String(2)
+        )
+        
         
         let controller = NSFetchedResultsController(
             fetchRequest: fetchRequest,
@@ -58,18 +73,39 @@ final class TrackerCategoryStore: NSObject {
 //    }
     
     func getTrackerCategories() throws -> [TrackerCategory] {
+
         guard let objects = fetchedResultsController.fetchedObjects else {
+            throw TrackerCategoryStoreError.getTrackerCategoriesFromCoreDataError
+        }
+        
+        //TrackerStore.shared.filterCategoriesByWeekDay(selectedWeekDay: 2)
+        guard let trackers = TrackerStore.shared.fetchedResultsController.fetchedObjects else {
             throw TrackerCategoryStoreError.getTrackerCategoriesFromCoreDataError
         }
         let categories = try objects.map {
             try trackerCategory(from: $0)
             //print("123")
         }
+        
+        
+//        let trackers2 = try trackers.map {_ in
+//            try TrackerStore.shared.tracker(from: TrackerStore.shared.allTrackers[0])
+//        }
+//        let trackers3 = try TrackerStore.shared.tracker(from: TrackerStore.shared.allTrackers[0])
+//        print("TRACKERS MAPPED:-----------------:\(trackers3)")
+//        
+//        let categories2 = categories.map {
+//            TrackerCategory(title: $0.title, trackers: trackers2)
+//        }
+        
+        
+        
+        
         return categories
     }
     
     
-    // Circle !!!
+
     func trackerCategory(from trackerCategoriesCoreData: TrackerCategoryCoreData) throws -> TrackerCategory {
         guard let title = trackerCategoriesCoreData.title else {
             throw TrackerCategoryStoreError.decodingErrorInvalidTitle
@@ -134,5 +170,7 @@ final class TrackerCategoryStore: NSObject {
 }
 
 extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
-    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        delegate?.didChangeData(in: self)
+    }
 }

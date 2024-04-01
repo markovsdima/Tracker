@@ -270,9 +270,9 @@ class TrackersViewController: UIViewController {
     private func filterCategoriesByWeekDay() throws {
         let selectedWeekDay = Calendar.current.component(.weekday, from: datePicker.date)
         trackerStore.filterCategoriesByWeekDay(selectedWeekDay: selectedWeekDay)
-        filteredCategories = try TrackerCategoryStore.shared.getTrackerCategories()
+        filteredCategories = try TrackerStore.shared.getTrackerCategories(selectedWeekDay)
         reloadData()
-        print("\n Filtered Categories From Core Data ----------------: \(filteredCategories) \n")
+        //print("\n Filtered Categories From Core Data ----------------: \(filteredCategories) \n")
         //print("Categories From Mock Data ----------------: \(MockData.shared.mockCategories)")
         //reloadData()
 //        let selectedWeekDay = Calendar.current.component(.weekday, from: datePicker.date)
@@ -354,9 +354,14 @@ extension TrackersViewController: TrackersCollectionViewCellDelegate {
 
 extension TrackersViewController: TrackerStoreDelegate {
     func didChangeData(in store: TrackerStore) {
-        //filterCategoriesByWeekDay()
-        collectionView.reloadData()
+        do {
+            try filterCategoriesByWeekDay()
+            //collectionView.reloadData()
+        } catch {
+            print("filterCategoriesByWeekDayWhenViewDidLoadError")
+        }
     }
+    
 }
 
 // MARK: - CreateTrackerViewControllerDelegate
@@ -368,11 +373,13 @@ extension TrackersViewController: CreateTrackerViewControllerDelegate {
 //            print("")
 //        }
         //self.categories = TrackerStore.shared.categories
+        /*
         do {
             try filterCategoriesByWeekDay()
         } catch {
             print("filterCategoriesByWeekDayWhenViewDidLoadError")
         }
+        */
         //print(categories)
         //print("And --------------- \(TrackerCategoryStore.shared.trackerCategories)")
     }

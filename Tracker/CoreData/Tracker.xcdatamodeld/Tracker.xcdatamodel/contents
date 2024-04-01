@@ -10,7 +10,7 @@
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="schedule" optional="YES" attributeType="String" customClassName="[WeekDay]"/>
         <attribute name="title" optional="YES" attributeType="String"/>
-        <attribute name="trackerType" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES" customClassName="TrackerTypes"/>
+        <attribute name="trackerType" optional="YES" attributeType="String" customClassName="TrackerTypes"/>
         <relationship name="category" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TrackerCategoryCoreData" inverseName="trackers" inverseEntity="TrackerCategoryCoreData"/>
     </entity>
     <entity name="TrackerRecordCoreData" representedClassName=".TrackerRecordCoreData" syncable="YES" codeGenerationType="class">
