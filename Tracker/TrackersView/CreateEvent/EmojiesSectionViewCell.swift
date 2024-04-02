@@ -20,11 +20,22 @@ final class EmojiesSectionViewCell: UICollectionViewCell {
         return label
     }()
     
+    override var isSelected: Bool {
+        didSet {
+            if isSelected {
+                self.contentView.backgroundColor = UIColor(hex: "#E6E8EB")
+            } else {
+                self.contentView.backgroundColor = .init(white: 1, alpha: 0)
+            }
+        }
+    }
+    
     // MARK: - Initializers
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         contentView.addSubview(emojiLabel)
+        contentView.layer.cornerRadius = 16
         
         setupConstraints()
     }

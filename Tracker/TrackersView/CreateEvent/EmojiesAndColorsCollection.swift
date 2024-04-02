@@ -12,7 +12,7 @@ enum Category: String, CaseIterable {
   case colors = "Colors"
 }
 
-struct Item: Hashable {
+private struct EmojiesAndColorsItem: Hashable {
     let emoji: String?
     let color: UIColor?
     let category: Category
@@ -22,31 +22,83 @@ struct Item: Hashable {
       hasher.combine(identifier)
     }
     
-    static func emojiesAndColors() -> [Item] {
+    static func emojiesAndColors() -> [EmojiesAndColorsItem] {
         return [
-            Item(emoji: "🙂", color: nil, category: .emojies),
-            Item(emoji: "🙂", color: nil, category: .emojies),
-            Item(emoji: "🙂", color: nil, category: .emojies),
-            Item(emoji: "🙂", color: nil, category: .emojies),
-            Item(emoji: "🙂", color: nil, category: .emojies),
-            Item(emoji: "🙂", color: nil, category: .emojies),
-            Item(emoji: nil, color: .ypBlack, category: .colors),
-            Item(emoji: nil, color: .ypBlack, category: .colors),
-            Item(emoji: nil, color: .ypBlue, category: .colors),
-            Item(emoji: nil, color: .ypBlack, category: .colors),
-            Item(emoji: nil, color: .ypGreen, category: .colors),
-            Item(emoji: nil, color: .ypBlack, category: .colors)
+            EmojiesAndColorsItem(emoji: "🙂", color: nil, category: .emojies),
+            EmojiesAndColorsItem(emoji: "😻", color: nil, category: .emojies),
+            EmojiesAndColorsItem(emoji: "🌺", color: nil, category: .emojies),
+            EmojiesAndColorsItem(emoji: "🐶", color: nil, category: .emojies),
+            EmojiesAndColorsItem(emoji: "❤️", color: nil, category: .emojies),
+            EmojiesAndColorsItem(emoji: "😱", color: nil, category: .emojies),
+            
+            EmojiesAndColorsItem(emoji: "😇", color: nil, category: .emojies),
+            EmojiesAndColorsItem(emoji: "😡", color: nil, category: .emojies),
+            EmojiesAndColorsItem(emoji: "🥶", color: nil, category: .emojies),
+            EmojiesAndColorsItem(emoji: "🤔", color: nil, category: .emojies),
+            EmojiesAndColorsItem(emoji: "🙌", color: nil, category: .emojies),
+            EmojiesAndColorsItem(emoji: "🍔", color: nil, category: .emojies),
+            
+            EmojiesAndColorsItem(emoji: "🥦", color: nil, category: .emojies),
+            EmojiesAndColorsItem(emoji: "🏓", color: nil, category: .emojies),
+            EmojiesAndColorsItem(emoji: "🥇", color: nil, category: .emojies),
+            EmojiesAndColorsItem(emoji: "🎸", color: nil, category: .emojies),
+            EmojiesAndColorsItem(emoji: "🏝", color: nil, category: .emojies),
+            EmojiesAndColorsItem(emoji: "😪", color: nil, category: .emojies),
+            
+            EmojiesAndColorsItem(emoji: nil, color: ColorsForTrackerCreation.color1, category: .colors),
+            EmojiesAndColorsItem(emoji: nil, color: ColorsForTrackerCreation.color2, category: .colors),
+            EmojiesAndColorsItem(emoji: nil, color: ColorsForTrackerCreation.color3, category: .colors),
+            EmojiesAndColorsItem(emoji: nil, color: ColorsForTrackerCreation.color4, category: .colors),
+            EmojiesAndColorsItem(emoji: nil, color: ColorsForTrackerCreation.color5, category: .colors),
+            EmojiesAndColorsItem(emoji: nil, color: ColorsForTrackerCreation.color6, category: .colors),
+            
+            EmojiesAndColorsItem(emoji: nil, color: ColorsForTrackerCreation.color7, category: .colors),
+            EmojiesAndColorsItem(emoji: nil, color: ColorsForTrackerCreation.color8, category: .colors),
+            EmojiesAndColorsItem(emoji: nil, color: ColorsForTrackerCreation.color9, category: .colors),
+            EmojiesAndColorsItem(emoji: nil, color: ColorsForTrackerCreation.color10, category: .colors),
+            EmojiesAndColorsItem(emoji: nil, color: ColorsForTrackerCreation.color11, category: .colors),
+            EmojiesAndColorsItem(emoji: nil, color: ColorsForTrackerCreation.color12, category: .colors),
+            
+            EmojiesAndColorsItem(emoji: nil, color: ColorsForTrackerCreation.color13, category: .colors),
+            EmojiesAndColorsItem(emoji: nil, color: ColorsForTrackerCreation.color14, category: .colors),
+            EmojiesAndColorsItem(emoji: nil, color: ColorsForTrackerCreation.color15, category: .colors),
+            EmojiesAndColorsItem(emoji: nil, color: ColorsForTrackerCreation.color16, category: .colors),
+            EmojiesAndColorsItem(emoji: nil, color: ColorsForTrackerCreation.color17, category: .colors),
+            EmojiesAndColorsItem(emoji: nil, color: ColorsForTrackerCreation.color18, category: .colors)
         ]
     }
+}
+
+struct ColorsForTrackerCreation {
+    static let color1 = UIColor(hex: "#FD4C49")
+    static let color2 = UIColor(hex: "#FF881E")
+    static let color3 = UIColor(hex: "#007BFA")
+    static let color4 = UIColor(hex: "#6E44FE")
+    static let color5 = UIColor(hex: "#33CF69")
+    static let color6 = UIColor(hex: "#E66DD4")
+    
+    static let color7 = UIColor(hex: "#F9D4D4")
+    static let color8 = UIColor(hex: "#34A7FE")
+    static let color9 = UIColor(hex: "#46E69D")
+    static let color10 = UIColor(hex: "#35347C")
+    static let color11 = UIColor(hex: "#FF674D")
+    static let color12 = UIColor(hex: "#FF99CC")
+    
+    static let color13 = UIColor(hex: "#F6C48B")
+    static let color14 = UIColor(hex: "#7994F5")
+    static let color15 = UIColor(hex: "#832CF1")
+    static let color16 = UIColor(hex: "#AD56DA")
+    static let color17 = UIColor(hex: "#8D72E6")
+    static let color18 = UIColor(hex: "#2FD058")
 }
 
 class EmojiesAndColorsCollection: UIViewController {
     
     
-    enum Section: Int, CaseIterable {
-        case emojiesSection = 0
-        case colors = 1
-    }
+//    enum Section: Int, CaseIterable {
+//        case emojiesSection = 0
+//        case colors = 1
+//    }
     
     var selectedEmojiIndex: Int?
     var selectedColorIndex: Int?
@@ -62,10 +114,10 @@ class EmojiesAndColorsCollection: UIViewController {
     let colors = [UIColor.ypRed, UIColor.ypBlue]
     
     
-    private var dataSource: UICollectionViewDiffableDataSource<Category, Item>!
+    private var dataSource: UICollectionViewDiffableDataSource<Category, EmojiesAndColorsItem>!
     private var collectionView: UICollectionView!
     
-    //private var snapshot: NSDiffableDataSourceSnapshot<Section, Int>?
+    private var snapshot: NSDiffableDataSourceSnapshot<Category, EmojiesAndColorsItem>?
     
     
     
@@ -76,9 +128,11 @@ class EmojiesAndColorsCollection: UIViewController {
         
         configureHierarchy()
         configureDataSource()
+        configureHeader()
         
         collectionView.register(EmojiesSectionViewCell.self, forCellWithReuseIdentifier: EmojiesSectionViewCell.reuseIdentifier)
         collectionView.register(ColorsSectionViewCell.self, forCellWithReuseIdentifier: ColorsSectionViewCell.reuseIdentifier)
+        collectionView.register(EmojiesAndColorsSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: EmojiesAndColorsSectionHeader.reuseIdentifier)
         
         collectionView.delegate = self
         //collectionView.register(TrackersSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
@@ -110,6 +164,11 @@ extension EmojiesAndColorsCollection {
                                                        subitems: [item])
         
         let section = NSCollectionLayoutSection(group: group)
+        section.interGroupSpacing = 5
+        section.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
+        let sectionHeaderSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .estimated(200))
+        let sectionHeader = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: sectionHeaderSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
+        section.boundarySupplementaryItems = [sectionHeader]
         
         let layout = UICollectionViewCompositionalLayout(section: section)
         
@@ -122,65 +181,83 @@ extension EmojiesAndColorsCollection {
     private func configureHierarchy() {
         collectionView = UICollectionView(frame: view.bounds, collectionViewLayout: createLayout())
         collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        collectionView.backgroundColor = .black
+        collectionView.backgroundColor = .ypWhite
+        collectionView.allowsMultipleSelection = true
         view.addSubview(collectionView)
     }
+    
+    private func configureHeader() {
+        dataSource?.supplementaryViewProvider = { (collectionView: UICollectionView, kind: String, indexPath: IndexPath) -> UICollectionReusableView? in
+            
+            let header: EmojiesAndColorsSectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: EmojiesAndColorsSectionHeader.reuseIdentifier, for: indexPath) as! EmojiesAndColorsSectionHeader
+            
+//            if let section = self.snapshot?.sectionIdentifiers[indexPath.section] {
+//                //header.configure(with: Category.)
+//                header.titleLabel.text = "123"
+//            }
+            if indexPath.section == 0 {
+                header.titleLabel.text = "Emoji"
+            } else {
+                header.titleLabel.text = "Цвет"
+            }
+            
+            
+            return header
+        }
+    }
+    
     private func configureDataSource() {
         
-        dataSource = UICollectionViewDiffableDataSource<Category, Item>(collectionView: collectionView) {
+        
+        dataSource = UICollectionViewDiffableDataSource<Category, EmojiesAndColorsItem>(collectionView: collectionView) {
             (collectionView, indexPath, item) -> UICollectionViewCell? in
+            
             
             switch item.category {
             case .emojies:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiesSectionViewCell", for: indexPath) as! EmojiesSectionViewCell
                 cell.emojiLabel.text = item.emoji
+                
                 return cell
             case .colors:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ColorsSectionViewCell", for: indexPath) as! ColorsSectionViewCell
                 cell.colorView.backgroundColor = item.color
-                //cell.backgroundColor = .ypBlue
+                
                 return cell
             }
             
-            //            let section = Section(rawValue: indexPath.section)!
-            //            if section == .emojies {
-            //                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiesSectionViewCell", for: indexPath) as! EmojiesSectionViewCell
-            //                cell.emojiLabel.text = self.emojies[indexPath.row]
-            //                //cell.configure(with: identifier)
-            //                return cell
-            //            } else {
-            //                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ColorsSectionViewCell", for: indexPath) as! ColorsSectionViewCell
-            //                cell.emojiLabel.text = self.emojies[indexPath.row]
-            //                //ell.configure(with: identifier)
-            //                return cell
-            //            }
-            
-            
-            
-            //cell.delegate = self
-            
-            
-            
         }
         
+        
+        
         // initial data
-        var snapshot = NSDiffableDataSourceSnapshot<Category, Item>()
+        var snapshot = NSDiffableDataSourceSnapshot<Category, EmojiesAndColorsItem>()
         for category in Category.allCases {
-            let items = Item.emojiesAndColors().filter { $0.category == category }
+            let items = EmojiesAndColorsItem.emojiesAndColors().filter { $0.category == category }
             snapshot.appendSections([category])
             snapshot.appendItems(items)
         }
         
         dataSource.apply(snapshot, animatingDifferences: false)
     }
+    
+    
 }
 
 extension EmojiesAndColorsCollection: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
+        ((collectionView.indexPathsForSelectedItems?.filter({ $0.section == indexPath.section }).forEach({ collectionView.deselectItem(at: $0, animated: false) })) != nil)
+    }
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.section == 0 {
-            print("Emoji selected: \(Item.emojiesAndColors()[indexPath.row].emoji ?? "")")
+            print("Emoji selected: \(EmojiesAndColorsItem.emojiesAndColors()[indexPath.row].emoji ?? "")")
+            self.selectedEmojiIndex = indexPath.row
         } else {
-            print("Color selected")
+            let index = indexPath.row + 18
+            print("Color selected: \(EmojiesAndColorsItem.emojiesAndColors()[index].color ?? UIColor.gray)")
+            self.selectedColorIndex = indexPath.row + 18
         }
+        //print(selectedEmojiIndex, selectedColorIndex)
     }
 }

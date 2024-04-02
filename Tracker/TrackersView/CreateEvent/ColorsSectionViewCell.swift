@@ -22,17 +22,28 @@ final class ColorsSectionViewCell: UICollectionViewCell {
     
     lazy var colorView: UIView = {
         let view = UIView()
+        view.layer.cornerRadius = 8
         view.translatesAutoresizingMaskIntoConstraints = false
-        
         
         return view
     }()
+    
+    override var isSelected: Bool {
+        didSet {
+            if isSelected {
+                self.contentView.backgroundColor = UIColor(hex: "#E6E8EB")
+            } else {
+                self.contentView.backgroundColor = .init(white: 1, alpha: 0)
+            }
+        }
+    }
     
     // MARK: - Initializers
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         contentView.addSubview(colorView)
+        contentView.layer.cornerRadius = 8
         
         setupConstraints()
     }
