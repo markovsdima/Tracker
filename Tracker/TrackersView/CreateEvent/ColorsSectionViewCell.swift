@@ -20,6 +20,16 @@ final class ColorsSectionViewCell: UICollectionViewCell {
         return label
     }()
     
+    lazy var colorBackgroundView: UIView = {
+        let view = UIView()
+        view.layer.cornerRadius = 13
+        view.layer.borderWidth = 3
+        view.layer.borderColor = CGColor(gray: 1, alpha: 0)
+        view.translatesAutoresizingMaskIntoConstraints = false
+        
+        return view
+    }()
+    
     lazy var colorView: UIView = {
         let view = UIView()
         view.layer.cornerRadius = 8
@@ -28,12 +38,16 @@ final class ColorsSectionViewCell: UICollectionViewCell {
         return view
     }()
     
+    var color: UIColor?
+    
     override var isSelected: Bool {
         didSet {
             if isSelected {
-                self.contentView.backgroundColor = UIColor(hex: "#E6E8EB")
+                //self.contentView.backgroundColor = UIColor(hex: "#E6E8EB")
+                //self.contentView.layer.borderWidth = 3
+                colorBackgroundView.layer.borderColor = color?.withAlphaComponent(0.4).cgColor
             } else {
-                self.contentView.backgroundColor = .init(white: 1, alpha: 0)
+                self.colorBackgroundView.layer.borderColor = CGColor.init(gray: 1, alpha: 0)
             }
         }
     }
@@ -42,8 +56,11 @@ final class ColorsSectionViewCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        contentView.addSubview(colorView)
+        contentView.addSubview(colorBackgroundView)
+        colorBackgroundView.addSubview(colorView)
         contentView.layer.cornerRadius = 8
+        //contentView.layer.borderWidth = 3
+        
         
         setupConstraints()
     }
@@ -53,12 +70,19 @@ final class ColorsSectionViewCell: UICollectionViewCell {
     }
     
     // MARK: - Public methods
-    func configure(with emoji: Int) {
-
+    func configure(with color: UIColor) {
+        self.color = color
+        //print("ConfiguredColor: \(self.color)")
+        colorView.backgroundColor = color
     }
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
+            colorBackgroundView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            colorBackgroundView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            colorBackgroundView.heightAnchor.constraint(equalToConstant: 52),
+            colorBackgroundView.widthAnchor.constraint(equalToConstant: 52),
+            
             colorView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             colorView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             colorView.heightAnchor.constraint(equalToConstant: 40),

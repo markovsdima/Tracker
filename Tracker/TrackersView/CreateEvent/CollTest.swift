@@ -6,20 +6,19 @@
 //
 
 import UIKit
-/*
-enum Category: String, CaseIterable {
-  case emojies = "Emojies"
-  case colors = "Colors"
-}
 
-class EmojiesAndColorsCollection: UIViewController {
+//enum Category: String, CaseIterable {
+//  case emojies = "Emojies"
+//  case colors = "Colors"
+//}
+
+private class EmojiesAndColorsCollection: UIViewController {
     
     var selectedEmojiIndex: Int?
     var selectedColorIndex: Int?
     
     private var dataSource: UICollectionViewDiffableDataSource<Category, EmojiesAndColorsItem>!
     private var collectionView: UICollectionView!
-    
     private var snapshot: NSDiffableDataSourceSnapshot<Category, EmojiesAndColorsItem>?
     
     // MARK: - View Life Cycles
@@ -135,4 +134,3 @@ extension EmojiesAndColorsCollection: UICollectionViewDelegate {
         }
     }
 }
-*/
