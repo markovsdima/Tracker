@@ -8,13 +8,13 @@
 import UIKit
 
 protocol CreateEventViewControllerDelegate: AnyObject {
-    func updateTrackersCollection()
+    //func updateTrackersCollection()
     func dismissAnimated()
 }
 
 enum Category: String, CaseIterable {
-  case emojies = "Emojies"
-  case colors = "Colors"
+    case emojies = "Emojies"
+    case colors = "Colors"
 }
 
 class CreateEventViewController: UIViewController {
@@ -38,10 +38,7 @@ class CreateEventViewController: UIViewController {
     
     private lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
-        //scrollView.keyboardDismissMode = .onDrag
         scrollView.alwaysBounceVertical = true
-        //scrollView.frame = view.bounds
-        //scrollView.contentSize = CGSize(width: view.frame.width, height: view.frame.height + 150)
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         
         return scrollView
@@ -49,20 +46,9 @@ class CreateEventViewController: UIViewController {
     
     private lazy var contentView: UIView = {
         let view = UIView()
-        //view.backgroundColor = .ypGreen
         view.translatesAutoresizingMaskIntoConstraints = false
         
         return view
-    }()
-    
-    private lazy var stackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.alignment = .center
-        stackView.distribution = .fillEqually
-        stackView.translatesAutoresizingMaskIntoConstraints = false
-        
-        return stackView
     }()
     
     private lazy var trackerNameTextField: UITextField = {
@@ -205,9 +191,6 @@ class CreateEventViewController: UIViewController {
         self.hideKeyboardWhenTappedAround()
         configureCollection()
         configureUI(with: eventType)
-        
-        
-        
     }
     
     // MARK: - Private Methods
@@ -226,15 +209,15 @@ class CreateEventViewController: UIViewController {
     private func configureUI(with type: TrackerTypes) {
         view.addSubview(mainTitle)
         view.addSubview(scrollView)
+        
         scrollView.addSubview(contentView)
-        //scrollView.backgroundColor = .red
-        //contentView.backgroundColor = .green
+        
         contentView.addSubview(trackerNameTextField)
         contentView.addSubview(categoryButton)
+        
         categoryButton.addSubview(categoryButtonImage)
         
         contentView.addSubview(collectionView)
-        
         contentView.addSubview(cancelButton)
         contentView.addSubview(createButton)
         
@@ -263,7 +246,7 @@ class CreateEventViewController: UIViewController {
                 
                 contentView.heightAnchor.constraint(equalToConstant: baseContentViewHeight+75),
                 
-                collectionView.topAnchor.constraint(equalTo: scheduleButton.bottomAnchor, constant: 32)
+                collectionView.topAnchor.constraint(equalTo: scheduleButton.bottomAnchor, constant: 16)
             ])
         }
         
@@ -272,7 +255,7 @@ class CreateEventViewController: UIViewController {
             NSLayoutConstraint.activate([
                 contentView.heightAnchor.constraint(equalToConstant: baseContentViewHeight),
                 
-                collectionView.topAnchor.constraint(equalTo: categoryButton.bottomAnchor, constant: 32)
+                collectionView.topAnchor.constraint(equalTo: categoryButton.bottomAnchor, constant: 16)
             ])
         }
         
@@ -280,7 +263,6 @@ class CreateEventViewController: UIViewController {
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             scrollView.topAnchor.constraint(equalTo: mainTitle.bottomAnchor, constant: 14),
-            //scrollView.heightAnchor.constraint(equalToConstant: 1000),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             
             contentView.widthAnchor.constraint(equalTo: view.widthAnchor),
@@ -289,12 +271,9 @@ class CreateEventViewController: UIViewController {
             contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             
-            
             mainTitle.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 27),
             mainTitle.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-            //mainTitle.heightAnchor.constraint(equalToConstant: 150),
             
-            //trackerNameTextField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 38),
             trackerNameTextField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
             trackerNameTextField.heightAnchor.constraint(equalToConstant: 75),
             trackerNameTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
@@ -312,10 +291,7 @@ class CreateEventViewController: UIViewController {
             
             collectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
-            //collectionView.topAnchor.constraint(equalTo: categoryButton.bottomAnchor, constant: 50),
-            //collectionView.topAnchor.constraint(equalTo: scheduleButton.bottomAnchor, constant: 32),
             collectionView.heightAnchor.constraint(equalToConstant: 500),
-            
             
             cancelButton.heightAnchor.constraint(equalToConstant: 60),
             cancelButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
@@ -389,18 +365,11 @@ class CreateEventViewController: UIViewController {
                 trackerType: self.eventType)
         }
         
-        //var categories = MockData.shared.mockCategories
-        
         guard let tracker else { return }
-        
-        //print("Tracker---------: \(tracker)")
         
         let newCategory = TrackerCategory(title: categoryName, trackers: [tracker])
         try TrackerStore.shared.addTracker(tracker, to: newCategory)
         
-        
-        
-        //delegate?.updateTrackersCollection()
     }
     
     private func updateCreateButton() {
@@ -477,7 +446,8 @@ extension CreateEventViewController: CategoriesViewControllerDelegate {
     }
 }
 
-// MARK: - UICollectionViewLayout (EmojiesAndColorsCollection)
+// MARK: - UICollectionViewLayout
+///(EmojiesAndColorsCollection)
 extension CreateEventViewController {
     private func createLayout() -> UICollectionViewLayout {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1/6),
@@ -498,23 +468,19 @@ extension CreateEventViewController {
         
         let layout = UICollectionViewCompositionalLayout(section: section)
         
-        
         return layout
     }
 }
 
-// MARK: - UICollectionViewConfiguration (EmojiesAndColorsCollection)
+// MARK: - UICollectionViewConfiguration
+///(EmojiesAndColorsCollection)
 extension CreateEventViewController {
     private func configureHierarchy() {
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
-        //collectionView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.backgroundColor = .ypWhite
         collectionView.isScrollEnabled = false
         collectionView.allowsMultipleSelection = true
-        //collectionView.backgroundColor = .ypBlack
-        //collectionView.layer.zPosition = 20
-        //view.addSubview(collectionView)
     }
     
     private func configureHeader() {
@@ -539,7 +505,7 @@ extension CreateEventViewController {
             switch item.category {
             case .emojies:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiesSectionViewCell", for: indexPath) as! EmojiesSectionViewCell
-                cell.emojiLabel.text = item.emoji
+                cell.configure(with: item.emoji ?? "❓")
                 
                 return cell
             case .colors:
@@ -562,7 +528,8 @@ extension CreateEventViewController {
     }
 }
 
-// MARK: - UICollectionViewDelegate (EmojiesAndColorsCollection)
+// MARK: - UICollectionViewDelegate
+///(EmojiesAndColorsCollection)
 extension CreateEventViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         ((collectionView.indexPathsForSelectedItems?.filter({ $0.section == indexPath.section }).forEach({ collectionView.deselectItem(at: $0, animated: false) })) != nil)
@@ -570,11 +537,8 @@ extension CreateEventViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.section == 0 {
-            //print("Emoji selected: \(EmojiesAndColorsItem.emojiesAndColors()[indexPath.row].emoji ?? "")")
             self.selectedEmojiIndex = indexPath.row
         } else {
-            let index = indexPath.row + 18
-            //print("Color selected: \(EmojiesAndColorsItem.emojiesAndColors()[index].color ?? UIColor.gray)")
             self.selectedColorIndex = indexPath.row + 18
         }
     }

@@ -8,7 +8,7 @@
 import UIKit
 
 protocol CreateTrackerViewControllerDelegate: AnyObject {
-    func updateTrackersCollection()
+    //func updateTrackersCollection()
 }
 
 class CreateTrackerViewController: UIViewController {
@@ -113,15 +113,6 @@ class CreateTrackerViewController: UIViewController {
 // MARK: - CreateEventViewControllerDelegate
 extension CreateTrackerViewController: CreateEventViewControllerDelegate {
     func dismissAnimated() {
-        dismiss(animated: true) {
-            self.delegate?.updateTrackersCollection()
-        }
+        dismiss(animated: true)
     }
-    
-    func updateTrackersCollection() {
-        dismiss(animated: true) {
-            self.delegate?.updateTrackersCollection()
-        }
-    }
-    
 }

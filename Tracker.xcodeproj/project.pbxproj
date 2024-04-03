@@ -22,7 +22,6 @@
 		321C38C82BACA84600F86B02 /* CategoriesTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 321C38C72BACA84600F86B02 /* CategoriesTableViewCell.swift */; };
 		321C38EE2BB2585D00F86B02 /* Tracker.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 321C38EC2BB2585D00F86B02 /* Tracker.xcdatamodeld */; };
 		328C0EBC2BB3DA4B006ECD5B /* HideKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328C0EBB2BB3DA4B006ECD5B /* HideKeyboard.swift */; };
-		328C0EE12BB4EC92006ECD5B /* CoreDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328C0EE02BB4EC92006ECD5B /* CoreDataManager.swift */; };
 		328C0EE52BB50149006ECD5B /* TrackerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328C0EE42BB50149006ECD5B /* TrackerStore.swift */; };
 		328C0EE72BB5015E006ECD5B /* TrackerCategoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328C0EE62BB5015E006ECD5B /* TrackerCategoryStore.swift */; };
 		328C0EE92BB50176006ECD5B /* TrackerRecordStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328C0EE82BB50176006ECD5B /* TrackerRecordStore.swift */; };
@@ -34,14 +33,12 @@
 		32D7D1502B76E89C00D1FBF1 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32D7D14E2B76E89C00D1FBF1 /* LaunchScreen.storyboard */; };
 		32D7D1582B770BF700D1FBF1 /* StatisticsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D7D1572B770BF700D1FBF1 /* StatisticsViewController.swift */; };
 		32D7D15A2B770D4900D1FBF1 /* TabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32D7D1592B770D4900D1FBF1 /* TabBarViewController.swift */; };
-		32F27CAE2BBAC69B00E352A7 /* EmojiesAndColorsCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F27CAD2BBAC69B00E352A7 /* EmojiesAndColorsCollection.swift */; };
 		32F27CB12BBB99AD00E352A7 /* EmojiesSectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F27CB02BBB99AD00E352A7 /* EmojiesSectionViewCell.swift */; };
 		32F27CB32BBBC51100E352A7 /* ColorsSectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F27CB22BBBC51100E352A7 /* ColorsSectionViewCell.swift */; };
 		32F27CB52BBC0B9900E352A7 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F27CB42BBC0B9900E352A7 /* UIColor+Extensions.swift */; };
 		32F27CB72BBC254000E352A7 /* EmojiesAndColorsSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F27CB62BBC254000E352A7 /* EmojiesAndColorsSectionHeader.swift */; };
 		32F27CB92BBCF0F200E352A7 /* EmojiesAndColorsItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F27CB82BBCF0F200E352A7 /* EmojiesAndColorsItem.swift */; };
 		32F27CBB2BBCF19500E352A7 /* ColorsForTrackerCreation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F27CBA2BBCF19500E352A7 /* ColorsForTrackerCreation.swift */; };
-		32F27CBD2BBCF2FD00E352A7 /* CollTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F27CBC2BBCF2FD00E352A7 /* CollTest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -60,7 +57,6 @@
 		321C38C72BACA84600F86B02 /* CategoriesTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesTableViewCell.swift; sourceTree = "<group>"; };
 		321C38ED2BB2585D00F86B02 /* Tracker.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Tracker.xcdatamodel; sourceTree = "<group>"; };
 		328C0EBB2BB3DA4B006ECD5B /* HideKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideKeyboard.swift; sourceTree = "<group>"; };
-		328C0EE02BB4EC92006ECD5B /* CoreDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreDataManager.swift; sourceTree = "<group>"; };
 		328C0EE42BB50149006ECD5B /* TrackerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerStore.swift; sourceTree = "<group>"; };
 		328C0EE62BB5015E006ECD5B /* TrackerCategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCategoryStore.swift; sourceTree = "<group>"; };
 		328C0EE82BB50176006ECD5B /* TrackerRecordStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerRecordStore.swift; sourceTree = "<group>"; };
@@ -74,14 +70,12 @@
 		32D7D1512B76E89C00D1FBF1 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		32D7D1572B770BF700D1FBF1 /* StatisticsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsViewController.swift; sourceTree = "<group>"; };
 		32D7D1592B770D4900D1FBF1 /* TabBarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarViewController.swift; sourceTree = "<group>"; };
-		32F27CAD2BBAC69B00E352A7 /* EmojiesAndColorsCollection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiesAndColorsCollection.swift; sourceTree = "<group>"; };
 		32F27CB02BBB99AD00E352A7 /* EmojiesSectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiesSectionViewCell.swift; sourceTree = "<group>"; };
 		32F27CB22BBBC51100E352A7 /* ColorsSectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorsSectionViewCell.swift; sourceTree = "<group>"; };
 		32F27CB42BBC0B9900E352A7 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 		32F27CB62BBC254000E352A7 /* EmojiesAndColorsSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiesAndColorsSectionHeader.swift; sourceTree = "<group>"; };
 		32F27CB82BBCF0F200E352A7 /* EmojiesAndColorsItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiesAndColorsItem.swift; sourceTree = "<group>"; };
 		32F27CBA2BBCF19500E352A7 /* ColorsForTrackerCreation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorsForTrackerCreation.swift; sourceTree = "<group>"; };
-		32F27CBC2BBCF2FD00E352A7 /* CollTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CollTest.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -133,7 +127,6 @@
 		328C0EE22BB500FC006ECD5B /* Domain */ = {
 			isa = PBXGroup;
 			children = (
-				328C0EE02BB4EC92006ECD5B /* CoreDataManager.swift */,
 				328C0EE42BB50149006ECD5B /* TrackerStore.swift */,
 				328C0EE62BB5015E006ECD5B /* TrackerCategoryStore.swift */,
 				328C0EE82BB50176006ECD5B /* TrackerRecordStore.swift */,
@@ -173,6 +166,7 @@
 				321C38AA2B7C90D300F86B02 /* Models */,
 				321C38B52B94AB7000F86B02 /* TrackersView */,
 				328C0EE22BB500FC006ECD5B /* Domain */,
+				328C0EE32BB50114006ECD5B /* CoreData */,
 				32D7D1592B770D4900D1FBF1 /* TabBarViewController.swift */,
 				32D7D1572B770BF700D1FBF1 /* StatisticsViewController.swift */,
 				32D7D1432B76E89B00D1FBF1 /* AppDelegate.swift */,
@@ -181,7 +175,6 @@
 				32D7D14E2B76E89C00D1FBF1 /* LaunchScreen.storyboard */,
 				32D7D1512B76E89C00D1FBF1 /* Info.plist */,
 				321C38B62B98AA3D00F86B02 /* MockData.swift */,
-				328C0EE32BB50114006ECD5B /* CoreData */,
 			);
 			path = Tracker;
 			sourceTree = "<group>";
@@ -201,11 +194,9 @@
 			children = (
 				321C38BA2B9A3C2500F86B02 /* CreateTrackerViewController.swift */,
 				321C38BC2B9B4E5500F86B02 /* CreateEventViewController.swift */,
-				32F27CAD2BBAC69B00E352A7 /* EmojiesAndColorsCollection.swift */,
 				32F27CB02BBB99AD00E352A7 /* EmojiesSectionViewCell.swift */,
 				32F27CB22BBBC51100E352A7 /* ColorsSectionViewCell.swift */,
 				32F27CB62BBC254000E352A7 /* EmojiesAndColorsSectionHeader.swift */,
-				32F27CBC2BBCF2FD00E352A7 /* CollTest.swift */,
 			);
 			path = CreateEvent;
 			sourceTree = "<group>";
@@ -295,7 +286,6 @@
 				321C38B72B98AA3D00F86B02 /* MockData.swift in Sources */,
 				32F27CB92BBCF0F200E352A7 /* EmojiesAndColorsItem.swift in Sources */,
 				32D7D1482B76E89B00D1FBF1 /* TrackersViewController.swift in Sources */,
-				32F27CBD2BBCF2FD00E352A7 /* CollTest.swift in Sources */,
 				321C38C82BACA84600F86B02 /* CategoriesTableViewCell.swift in Sources */,
 				321C38BB2B9A3C2500F86B02 /* CreateTrackerViewController.swift in Sources */,
 				321C38B92B98E93700F86B02 /* TrackersSectionHeader.swift in Sources */,
@@ -309,9 +299,7 @@
 				32D7D15A2B770D4900D1FBF1 /* TabBarViewController.swift in Sources */,
 				32D7D1582B770BF700D1FBF1 /* StatisticsViewController.swift in Sources */,
 				321C38AE2B7C94C000F86B02 /* TrackerCategory.swift in Sources */,
-				32F27CAE2BBAC69B00E352A7 /* EmojiesAndColorsCollection.swift in Sources */,
 				321C38BD2B9B4E5500F86B02 /* CreateEventViewController.swift in Sources */,
-				328C0EE12BB4EC92006ECD5B /* CoreDataManager.swift in Sources */,
 				321C38C32BAB97E100F86B02 /* CategoriesViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

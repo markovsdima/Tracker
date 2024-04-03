@@ -17,9 +17,9 @@ class TrackersViewController: UIViewController {
     private var currentDate = Date()
     private var dataSource: UICollectionViewDiffableDataSource<TrackerCategory, Tracker>!
     private var snapshot: NSDiffableDataSourceSnapshot<TrackerCategory, Tracker>?
-    //private var coreDataManager = CoreDataManager.shared
     private var trackerStore = TrackerStore.shared
     private var trackerCategoryStore = TrackerCategoryStore.shared
+    private var isEmpty: Bool = false
     
     // MARK: - UI Properties
     private let collectionView: UICollectionView = {
@@ -143,22 +143,17 @@ class TrackersViewController: UIViewController {
             print("filterCategoriesByWeekDayWhenViewDidLoadError")
         }
         
-        
-        
         collectionView.register(TrackersCollectionViewCell.self, forCellWithReuseIdentifier: "Cell")
         collectionView.register(TrackersSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
         
         datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
-        emptyCheck()
-        
     }
     
     // MARK: - Private Methods
     private func emptyCheck() {
-        if categories.count == 0 {
+        if isEmpty == true {
             
             view.addSubview(noTrackersYetImageView)
-            
             view.addSubview(noTrackersYetLabel)
             
             noTrackersYetImageView.layer.zPosition = 10
@@ -173,6 +168,12 @@ class TrackersViewController: UIViewController {
                 noTrackersYetLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
                 noTrackersYetLabel.topAnchor.constraint(equalTo: noTrackersYetImageView.bottomAnchor, constant: 8)
             ])
+            
+            noTrackersYetImageView.isHidden = false
+            noTrackersYetLabel.isHidden = false
+        } else {
+            noTrackersYetImageView.isHidden = true
+            noTrackersYetLabel.isHidden = true
         }
     }
     
@@ -190,8 +191,6 @@ class TrackersViewController: UIViewController {
     private func setupDataSource() {
         dataSource = UICollectionViewDiffableDataSource<TrackerCategory, Tracker>(collectionView: collectionView) {
             (collectionView, IndexPath, ItemIdentifier) -> UICollectionViewCell? in
-            
-            //let trackerCategoryCoreData = self.trackerCategoryStore.fetchedResultsController.object(at: IndexPath)
             
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: IndexPath) as! TrackersCollectionViewCell
             let completion = self.checkForCompletionToday(id: ItemIdentifier.id)
@@ -233,7 +232,6 @@ class TrackersViewController: UIViewController {
             if let section = self.snapshot?.sectionIdentifiers[indexPath.section] {
                 header.configure(with: section)
             }
-            
             return header
         }
     }
@@ -272,53 +270,14 @@ class TrackersViewController: UIViewController {
         trackerStore.filterCategoriesByWeekDay(selectedWeekDay: selectedWeekDay)
         filteredCategories = try TrackerStore.shared.getTrackerCategories(selectedWeekDay)
         reloadData()
-        //print("\n Filtered Categories From Core Data ----------------: \(filteredCategories) \n")
-        //print("Categories From Mock Data ----------------: \(MockData.shared.mockCategories)")
-        //reloadData()
-//        let selectedWeekDay = Calendar.current.component(.weekday, from: datePicker.date)
-//        
-//        filteredCategories = categories.compactMap { category in
-//            
-//            let filteredTrackers = category.trackers.filter { tracker in
-//                guard let schedule = tracker.schedule else {
-//                    return true
-//                }
-//                
-//                return schedule.contains { weekDay in
-//                    weekDay.rawValue == selectedWeekDay
-//                }
-//            }
-//            
-//            if filteredTrackers.isEmpty {
-//                return nil
-//            }
-//            
-//            return TrackerCategory(title: category.title, trackers: filteredTrackers)
-//        }
-//        
-//        reloadData()
+        if filteredCategories.isEmpty {
+            self.isEmpty = true
+            emptyCheck()
+        } else {
+            self.isEmpty = false
+            emptyCheck()
+        }
     }
-    
-//    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference) {
-//        guard let dataSource = collectionView.dataSource as? UICollectionViewDiffableDataSource<Int, NSManagedObjectID> else {
-//            assertionFailure("The data source has not implemented snapshot support while it should")
-//            return
-//        }
-//        var snapshot = snapshot as NSDiffableDataSourceSnapshot<Int, NSManagedObjectID>
-//        let currentSnapshot = dataSource.snapshot() as NSDiffableDataSourceSnapshot<Int, NSManagedObjectID>
-//
-//        let reloadIdentifiers: [NSManagedObjectID] = snapshot.itemIdentifiers.compactMap { itemIdentifier in
-//            guard let currentIndex = currentSnapshot.indexOfItem(itemIdentifier), let index = snapshot.indexOfItem(itemIdentifier), index == currentIndex else {
-//                return nil
-//            }
-//            guard let existingObject = try? controller.managedObjectContext.existingObject(with: itemIdentifier), existingObject.isUpdated else { return nil }
-//            return itemIdentifier
-//        }
-//        snapshot.reloadItems(reloadIdentifiers)
-//
-//        let shouldAnimate = collectionView.numberOfSections != 0
-//        dataSource.apply(snapshot as NSDiffableDataSourceSnapshot<Int, NSManagedObjectID>, animatingDifferences: shouldAnimate)
-//    }
     
     @objc private func didTapAddTrackerButton() {
         let view = CreateTrackerViewController()
@@ -336,7 +295,6 @@ class TrackersViewController: UIViewController {
         }
         collectionView.reloadData()
     }
-    
 }
 
 // MARK: - TrackersCollectionViewCellDelegate
@@ -352,39 +310,23 @@ extension TrackersViewController: TrackersCollectionViewCellDelegate {
     }
 }
 
+// MARK: - TrackerStoreDelegate
 extension TrackersViewController: TrackerStoreDelegate {
     func didChangeData(in store: TrackerStore) {
         do {
             try filterCategoriesByWeekDay()
-            //collectionView.reloadData()
         } catch {
             print("filterCategoriesByWeekDayWhenViewDidLoadError")
         }
     }
-    
 }
 
 // MARK: - CreateTrackerViewControllerDelegate
 extension TrackersViewController: CreateTrackerViewControllerDelegate {
-    func updateTrackersCollection() {
-//        do {
-//            categories = try TrackerCategoryStore.shared.getTrackerCategories()
-//        } catch {
-//            print("")
-//        }
-        //self.categories = TrackerStore.shared.categories
-        /*
-        do {
-            try filterCategoriesByWeekDay()
-        } catch {
-            print("filterCategoriesByWeekDayWhenViewDidLoadError")
-        }
-        */
-        //print(categories)
-        //print("And --------------- \(TrackerCategoryStore.shared.trackerCategories)")
-    }
+    
 }
 
+// MARK: - NSFetchedResultsControllerDelegate
 extension TrackersViewController: NSFetchedResultsControllerDelegate {
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference) {
         guard let dataSource = collectionView.dataSource as? UICollectionViewDiffableDataSourceReference else {

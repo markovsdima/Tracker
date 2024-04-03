@@ -10,16 +10,18 @@ import UIKit
 final class EmojiesSectionViewCell: UICollectionViewCell {
     static let reuseIdentifier = "EmojiesSectionViewCell"
     
+    // MARK: - UI Properties
     lazy var emojiLabel: UILabel = {
         let label = UILabel()
         label.text = "❤️"
         label.textAlignment = .center
-        label.font = .systemFont(ofSize: 16)
+        label.font = .systemFont(ofSize: 32)
         label.translatesAutoresizingMaskIntoConstraints = false
         
         return label
     }()
     
+    // MARK: - Override
     override var isSelected: Bool {
         didSet {
             if isSelected {
@@ -45,10 +47,11 @@ final class EmojiesSectionViewCell: UICollectionViewCell {
     }
     
     // MARK: - Public methods
-    func configure(with emoji: Int) {
-
+    func configure(with emoji: String) {
+        emojiLabel.text = emoji
     }
     
+    // MARK: - Private methods
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             emojiLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),

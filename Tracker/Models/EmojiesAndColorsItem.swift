@@ -14,7 +14,7 @@ struct EmojiesAndColorsItem: Hashable {
     let identifier = UUID()
     
     func hash(into hasher: inout Hasher) {
-      hasher.combine(identifier)
+        hasher.combine(identifier)
     }
     
     static func emojiesAndColors() -> [EmojiesAndColorsItem] {
