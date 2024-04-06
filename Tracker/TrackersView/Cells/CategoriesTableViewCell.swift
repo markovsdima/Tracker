@@ -13,9 +13,9 @@ final class CategoriesTableViewCell: UITableViewCell {
     static let reuseIdentifier = "CategoriesTableViewCell"
     
     // MARK: - UI Properties
-    lazy var cellTitle: UILabel = {
+    private lazy var cellTitle: UILabel = {
         let label = UILabel()
-        //label.text = "День недели"
+        
         label.font = .systemFont(ofSize: 17, weight: .regular)
         label.textColor = .ypBlack
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -43,6 +43,11 @@ final class CategoriesTableViewCell: UITableViewCell {
     }
     
     // MARK: - Public Methods
+    func configure(title: String, backgroundColor: UIColor) {
+        cellTitle.text = title
+        self.backgroundColor = backgroundColor
+    }
+    
     func showImageForSelected(_ isHidden: Bool) {
         selectedImage.isHidden = !isHidden
     }

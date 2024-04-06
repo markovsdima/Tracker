@@ -1,15 +1,16 @@
 //
-//  TrackersSectionHeader.swift
+//  EmojiesAndColorsSectionHeader.swift
 //  Tracker
 //
-//  Created by Dmitry Markovskiy on 06.03.2024.
+//  Created by Dmitry Markovskiy on 02.04.2024.
 //
 
 import UIKit
 
-class TrackersSectionHeader: UICollectionReusableView {
+final class EmojiesAndColorsSectionHeader: UICollectionReusableView {
+    static let reuseIdentifier = "EmojiesAndColorsSectionHeader"
     
-    // MARK: - UI Properties
+    // MARK: - Public Properties
     private let titleLabel = UILabel()
     
     // MARK: - Initializers
@@ -20,9 +21,10 @@ class TrackersSectionHeader: UICollectionReusableView {
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.text = "123"
         titleLabel.font = .systemFont(ofSize: 19, weight: .bold)
+        titleLabel.textColor = .ypBlack
         
         NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16),
             titleLabel.topAnchor.constraint(equalTo: topAnchor, constant: 16),
             titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12)
         ])
@@ -32,8 +34,9 @@ class TrackersSectionHeader: UICollectionReusableView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    // MARK: - Public Methods
-    func configure(with section: TrackerCategory) {
-        titleLabel.text = section.title
+    // MARK: - Public methods
+    func configureHeader(title: String) {
+        titleLabel.text = title
     }
 }
+

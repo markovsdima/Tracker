@@ -33,7 +33,6 @@ final class ScheduleViewController: UIViewController {
     private lazy var tableView: UITableView = {
         let table = UITableView()
         table.register(ScheduleTableViewCell.self, forCellReuseIdentifier: "ScheduleTableViewCell")
-        //table.backgroundColor = .blue
         table.layer.cornerRadius = 16
         table.allowsSelection = false
         table.isScrollEnabled = false
@@ -97,11 +96,14 @@ extension ScheduleViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: ScheduleTableViewCell.reuseIdentifier, for: indexPath)
         guard let cell = cell as? ScheduleTableViewCell else { return UITableViewCell() }
         
-        cell.delegate = self
-        cell.cellTitle.text = weekDaysNames[indexPath.row]
+        cell.configure(
+            title: weekDaysNames[indexPath.row],
+            backgroundColor: .ypGrayAlpha,
+            weekDay: WeekDay.allCases[indexPath.row]
+        )
         cell.selectionStyle = .none
-        cell.backgroundColor = .ypGrayAlpha
-        cell.weekDay = WeekDay.allCases[indexPath.row]
+        
+        cell.delegate = self
         
         return cell
     }
