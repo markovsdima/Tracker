@@ -11,7 +11,7 @@ final class EmojiesSectionViewCell: UICollectionViewCell {
     static let reuseIdentifier = "EmojiesSectionViewCell"
     
     // MARK: - UI Properties
-    lazy var emojiLabel: UILabel = {
+    private lazy var emojiLabel: UILabel = {
         let label = UILabel()
         label.text = "❤️"
         label.textAlignment = .center

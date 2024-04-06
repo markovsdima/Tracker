@@ -7,14 +7,7 @@
 
 import UIKit
 
-protocol CreateTrackerViewControllerDelegate: AnyObject {
-    //func updateTrackersCollection()
-}
-
-class CreateTrackerViewController: UIViewController {
-    
-    // MARK: - Public Properties
-    weak var delegate: CreateTrackerViewControllerDelegate?
+final class CreateTrackerViewController: UIViewController {
     
     // MARK: - UI Properties
     private lazy var titleLabel: UILabel = {
@@ -85,9 +78,9 @@ class CreateTrackerViewController: UIViewController {
     @objc private func didTapRegularEvent() {
         let view = CreateEventViewController(eventType: .regularEvent)
         view.delegate = self
-        //        view.willDismiss = {
-        //            self.view.isHidden = true
-        //        }
+//        view.willDismiss = {
+//            self.view.isHidden = true
+//        }
         view.didDismiss = {
             self.dismiss(animated: false)
         }

@@ -9,8 +9,8 @@ import UIKit
 
 class TrackersSectionHeader: UICollectionReusableView {
     
-    // MARK: - Public Properties
-    let titleLabel = UILabel()
+    // MARK: - UI Properties
+    private let titleLabel = UILabel()
     
     // MARK: - Initializers
     override init(frame: CGRect) {

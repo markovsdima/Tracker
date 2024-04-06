@@ -8,7 +8,6 @@
 import UIKit
 
 protocol CreateEventViewControllerDelegate: AnyObject {
-    //func updateTrackersCollection()
     func dismissAnimated()
 }
 
@@ -17,7 +16,7 @@ enum Category: String, CaseIterable {
     case colors = "Colors"
 }
 
-class CreateEventViewController: UIViewController {
+final class CreateEventViewController: UIViewController {
     
     // MARK: - Public properties
     weak var delegate: CreateEventViewControllerDelegate?
@@ -170,8 +169,8 @@ class CreateEventViewController: UIViewController {
     private var selectedEmojiIndex: Int?
     private var selectedColorIndex: Int?
     
-    private var dataSource: UICollectionViewDiffableDataSource<Category, EmojiesAndColorsItem>!
-    private var collectionView: UICollectionView! = nil
+    private var dataSource: UICollectionViewDiffableDataSource<Category, EmojiesAndColorsItem>?
+    private var collectionView: UICollectionView?
     private var snapshot: NSDiffableDataSourceSnapshot<Category, EmojiesAndColorsItem>?
     
     // MARK: - Initializers
@@ -199,14 +198,15 @@ class CreateEventViewController: UIViewController {
         configureDataSource()
         configureHeader()
         
-        collectionView.register(EmojiesSectionViewCell.self, forCellWithReuseIdentifier: EmojiesSectionViewCell.reuseIdentifier)
-        collectionView.register(ColorsSectionViewCell.self, forCellWithReuseIdentifier: ColorsSectionViewCell.reuseIdentifier)
-        collectionView.register(EmojiesAndColorsSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: EmojiesAndColorsSectionHeader.reuseIdentifier)
+        collectionView?.register(EmojiesSectionViewCell.self, forCellWithReuseIdentifier: EmojiesSectionViewCell.reuseIdentifier)
+        collectionView?.register(ColorsSectionViewCell.self, forCellWithReuseIdentifier: ColorsSectionViewCell.reuseIdentifier)
+        collectionView?.register(EmojiesAndColorsSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: EmojiesAndColorsSectionHeader.reuseIdentifier)
         
-        collectionView.delegate = self
+        collectionView?.delegate = self
     }
     
     private func configureUI(with type: TrackerTypes) {
+        guard let collectionView else { return }
         view.addSubview(mainTitle)
         view.addSubview(scrollView)
         
@@ -216,6 +216,7 @@ class CreateEventViewController: UIViewController {
         contentView.addSubview(categoryButton)
         
         categoryButton.addSubview(categoryButtonImage)
+        
         
         contentView.addSubview(collectionView)
         contentView.addSubview(cancelButton)
@@ -440,8 +441,9 @@ extension CreateEventViewController: ScheduleViewControllerDelegate {
 
 // MARK: - CategoriesViewControllerDelegate
 extension CreateEventViewController: CategoriesViewControllerDelegate {
-    func selectCategory(indexPath: IndexPath) {
-        self.category = MockData.shared.mockCategories[indexPath.row].title
+    func selectCategory(title: String?) {
+        guard let title else { return }
+        self.category = title
         self.updateCreateButton()
     }
 }
@@ -477,21 +479,23 @@ extension CreateEventViewController {
 extension CreateEventViewController {
     private func configureHierarchy() {
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        collectionView.backgroundColor = .ypWhite
-        collectionView.isScrollEnabled = false
-        collectionView.allowsMultipleSelection = true
+        collectionView?.translatesAutoresizingMaskIntoConstraints = false
+        collectionView?.backgroundColor = .ypWhite
+        collectionView?.isScrollEnabled = false
+        collectionView?.allowsMultipleSelection = true
     }
     
     private func configureHeader() {
+        
         dataSource?.supplementaryViewProvider = { (collectionView: UICollectionView, kind: String, indexPath: IndexPath) -> UICollectionReusableView? in
             
-            let header: EmojiesAndColorsSectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: EmojiesAndColorsSectionHeader.reuseIdentifier, for: indexPath) as! EmojiesAndColorsSectionHeader
+            
+            guard let header: EmojiesAndColorsSectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: EmojiesAndColorsSectionHeader.reuseIdentifier, for: indexPath) as? EmojiesAndColorsSectionHeader else { return UICollectionReusableView() }
             
             if indexPath.section == 0 {
-                header.titleLabel.text = "Emoji"
+                header.configureHeader(title: "Emoji")
             } else {
-                header.titleLabel.text = "Цвет"
+                header.configureHeader(title: "Цвет")
             }
             
             return header
@@ -499,18 +503,19 @@ extension CreateEventViewController {
     }
     
     private func configureDataSource() {
+        guard let collectionView else { return }
         dataSource = UICollectionViewDiffableDataSource<Category, EmojiesAndColorsItem>(collectionView: collectionView) {
             (collectionView, indexPath, item) -> UICollectionViewCell? in
             
             switch item.category {
             case .emojies:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiesSectionViewCell", for: indexPath) as! EmojiesSectionViewCell
-                cell.configure(with: item.emoji ?? "❓")
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiesSectionViewCell", for: indexPath) as? EmojiesSectionViewCell
+                cell?.configure(with: item.emoji ?? "❓")
                 
                 return cell
             case .colors:
-                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ColorsSectionViewCell", for: indexPath) as! ColorsSectionViewCell
-                cell.configure(with: item.color ?? .ypGray)
+                let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ColorsSectionViewCell", for: indexPath) as? ColorsSectionViewCell
+                cell?.configure(with: item.color ?? .ypGray)
                 
                 return cell
             }
@@ -524,7 +529,7 @@ extension CreateEventViewController {
             snapshot.appendItems(items)
         }
         
-        dataSource.apply(snapshot, animatingDifferences: false)
+        dataSource?.apply(snapshot, animatingDifferences: false)
     }
 }
 

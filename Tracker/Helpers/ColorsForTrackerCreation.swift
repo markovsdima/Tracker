@@ -8,6 +8,7 @@
 import UIKit
 
 struct ColorsForTrackerCreation {
+    // TODO: Color naming and managment
     static let color1 = UIColor(hex: "#FD4C49")
     static let color2 = UIColor(hex: "#FF881E")
     static let color3 = UIColor(hex: "#007BFA")

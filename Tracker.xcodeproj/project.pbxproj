@@ -39,6 +39,7 @@
 		32F27CB72BBC254000E352A7 /* EmojiesAndColorsSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F27CB62BBC254000E352A7 /* EmojiesAndColorsSectionHeader.swift */; };
 		32F27CB92BBCF0F200E352A7 /* EmojiesAndColorsItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F27CB82BBCF0F200E352A7 /* EmojiesAndColorsItem.swift */; };
 		32F27CBB2BBCF19500E352A7 /* ColorsForTrackerCreation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F27CBA2BBCF19500E352A7 /* ColorsForTrackerCreation.swift */; };
+		32F27CED2BC00E0500E352A7 /* Date+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32F27CEC2BC00E0500E352A7 /* Date+Extensions.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -76,6 +77,7 @@
 		32F27CB62BBC254000E352A7 /* EmojiesAndColorsSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiesAndColorsSectionHeader.swift; sourceTree = "<group>"; };
 		32F27CB82BBCF0F200E352A7 /* EmojiesAndColorsItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmojiesAndColorsItem.swift; sourceTree = "<group>"; };
 		32F27CBA2BBCF19500E352A7 /* ColorsForTrackerCreation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorsForTrackerCreation.swift; sourceTree = "<group>"; };
+		32F27CEC2BC00E0500E352A7 /* Date+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Date+Extensions.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -185,6 +187,7 @@
 				32F27CB42BBC0B9900E352A7 /* UIColor+Extensions.swift */,
 				328C0EBB2BB3DA4B006ECD5B /* HideKeyboard.swift */,
 				32F27CBA2BBCF19500E352A7 /* ColorsForTrackerCreation.swift */,
+				32F27CEC2BC00E0500E352A7 /* Date+Extensions.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -280,6 +283,7 @@
 				32F27CB52BBC0B9900E352A7 /* UIColor+Extensions.swift in Sources */,
 				321C38B02B7C94F700F86B02 /* TrackerRecord.swift in Sources */,
 				328C0EBC2BB3DA4B006ECD5B /* HideKeyboard.swift in Sources */,
+				32F27CED2BC00E0500E352A7 /* Date+Extensions.swift in Sources */,
 				32F27CB32BBBC51100E352A7 /* ColorsSectionViewCell.swift in Sources */,
 				32F27CB12BBB99AD00E352A7 /* EmojiesSectionViewCell.swift in Sources */,
 				321C38B42B94AA6A00F86B02 /* TrackersCollectionViewCell.swift in Sources */,

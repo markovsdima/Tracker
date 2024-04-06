@@ -39,8 +39,10 @@ enum WeekDay: Int, Hashable, CaseIterable {
         var schedule = [WeekDay]()
         let weekDaysStringArray = daysString.split(separator: ",")
         for index in weekDaysStringArray {
-            guard let weekDay = WeekDay(rawValue: Int(index)!) else { return schedule }
-            schedule.append(weekDay)
+            if let value = Int(index) {
+                guard let weekDay = WeekDay(rawValue: value) else { return schedule }
+                schedule.append(weekDay)
+            }
         }
         
         return schedule

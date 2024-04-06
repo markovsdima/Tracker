@@ -16,14 +16,13 @@ final class ScheduleTableViewCell: UITableViewCell {
     // MARK: - Public Properties
     static let reuseIdentifier = "ScheduleTableViewCell"
     
-    var weekDay: WeekDay?
+    private var weekDay: WeekDay?
     
     weak var delegate: ScheduleTableViewCellDelegate?
     
     // MARK: - UI Properties
-    lazy var cellTitle: UILabel = {
+    private lazy var cellTitle: UILabel = {
         let label = UILabel()
-        //label.text = "День недели"
         label.font = .systemFont(ofSize: 17, weight: .regular)
         label.textColor = .ypBlack
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -31,7 +30,7 @@ final class ScheduleTableViewCell: UITableViewCell {
         return label
     }()
     
-    lazy var switchButton: UISwitch = {
+    private lazy var switchButton: UISwitch = {
         let switchButton = UISwitch()
         switchButton.onTintColor = .ypBlue
         switchButton.addTarget(self, action: #selector(didTapSwitchButton), for: .valueChanged)
@@ -48,6 +47,13 @@ final class ScheduleTableViewCell: UITableViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: - Public Methods
+    func configure(title: String, backgroundColor: UIColor, weekDay: WeekDay?) {
+        cellTitle.text = title
+        self.backgroundColor = backgroundColor
+        self.weekDay = weekDay
     }
     
     // MARK: - Private Methods

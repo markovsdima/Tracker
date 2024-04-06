@@ -11,14 +11,6 @@ import UIKit
 @objc(TrackerCoreData)
 public class TrackerCoreData: NSManagedObject {
     
-}
-
-extension TrackerCoreData {
-    
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<TrackerCoreData> {
-        return NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
-    }
-    
     @NSManaged public var color: UIColor?
     @NSManaged public var emoji: String?
     @NSManaged public var id: UUID?
@@ -28,10 +20,10 @@ extension TrackerCoreData {
     @NSManaged public var category: TrackerCategoryCoreData?
     @NSManaged public var records: NSSet?
     
-}
-
-// MARK: Generated accessors for records
-extension TrackerCoreData {
+    @nonobjc
+    public class func fetchRequest() -> NSFetchRequest<TrackerCoreData> {
+        return NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
+    }
     
     @objc(addRecordsObject:)
     @NSManaged public func addToRecords(_ value: TrackerRecordCoreData)
@@ -44,9 +36,4 @@ extension TrackerCoreData {
     
     @objc(removeRecords:)
     @NSManaged public func removeFromRecords(_ values: NSSet)
-    
-}
-
-extension TrackerCoreData : Identifiable {
-    
 }

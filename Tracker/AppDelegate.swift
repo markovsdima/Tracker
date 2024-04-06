@@ -17,7 +17,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         window = UIWindow()
         window?.rootViewController = TabBarViewController()
-        //window?.rootViewController = EmojiesAndColorsCollection()
         window?.makeKeyAndVisible()
         
         return true

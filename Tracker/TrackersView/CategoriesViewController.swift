@@ -8,13 +8,17 @@
 import UIKit
 
 protocol CategoriesViewControllerDelegate: AnyObject {
-    func selectCategory(indexPath: IndexPath)
+    func selectCategory(title: String?)
 }
 
 final class CategoriesViewController: UIViewController {
     
     // MARK: - Public Properties
     weak var delegate: CategoriesViewControllerDelegate?
+    
+    // MARK: - Private Properties
+    private var trackerCategoryStore = TrackerCategoryStore.shared
+    private var trackerCategories: [TrackerCategory]?
     
     // MARK: - UI Properties
     private lazy var mainTitle: UILabel = {
@@ -73,6 +77,8 @@ final class CategoriesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        loadCategories()
+        
         view.backgroundColor = .ypWhite
         tableView.dataSource = self
         tableView.delegate = self
@@ -83,6 +89,14 @@ final class CategoriesViewController: UIViewController {
     }
     
     // MARK: - Private Methods
+    private func loadCategories() {
+        do {
+            trackerCategories = try trackerCategoryStore.fetchCategories()
+        } catch {
+            print("Error: \(error) while loading categories")
+        }
+    }
+    
     private func emptyCheck() {
         if MockData.shared.mockCategories.count == 0 {
             
@@ -139,15 +153,17 @@ extension CategoriesViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: CategoriesTableViewCell.reuseIdentifier, for: indexPath)
         guard let cell = cell as? CategoriesTableViewCell else { return UITableViewCell() }
         
-        cell.cellTitle.text = MockData.shared.mockCategories[indexPath.row].title
+        cell.configure(
+            title: trackerCategories?[indexPath.row].title ?? "",
+            backgroundColor: .ypGrayAlpha
+        )
         cell.selectionStyle = .none
-        cell.backgroundColor = .ypGrayAlpha
         
         return cell
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return MockData.shared.mockCategories.count
+        return trackerCategories?.count ?? 0
     }
 }
 
@@ -159,8 +175,8 @@ extension CategoriesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let cell = tableView.cellForRow(at: indexPath) as? CategoriesTableViewCell else { return }
         cell.showImageForSelected(true)
-        
-        delegate?.selectCategory(indexPath: indexPath)
+        let categoryTitle = trackerCategories?[indexPath.row].title
+        delegate?.selectCategory(title: categoryTitle)
         dismiss(animated: true)
     }
     
@@ -173,11 +189,17 @@ extension CategoriesViewController: UITableViewDelegate {
 // MARK: - NewCategoryViewControllerDelegate
 extension CategoriesViewController: NewCategoryViewControllerDelegate{
     func addNewCategory(name: String) {
-        if MockData.shared.mockCategories.contains(where: { $0.title == name }) {
-            return
-        } else {
-            MockData.shared.mockCategories.append(TrackerCategory(title: name, trackers: []))
+        do {
+            try trackerCategoryStore.addCategory(title: name)
+            loadCategories()
             tableView.reloadData()
+            
+        } catch TrackerCategoryStoreError.categoryExist {
+            print("Такая категория уже есть")
+            // TODO: notificate in ui
+        } catch {
+            print("Неизвестная ошибка: \(error)")
         }
+        
     }
 }

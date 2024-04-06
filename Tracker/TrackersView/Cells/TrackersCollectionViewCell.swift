@@ -8,7 +8,7 @@
 import UIKit
 
 protocol TrackersCollectionViewCellDelegate: AnyObject {
-    func changeTrackerCompletionState(id: UUID)
+    func changeTrackerCompletionState(tracker: Tracker)
 }
 
 class TrackersCollectionViewCell: UICollectionViewCell {
@@ -22,6 +22,8 @@ class TrackersCollectionViewCell: UICollectionViewCell {
     private var trackerCompletion: Bool?
     private var trackerCompletedDaysCount: Int = 0
     private var isFuture: Bool?
+    private var trackerType: TrackerTypes?
+    private var tracker: Tracker?
     
     // MARK: - UI Properties
     private lazy var cardView: UIView = {
@@ -109,13 +111,18 @@ class TrackersCollectionViewCell: UICollectionViewCell {
         titleLabel.text = tracker.title
         cardView.backgroundColor = tracker.color
         taskCompletedButton.backgroundColor = tracker.color
+        self.tracker = tracker
         self.trackerColor = tracker.color
         self.trackerId = tracker.id
+        self.trackerType = tracker.trackerType
         self.trackerCompletion = completion
         self.trackerCompletedDaysCount = count
         self.isFuture = isFuture
         self.daysCountLabel.text = generateDaysCountLabelText(with: trackerCompletedDaysCount)
-        if completion == true {
+        if isFuture {
+            taskCompletedButton.setImage(UIImage(systemName: "plus"), for: .normal)
+            taskCompletedButton.backgroundColor = trackerColor.withAlphaComponent(0.3)
+        } else if completion == true {
             taskCompletedButton.setImage(UIImage(systemName: "checkmark"), for: .normal)
             taskCompletedButton.backgroundColor = trackerColor.withAlphaComponent(0.3)
         } else {
@@ -167,10 +174,8 @@ class TrackersCollectionViewCell: UICollectionViewCell {
         ])
     }
     
-    
-    
     @objc private func taskCompletedButtonDidTap() {
-        guard let trackerId else { return }
+        guard let tracker else { return }
         
         if isFuture == true { return }
         
@@ -188,6 +193,6 @@ class TrackersCollectionViewCell: UICollectionViewCell {
             daysCountLabel.text = generateDaysCountLabelText(with: trackerCompletedDaysCount)
         }
         
-        delegate?.changeTrackerCompletionState(id: trackerId)
+        delegate?.changeTrackerCompletionState(tracker: tracker)
     }
 }

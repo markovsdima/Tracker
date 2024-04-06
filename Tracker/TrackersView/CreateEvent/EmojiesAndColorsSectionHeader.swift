@@ -7,11 +7,11 @@
 
 import UIKit
 
-class EmojiesAndColorsSectionHeader: UICollectionReusableView {
+final class EmojiesAndColorsSectionHeader: UICollectionReusableView {
     static let reuseIdentifier = "EmojiesAndColorsSectionHeader"
     
     // MARK: - Public Properties
-    let titleLabel = UILabel()
+    private let titleLabel = UILabel()
     
     // MARK: - Initializers
     override init(frame: CGRect) {
@@ -32,6 +32,11 @@ class EmojiesAndColorsSectionHeader: UICollectionReusableView {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: - Public methods
+    func configureHeader(title: String) {
+        titleLabel.text = title
     }
 }
 

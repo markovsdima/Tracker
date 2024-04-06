@@ -86,7 +86,7 @@ final class NewCategoryViewController: UIViewController {
         ])
     }
     
-    @objc func didTapFinishButton() {
+    @objc private func didTapFinishButton() {
         guard let categoryName else {
             return
         }
@@ -94,7 +94,7 @@ final class NewCategoryViewController: UIViewController {
         dismiss(animated: true)
     }
     
-    @objc func didChangedNameField() {
+    @objc private func didChangedNameField() {
         self.categoryName = categoryNameTextField.text
     }
 }

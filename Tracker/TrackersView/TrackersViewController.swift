@@ -5,21 +5,19 @@
 //  Created by Dmitry Markovskiy on 10.02.2024.
 //
 
-import CoreData
 import UIKit
 
-class TrackersViewController: UIViewController {
+final class TrackersViewController: UIViewController {
     
     // MARK: - Private Properties
     private var categories: [TrackerCategory] = MockData.shared.mockCategories
     private var filteredCategories: [TrackerCategory] = []
     private var completedTrackers = Set<TrackerRecord>()
     private var currentDate = Date()
-    private var dataSource: UICollectionViewDiffableDataSource<TrackerCategory, Tracker>!
+    private var dataSource: UICollectionViewDiffableDataSource<TrackerCategory, Tracker>?
     private var snapshot: NSDiffableDataSourceSnapshot<TrackerCategory, Tracker>?
     private var trackerStore = TrackerStore.shared
-    private var trackerCategoryStore = TrackerCategoryStore.shared
-    private var isEmpty: Bool = false
+    private var trackerRecordStore = TrackerRecordStore.shared
     
     // MARK: - UI Properties
     private let collectionView: UICollectionView = {
@@ -147,34 +145,45 @@ class TrackersViewController: UIViewController {
         collectionView.register(TrackersSectionHeader.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header")
         
         datePicker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
+        
+        do {
+            completedTrackers = try trackerRecordStore.fetchTrackerRecord()
+        } catch {
+            print("FetchingTrackersRecordsError")
+        }
+        
     }
     
     // MARK: - Private Methods
-    private func emptyCheck() {
-        if isEmpty == true {
-            
-            view.addSubview(noTrackersYetImageView)
-            view.addSubview(noTrackersYetLabel)
-            
-            noTrackersYetImageView.layer.zPosition = 10
-            noTrackersYetLabel.layer.zPosition = 10
-            
-            NSLayoutConstraint.activate([
-                noTrackersYetImageView.widthAnchor.constraint(equalToConstant: 80),
-                noTrackersYetImageView.heightAnchor.constraint(equalToConstant: 80),
-                noTrackersYetImageView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-                noTrackersYetImageView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 230),
-                
-                noTrackersYetLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-                noTrackersYetLabel.topAnchor.constraint(equalTo: noTrackersYetImageView.bottomAnchor, constant: 8)
-            ])
-            
-            noTrackersYetImageView.isHidden = false
-            noTrackersYetLabel.isHidden = false
-        } else {
-            noTrackersYetImageView.isHidden = true
-            noTrackersYetLabel.isHidden = true
+    private func getCompletedTrackersIdsArray(_ trackers: Set<TrackerRecord>) -> [UUID] {
+        var identifiers = [UUID]()
+        for i in trackers {
+            identifiers.append(i.id)
         }
+        return identifiers
+    }
+    
+    private func emptyCheck(isEmpty: Bool) {
+        
+        view.addSubview(noTrackersYetImageView)
+        view.addSubview(noTrackersYetLabel)
+        
+        noTrackersYetImageView.layer.zPosition = 10
+        noTrackersYetLabel.layer.zPosition = 10
+        
+        NSLayoutConstraint.activate([
+            noTrackersYetImageView.widthAnchor.constraint(equalToConstant: 80),
+            noTrackersYetImageView.heightAnchor.constraint(equalToConstant: 80),
+            noTrackersYetImageView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+            noTrackersYetImageView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 230),
+            
+            noTrackersYetLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+            noTrackersYetLabel.topAnchor.constraint(equalTo: noTrackersYetImageView.bottomAnchor, constant: 8)
+        ])
+        
+        noTrackersYetImageView.isHidden = !isEmpty
+        noTrackersYetLabel.isHidden = !isEmpty
+        
     }
     
     private func setupCollectionView() {
@@ -192,11 +201,14 @@ class TrackersViewController: UIViewController {
         dataSource = UICollectionViewDiffableDataSource<TrackerCategory, Tracker>(collectionView: collectionView) {
             (collectionView, IndexPath, ItemIdentifier) -> UICollectionViewCell? in
             
-            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: IndexPath) as! TrackersCollectionViewCell
+            let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "Cell", for: IndexPath) as? TrackersCollectionViewCell
+            
             let completion = self.checkForCompletionToday(id: ItemIdentifier.id)
+            
             let completedDaysCount = self.checkForCompletedDaysCount(id: ItemIdentifier.id)
-            cell.configure(with: ItemIdentifier, completion: completion, count: completedDaysCount, isFuture: self.checkIsFuture())
-            cell.delegate = self
+            
+            cell?.configure(with: ItemIdentifier, completion: completion, count: completedDaysCount, isFuture: self.checkIsFuture())
+            cell?.delegate = self
             
             return cell
         }
@@ -210,14 +222,15 @@ class TrackersViewController: UIViewController {
     }
     
     private func checkForCompletedDaysCount(id: UUID) -> Int {
-        let count = MockData.shared.mockCompletedTrackers.filter { tracker in
+        let count = completedTrackers.filter { tracker in
             tracker.id == id
         }.count
         return count
     }
     
     private func checkForCompletionToday(id: UUID) -> Bool {
-        if MockData.shared.mockCompletedTrackers.contains(TrackerRecord(id: id, date: currentDate)) {
+        guard let date = currentDate.onlyDate else { return false }
+        if completedTrackers.contains(TrackerRecord(id: id, date: date)) {
             return true
         } else {
             return false
@@ -227,10 +240,10 @@ class TrackersViewController: UIViewController {
     private func configureHeader() {
         dataSource?.supplementaryViewProvider = { (collectionView: UICollectionView, kind: String, indexPath: IndexPath) -> UICollectionReusableView? in
             
-            let header: TrackersSectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header", for: indexPath) as! TrackersSectionHeader
+            let header: TrackersSectionHeader? = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "header", for: indexPath) as? TrackersSectionHeader
             
             if let section = self.snapshot?.sectionIdentifiers[indexPath.section] {
-                header.configure(with: section)
+                header?.configure(with: section)
             }
             return header
         }
@@ -241,9 +254,11 @@ class TrackersViewController: UIViewController {
         snapshot?.appendSections(filteredCategories)
         for category in filteredCategories {
             snapshot?.appendItems(category.trackers, toSection: category)
+            snapshot?.reloadItems(category.trackers)
         }
         
-        dataSource.apply(snapshot!, animatingDifferences: true)
+        guard let snapshot else { return }
+        dataSource?.apply(snapshot, animatingDifferences: false)
     }
     
     private func configureNavBar() {
@@ -268,20 +283,14 @@ class TrackersViewController: UIViewController {
     private func filterCategoriesByWeekDay() throws {
         let selectedWeekDay = Calendar.current.component(.weekday, from: datePicker.date)
         trackerStore.filterCategoriesByWeekDay(selectedWeekDay: selectedWeekDay)
-        filteredCategories = try TrackerStore.shared.getTrackerCategories(selectedWeekDay)
+        filteredCategories = try trackerStore.getTrackerCategories(selectedWeekDay, currentDate: currentDate)
         reloadData()
-        if filteredCategories.isEmpty {
-            self.isEmpty = true
-            emptyCheck()
-        } else {
-            self.isEmpty = false
-            emptyCheck()
-        }
+        
+        emptyCheck(isEmpty: filteredCategories.isEmpty)
     }
     
     @objc private func didTapAddTrackerButton() {
         let view = CreateTrackerViewController()
-        view.delegate = self
         
         present(view, animated: true)
     }
@@ -293,20 +302,35 @@ class TrackersViewController: UIViewController {
         } catch {
             print("filterCategoriesByWeekDayWhenViewDidLoadError")
         }
-        collectionView.reloadData()
+        
     }
 }
 
 // MARK: - TrackersCollectionViewCellDelegate
 extension TrackersViewController: TrackersCollectionViewCellDelegate {
-    func changeTrackerCompletionState(id: UUID) {
-        if MockData.shared.mockCompletedTrackers.contains(TrackerRecord(id: id, date: currentDate)) {
-            MockData.shared.mockCompletedTrackers.remove(TrackerRecord(id: id, date: currentDate))
-            completedTrackers = MockData.shared.mockCompletedTrackers
+    func changeTrackerCompletionState(tracker: Tracker) {
+        guard let date = currentDate.onlyDate else { return }
+        
+        if completedTrackers.contains(TrackerRecord(id: tracker.id, date: date)) {
+            
+            do {
+                guard let date = currentDate.onlyDate else { return }
+                try trackerRecordStore.removeRecord(id: tracker.id, date: date)
+                completedTrackers = try trackerRecordStore.fetchTrackerRecord()
+                snapshot?.reloadItems([tracker])
+            } catch { print("Error: \(error) in TrackersViewController.changeTrackerCompletionState()") }
+            
         } else {
-            MockData.shared.mockCompletedTrackers.insert(TrackerRecord(id: id, date: currentDate))
-            completedTrackers = MockData.shared.mockCompletedTrackers
+            
+            do {
+                guard let date = currentDate.onlyDate else { return }
+                trackerRecordStore.addTrackerRecord(for: tracker, date: date)
+                completedTrackers = try trackerRecordStore.fetchTrackerRecord()
+                snapshot?.reloadItems([tracker])
+            } catch { print("Error: \(error) in TrackersViewController.changeTrackerCompletionState()") }
+            
         }
+        
     }
 }
 
@@ -318,38 +342,5 @@ extension TrackersViewController: TrackerStoreDelegate {
         } catch {
             print("filterCategoriesByWeekDayWhenViewDidLoadError")
         }
-    }
-}
-
-// MARK: - CreateTrackerViewControllerDelegate
-extension TrackersViewController: CreateTrackerViewControllerDelegate {
-    
-}
-
-// MARK: - NSFetchedResultsControllerDelegate
-extension TrackersViewController: NSFetchedResultsControllerDelegate {
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChangeContentWith snapshot: NSDiffableDataSourceSnapshotReference) {
-        guard let dataSource = collectionView.dataSource as? UICollectionViewDiffableDataSourceReference else {
-            fatalError("The data source has not implemented snapshot support while it should")
-        }
-        dataSource.applySnapshot(snapshot, animatingDifferences: true)
-    }
-}
-
-// MARK: - SwiftUI Preview
-import SwiftUI
-struct FlowProvider: PreviewProvider {
-    static var previews: some View {
-        ContainerView().edgesIgnoringSafeArea(.all)
-    }
-    
-    struct ContainerView: UIViewControllerRepresentable {
-        let tabBar = TabBarViewController()
-        func makeUIViewController(context:
-                                  UIViewControllerRepresentableContext<FlowProvider.ContainerView>) -> TabBarViewController {
-            return tabBar
-        }
-        
-        func updateUIViewController(_ uiViewController: FlowProvider.ContainerView.UIViewControllerType, context: UIViewControllerRepresentableContext<FlowProvider.ContainerView>) { }
     }
 }

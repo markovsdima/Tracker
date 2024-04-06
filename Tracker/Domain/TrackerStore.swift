@@ -22,17 +22,28 @@ final class TrackerStore: NSObject {
     
     weak var delegate: TrackerStoreDelegate?
     
-    var currentDay: Int = 0
+    // MARK: - Private properties
+    private var trackerRecordStore = TrackerRecordStore.shared
+    private var currentDay: Int = 0
     
-    private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCoreData> = {
-        
+    private var appDelegate: AppDelegate? {
+        UIApplication.shared.delegate as? AppDelegate
+    }
+    
+    private var context: NSManagedObjectContext? {
+        appDelegate?.persistentContainer.viewContext
+    }
+    
+    private var categories = [TrackerCategory]()
+    
+    private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>? = {
         let fetchRequest = TrackerCoreData.fetchRequest()
         
         fetchRequest.sortDescriptors = [
             NSSortDescriptor(key: #keyPath(TrackerCoreData.category.title), ascending: true),
             NSSortDescriptor(key: #keyPath(TrackerCoreData.title), ascending: true)
         ]
-        
+        guard let context else { return nil }
         let controller = NSFetchedResultsController(
             fetchRequest: fetchRequest,
             managedObjectContext: context,
@@ -40,7 +51,7 @@ final class TrackerStore: NSObject {
             cacheName: nil
         )
         controller.delegate = self
-
+        
         do {
             try controller.performFetch()
         } catch {
@@ -50,33 +61,7 @@ final class TrackerStore: NSObject {
         return controller
     }()
     
-    func trackersCoreDataToTrackers(from: [TrackerCoreData]) throws -> [Tracker] {
-        var array2 = [Tracker]()
-        for i in from {
-            array2.append(try tracker(from: i))
-        }
-        return array2
-    }
-    
-    func getTrackerCategories(_ day: Int) throws -> [TrackerCategory] {
-        self.currentDay = day
-
-        guard let objects = fetchedResultsController.fetchedObjects else {
-            throw TrackerStoreError.otherError
-        }
-        
-        let categories2 = Dictionary(grouping: objects, by: { $0.category!.title })
-        
-        categories = [TrackerCategory]()
-        
-        for i in categories2 {
-            let trackerCategory = TrackerCategory(title: i.key!, trackers: try trackersCoreDataToTrackers(from: i.value))
-            categories.append(trackerCategory)
-        }
-
-        return categories
-    }
-    
+    // MARK: - Initializers
     private override init() {
         ValueTransformer.setValueTransformer(
             UIColorTransformer(),
@@ -84,17 +69,36 @@ final class TrackerStore: NSObject {
         )
     }
     
-    private var appDelegate: AppDelegate {
-        UIApplication.shared.delegate as! AppDelegate
+    // MARK: - Public methods
+    func getTrackerCategories(_ day: Int, currentDate: Date) throws -> [TrackerCategory] {
+        self.currentDay = day
+        
+        guard let objects = fetchedResultsController?.fetchedObjects else {
+            throw TrackerStoreError.otherError
+        }
+        
+        let categories2 = Dictionary(grouping: objects, by: { $0.category?.title })
+        
+        categories = [TrackerCategory]()
+        
+        for i in categories2 {
+            guard let key = i.key else { throw TrackerStoreError.otherError }
+            let trackerCategory = TrackerCategory(
+                title: key,
+                trackers: try trackersCoreDataToTrackers(from: i.value, currentDate: currentDate)
+            )
+            
+            categories.append(trackerCategory)
+        }
+        
+        categories = filterEmptySections(categories)
+        
+        
+        return categories
     }
-    
-    private var context: NSManagedObjectContext {
-        appDelegate.persistentContainer.viewContext
-    }
-    
-    var categories = [TrackerCategory]()
     
     func addTracker(_ tracker: Tracker, to category: TrackerCategory) throws {
+        guard let context else { throw TrackerStoreError.otherError }
         let trackerCoreData = TrackerCoreData(context: context)
         
         trackerCoreData.id = tracker.id
@@ -119,11 +123,7 @@ final class TrackerStore: NSObject {
         
         trackerCategory.addToTrackers(trackerCoreData)
         
-        appDelegate.saveContext()
-    }
-    
-    func fetchTrackers() -> [Tracker] {
-        return [Tracker]()
+        appDelegate?.saveContext()
     }
     
     func tracker(from trackerCoreData: TrackerCoreData) throws -> Tracker {
@@ -159,14 +159,46 @@ final class TrackerStore: NSObject {
             return
         }
         
-        fetchedResultsController.fetchRequest.predicate = NSCompoundPredicate(orPredicateWithSubpredicates: predicates)
+        fetchedResultsController?.fetchRequest.predicate = NSCompoundPredicate(orPredicateWithSubpredicates: predicates)
         
         do {
-            try fetchedResultsController.performFetch()
+            try fetchedResultsController?.performFetch()
         } catch {
             print("Perform fetch error in TrackerStore.filterCategoriesByWeekDay /n ----------- Error: \(error)")
         }
-
+        
+    }
+    
+    // MARK: - Private methods
+    private func trackersCoreDataToTrackers(from trackersCoreData: [TrackerCoreData], currentDate: Date) throws -> [Tracker] {
+        var array = [Tracker]()
+        let date = currentDate.onlyDate ?? Date()
+        
+        let records = Array(try trackerRecordStore.fetchTrackerRecord())
+        
+        for i in trackersCoreData {
+            
+            array.append(try tracker(from: i))
+        }
+        
+        let filteredArray = filterTrackers(trackers: array, records: records, currentDate: date)
+        
+        return filteredArray
+    }
+    
+    private func filterTrackers(trackers: [Tracker], records: [TrackerRecord], currentDate: Date) -> [Tracker] {
+        let filteredRecords = records.filter { $0.date != currentDate }
+        let filteredTrackerIDs = Set(filteredRecords.map { $0.id })
+        return trackers.filter { $0.trackerType != TrackerTypes.oneTimeEvent || !filteredTrackerIDs.contains($0.id) }
+    }
+    
+    private func filterEmptySections(_ categories: [TrackerCategory]) -> [TrackerCategory] {
+        let filteredCategories = categories.filter { $0.trackers != [] }
+        return filteredCategories
+    }
+    
+    private func fetchTrackers() -> [Tracker] {
+        return [Tracker]()
     }
 }
 
