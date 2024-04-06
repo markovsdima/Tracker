@@ -374,22 +374,15 @@ final class CreateEventViewController: UIViewController {
     }
     
     private func updateCreateButton() {
-        if eventType == .regularEvent {
-            if trackerTitle != "" && category != "" && schedule != [] {
-                createButton.isEnabled = true
-                createButton.backgroundColor = .ypBlack
-            } else {
-                createButton.isEnabled = false
-                createButton.backgroundColor = .ypGray
-            }
-        } else {
-            if trackerTitle != "" && category != "" {
-                createButton.isEnabled = true
-                createButton.backgroundColor = .ypBlack
-            } else {
-                createButton.isEnabled = false
-                createButton.backgroundColor = .ypGray
-            }
+        switch eventType {
+        case .oneTimeEvent:
+            let isNotEmptyInfo = trackerTitle != "" && category != ""
+            createButton.isEnabled = isNotEmptyInfo
+            createButton.backgroundColor = isNotEmptyInfo ? .ypBlack : .ypGray
+        case .regularEvent:
+            let isNotEmptyInfo = trackerTitle != "" && category != "" && schedule != []
+            createButton.isEnabled = isNotEmptyInfo
+            createButton.backgroundColor = isNotEmptyInfo ? .ypBlack : .ypGray
         }
     }
     
@@ -486,11 +479,20 @@ extension CreateEventViewController {
     }
     
     private func configureHeader() {
-        
-        dataSource?.supplementaryViewProvider = { (collectionView: UICollectionView, kind: String, indexPath: IndexPath) -> UICollectionReusableView? in
+        dataSource?.supplementaryViewProvider = {
+            (collectionView: UICollectionView,
+             kind: String,
+             indexPath: IndexPath
+            ) -> UICollectionReusableView? in
             
             
-            guard let header: EmojiesAndColorsSectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: EmojiesAndColorsSectionHeader.reuseIdentifier, for: indexPath) as? EmojiesAndColorsSectionHeader else { return UICollectionReusableView() }
+            guard let header: EmojiesAndColorsSectionHeader = collectionView.dequeueReusableSupplementaryView(
+                ofKind: UICollectionView.elementKindSectionHeader,
+                withReuseIdentifier: EmojiesAndColorsSectionHeader.reuseIdentifier,
+                for: indexPath
+            ) as? EmojiesAndColorsSectionHeader else {
+                return UICollectionReusableView()
+            }
             
             if indexPath.section == 0 {
                 header.configureHeader(title: "Emoji")
@@ -536,8 +538,16 @@ extension CreateEventViewController {
 // MARK: - UICollectionViewDelegate
 ///(EmojiesAndColorsCollection)
 extension CreateEventViewController: UICollectionViewDelegate {
-    func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        ((collectionView.indexPathsForSelectedItems?.filter({ $0.section == indexPath.section }).forEach({ collectionView.deselectItem(at: $0, animated: false) })) != nil)
+    func collectionView(
+        _ collectionView: UICollectionView,
+        shouldSelectItemAt indexPath: IndexPath
+    ) -> Bool {
+        if let selected = collectionView.indexPathsForSelectedItems?.first(where: { $0.section == indexPath.section }) {
+            collectionView.deselectItem(at: selected, animated: false)
+            return true
+        } else {
+            return true
+        }
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
