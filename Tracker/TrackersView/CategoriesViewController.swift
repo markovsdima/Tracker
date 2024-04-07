@@ -7,18 +7,15 @@
 
 import UIKit
 
-protocol CategoriesViewControllerDelegate: AnyObject {
-    func selectCategory(title: String?)
-}
-
 final class CategoriesViewController: UIViewController {
     
-    // MARK: - Public Properties
-    weak var delegate: CategoriesViewControllerDelegate?
-    
     // MARK: - Private Properties
-    private var trackerCategoryStore = TrackerCategoryStore.shared
-    private var trackerCategories: [TrackerCategory]?
+    private var trackerCategoriesNames: [String]? {
+        didSet {
+            tableView.reloadData()
+        }
+    }
+    private var viewModel: CategoriesViewModel?
     
     // MARK: - UI Properties
     private lazy var mainTitle: UILabel = {
@@ -77,8 +74,6 @@ final class CategoriesViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        loadCategories()
-        
         view.backgroundColor = .ypWhite
         tableView.dataSource = self
         tableView.delegate = self
@@ -86,14 +81,22 @@ final class CategoriesViewController: UIViewController {
         emptyCheck()
         tableView.dataSource = self
         tableView.delegate = self
+        
+        trackerCategoriesNames = viewModel?.trackerCategoriesNames
+    }
+    
+    // MARK: - Public methods
+    func initialize(viewModel: CategoriesViewModel) {
+        self.viewModel = viewModel
+        bind()
     }
     
     // MARK: - Private Methods
-    private func loadCategories() {
-        do {
-            trackerCategories = try trackerCategoryStore.fetchCategories()
-        } catch {
-            print("Error: \(error) while loading categories")
+    private func bind() {
+        guard let viewModel = viewModel else { return }
+        
+        viewModel.trackerCategoriesNamesBinding = { [weak self] names in
+            self?.trackerCategoriesNames = names
         }
     }
     
@@ -154,7 +157,7 @@ extension CategoriesViewController: UITableViewDataSource {
         guard let cell = cell as? CategoriesTableViewCell else { return UITableViewCell() }
         
         cell.configure(
-            title: trackerCategories?[indexPath.row].title ?? "",
+            title: trackerCategoriesNames?[indexPath.row] ?? "",
             backgroundColor: .ypGrayAlpha
         )
         cell.selectionStyle = .none
@@ -163,7 +166,7 @@ extension CategoriesViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return trackerCategories?.count ?? 0
+        return trackerCategoriesNames?.count ?? 0
     }
 }
 
@@ -175,8 +178,10 @@ extension CategoriesViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let cell = tableView.cellForRow(at: indexPath) as? CategoriesTableViewCell else { return }
         cell.showImageForSelected(true)
-        let categoryTitle = trackerCategories?[indexPath.row].title
-        delegate?.selectCategory(title: categoryTitle)
+        let categoryTitle = trackerCategoriesNames?[indexPath.row] ?? ""
+        
+        viewModel?.didSelectCategory(with: categoryTitle)
+        
         dismiss(animated: true)
     }
     
@@ -189,17 +194,6 @@ extension CategoriesViewController: UITableViewDelegate {
 // MARK: - NewCategoryViewControllerDelegate
 extension CategoriesViewController: NewCategoryViewControllerDelegate{
     func addNewCategory(name: String) {
-        do {
-            try trackerCategoryStore.addCategory(title: name)
-            loadCategories()
-            tableView.reloadData()
-            
-        } catch TrackerCategoryStoreError.categoryExist {
-            print("Такая категория уже есть")
-            // TODO: notificate in ui
-        } catch {
-            print("Неизвестная ошибка: \(error)")
-        }
-        
+        viewModel?.addNewCategory(name: name)
     }
 }

@@ -395,7 +395,9 @@ final class CreateEventViewController: UIViewController {
     
     @objc private func didTapCategoryButton() {
         let view = CategoriesViewController()
-        view.delegate = self
+        let viewModel = CategoriesViewModel()
+        viewModel.delegate = self
+        view.initialize(viewModel: viewModel)
         
         present(view, animated: true)
     }
@@ -432,8 +434,8 @@ extension CreateEventViewController: ScheduleViewControllerDelegate {
     }
 }
 
-// MARK: - CategoriesViewControllerDelegate
-extension CreateEventViewController: CategoriesViewControllerDelegate {
+// MARK: - CategoriesViewModelDelegate
+extension CreateEventViewController: CategoriesViewModelDelegate {
     func selectCategory(title: String?) {
         guard let title else { return }
         self.category = title

@@ -10,5 +10,4 @@ import UIKit
 struct OnboardingHelper {
     var backgroundImage = UIImage()
     var titleText = String()
-    //var startUsingAppButton = UIButton()
 }
