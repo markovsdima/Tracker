@@ -65,10 +65,12 @@ final class TrackersViewController: UIViewController {
     
     private lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
+        //datePicker.tintColor = .ypRed
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .compact
         datePicker.locale = Locale(identifier: "ru_RU")
         datePicker.addTarget(self, action: #selector(datePickerValueChanged), for: .valueChanged)
+        datePicker.translatesAutoresizingMaskIntoConstraints = false
         
         return datePicker
     }()
@@ -188,6 +190,7 @@ final class TrackersViewController: UIViewController {
     
     private func setupCollectionView() {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.backgroundColor = .ypWhite
         view.addSubview(collectionView)
         NSLayoutConstraint.activate([
             collectionView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 8),

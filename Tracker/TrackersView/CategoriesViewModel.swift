@@ -50,7 +50,6 @@ final class CategoriesViewModel {
             
         } catch TrackerCategoryStoreError.categoryExist {
             print("Такая категория уже есть")
-            // TODO: notificate in ui
         } catch {
             print("Неизвестная ошибка: \(error)")
         }
@@ -58,6 +57,14 @@ final class CategoriesViewModel {
     
     func didSelectCategory(with title: String) {
         delegate?.selectCategory(title: title)
+    }
+    
+    func deleteCategory(name: String) {
+        do {
+            try trackerCategoryStore.deleteCategory(title: name)
+        } catch {
+            print("Неизвестная ошибка: \(error)")
+        }
     }
     
     // MARK: - Private Methods

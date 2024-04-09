@@ -25,6 +25,8 @@ final class CreateTrackerViewController: UIViewController {
         button.setTitle("Привычка", for: .normal)
         button.backgroundColor = .ypBlack
         button.tintColor = .ypWhite
+        button.setTitleColor(.ypWhite, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(didTapRegularEvent), for: .touchUpInside)
@@ -37,6 +39,8 @@ final class CreateTrackerViewController: UIViewController {
         button.setTitle("Нерегулярное событие", for: .normal)
         button.backgroundColor = .ypBlack
         button.tintColor = .ypWhite
+        button.setTitleColor(.ypWhite, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(didTapOneTimeEvent), for: .touchUpInside)

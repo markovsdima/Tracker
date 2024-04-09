@@ -46,6 +46,8 @@ final class ScheduleViewController: UIViewController {
         button.setTitle("Готово", for: .normal)
         button.backgroundColor = .ypBlack
         button.tintColor = .ypWhite
+        button.setTitleColor(.ypWhite, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(didTapFinishButton), for: .touchUpInside)

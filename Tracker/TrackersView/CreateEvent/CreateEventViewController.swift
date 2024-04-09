@@ -54,6 +54,8 @@ final class CreateEventViewController: UIViewController {
         let field = UITextField()
         field.placeholder = "Введите название трекера"
         field.backgroundColor = .ypGrayAlpha
+        field.font = .systemFont(ofSize: 17)
+        
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: field.frame.height))
         field.leftViewMode = .always
         field.layer.cornerRadius = 16
@@ -135,6 +137,7 @@ final class CreateEventViewController: UIViewController {
         let button = UIButton()
         button.setTitle("Отменить", for: .normal)
         button.setTitleColor(.ypRed, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypWhite
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
@@ -150,6 +153,8 @@ final class CreateEventViewController: UIViewController {
         let button = UIButton()
         button.setTitle("Создать", for: .normal)
         button.setTitleColor(.ypWhite, for: .normal)
+        button.setTitleColor(.ypWhiteOnly, for: .disabled)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
         button.backgroundColor = .ypGray
         button.layer.masksToBounds = true
         button.layer.cornerRadius = 16
@@ -231,7 +236,7 @@ final class CreateEventViewController: UIViewController {
             scheduleButton.addSubview(scheduleButtonImage)
             NSLayoutConstraint.activate([
                 categoryButtonBottomLineView.bottomAnchor.constraint(equalTo: categoryButton.bottomAnchor),
-                categoryButtonBottomLineView.heightAnchor.constraint(equalToConstant: 1),
+                categoryButtonBottomLineView.heightAnchor.constraint(equalToConstant: 0.5),
                 categoryButtonBottomLineView.leadingAnchor.constraint(equalTo: categoryButton.leadingAnchor, constant: 16),
                 categoryButtonBottomLineView.trailingAnchor.constraint(equalTo: categoryButton.trailingAnchor, constant: -16),
                 
@@ -346,22 +351,32 @@ final class CreateEventViewController: UIViewController {
         
         let categoryName = category
         
-        guard let trackerTitle, let selectedColorIndex, let selectedEmojiIndex else { return }
+        guard let trackerTitle else { return }
+        var color: UIColor = UIColor.gray
+        var emoji: String = "❓"
+        
+        if let selectedColorIndex {
+            color = EmojiesAndColorsItem.emojiesAndColors()[selectedColorIndex].color ?? UIColor.gray
+        }
+        
+        if let selectedEmojiIndex {
+            emoji = EmojiesAndColorsItem.emojiesAndColors()[selectedEmojiIndex].emoji ?? "❓"
+        }
         
         if eventType == .regularEvent {
             self.tracker = Tracker(
                 id: uuid,
                 title: trackerTitle,
-                color: EmojiesAndColorsItem.emojiesAndColors()[selectedColorIndex].color ?? UIColor.gray,
-                emoji: EmojiesAndColorsItem.emojiesAndColors()[selectedEmojiIndex].emoji ?? "❓",
+                color: color,
+                emoji: emoji,
                 schedule: schedule,
                 trackerType: self.eventType)
         } else {
             self.tracker = Tracker(
                 id: uuid,
                 title: trackerTitle,
-                color: EmojiesAndColorsItem.emojiesAndColors()[selectedColorIndex].color ?? UIColor.gray,
-                emoji: EmojiesAndColorsItem.emojiesAndColors()[selectedEmojiIndex].emoji ?? "❓",
+                color: color,
+                emoji: emoji,
                 schedule: nil,
                 trackerType: self.eventType)
         }
@@ -376,11 +391,22 @@ final class CreateEventViewController: UIViewController {
     private func updateCreateButton() {
         switch eventType {
         case .oneTimeEvent:
-            let isNotEmptyInfo = trackerTitle != "" && category != ""
+            let isNotEmptyInfo =
+            trackerTitle != ""
+            && category != ""
+            && selectedColorIndex != nil
+            && selectedEmojiIndex != nil
+            
             createButton.isEnabled = isNotEmptyInfo
             createButton.backgroundColor = isNotEmptyInfo ? .ypBlack : .ypGray
         case .regularEvent:
-            let isNotEmptyInfo = trackerTitle != "" && category != "" && schedule != []
+            let isNotEmptyInfo = 
+            trackerTitle != ""
+            && category != ""
+            && schedule != []
+            && selectedColorIndex != nil
+            && selectedEmojiIndex != nil
+            
             createButton.isEnabled = isNotEmptyInfo
             createButton.backgroundColor = isNotEmptyInfo ? .ypBlack : .ypGray
         }
@@ -394,10 +420,9 @@ final class CreateEventViewController: UIViewController {
     }
     
     @objc private func didTapCategoryButton() {
-        let view = CategoriesViewController()
         let viewModel = CategoriesViewModel()
         viewModel.delegate = self
-        view.initialize(viewModel: viewModel)
+        let view = CategoriesViewController(viewModel: viewModel)
         
         present(view, animated: true)
     }
@@ -555,8 +580,10 @@ extension CreateEventViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.section == 0 {
             self.selectedEmojiIndex = indexPath.row
+            updateCreateButton()
         } else {
             self.selectedColorIndex = indexPath.row + 18
+            updateCreateButton()
         }
     }
 }

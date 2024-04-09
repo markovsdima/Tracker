@@ -33,7 +33,6 @@ class OnboardingPageViewController: UIViewController {
     // MARK: - Initializers
     init(helper: OnboardingHelper) {
         super.init(nibName: nil, bundle: nil)
-        //edgesForExtendedLayout = []
         backgroundImage.image = helper.backgroundImage
         titleLabel.text = helper.titleText
         

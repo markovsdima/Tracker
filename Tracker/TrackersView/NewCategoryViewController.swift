@@ -15,9 +15,11 @@ final class NewCategoryViewController: UIViewController {
     
     // MARK: - Public Properties
     weak var delegate: NewCategoryViewControllerDelegate?
+    private var trackerCategoriesNames: [String]? = []
     
     // MARK: - Private Properties
     private var categoryName: String?
+    private var addNewCategoryError: Bool = false
     
     // MARK: - UI Properties
     private lazy var mainTitle: UILabel = {
@@ -48,12 +50,19 @@ final class NewCategoryViewController: UIViewController {
         button.setTitle("Готово", for: .normal)
         button.backgroundColor = .ypBlack
         button.tintColor = .ypWhite
+        button.setTitleColor(.ypWhite, for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(didTapFinishButton), for: .touchUpInside)
         
         return button
     }()
+    
+    // MARK: Initializers
+    convenience init(trackerCategoriesNames: [String]?) {
+        self.init(nibName: nil, bundle: nil)
+        self.trackerCategoriesNames = trackerCategoriesNames
+    }
     
     // MARK: - View Life Cycles
     override func viewDidLoad() {
@@ -86,12 +95,35 @@ final class NewCategoryViewController: UIViewController {
         ])
     }
     
+    private func showErrorAlert() {
+        let alert = UIAlertController(
+            title: nil,
+            message: "Категория с таким именем уже есть",
+            preferredStyle: .alert
+        )
+        let action = UIAlertAction(
+            title: "Ок",
+            style: .default) { _ in
+                alert.dismiss(animated: true)
+            }
+        alert.addAction(action)
+        self.present(alert, animated: true)
+    }
+    
     @objc private func didTapFinishButton() {
-        guard let categoryName else {
-            return
+        guard let categoryName else { return }
+        
+        if let names = trackerCategoriesNames {
+            if names.contains(categoryName) {
+                showErrorAlert()
+            } else {
+                delegate?.addNewCategory(name: categoryName)
+                dismiss(animated: true)
+            }
+        } else {
+            delegate?.addNewCategory(name: categoryName)
+            dismiss(animated: true)
         }
-        delegate?.addNewCategory(name: categoryName)
-        dismiss(animated: true)
     }
     
     @objc private func didChangedNameField() {
