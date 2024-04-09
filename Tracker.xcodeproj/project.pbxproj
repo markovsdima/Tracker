@@ -21,6 +21,7 @@
 		321C38C62BABBBBD00F86B02 /* NewCategoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 321C38C52BABBBBD00F86B02 /* NewCategoryViewController.swift */; };
 		321C38C82BACA84600F86B02 /* CategoriesTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 321C38C72BACA84600F86B02 /* CategoriesTableViewCell.swift */; };
 		321C38EE2BB2585D00F86B02 /* Tracker.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 321C38EC2BB2585D00F86B02 /* Tracker.xcdatamodeld */; };
+		32421BC62BC555150053DDC0 /* EditCategoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32421BC52BC555150053DDC0 /* EditCategoryViewController.swift */; };
 		328C0EBC2BB3DA4B006ECD5B /* HideKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328C0EBB2BB3DA4B006ECD5B /* HideKeyboard.swift */; };
 		328C0EE52BB50149006ECD5B /* TrackerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328C0EE42BB50149006ECD5B /* TrackerStore.swift */; };
 		328C0EE72BB5015E006ECD5B /* TrackerCategoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328C0EE62BB5015E006ECD5B /* TrackerCategoryStore.swift */; };
@@ -61,6 +62,7 @@
 		321C38C52BABBBBD00F86B02 /* NewCategoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewCategoryViewController.swift; sourceTree = "<group>"; };
 		321C38C72BACA84600F86B02 /* CategoriesTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoriesTableViewCell.swift; sourceTree = "<group>"; };
 		321C38ED2BB2585D00F86B02 /* Tracker.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Tracker.xcdatamodel; sourceTree = "<group>"; };
+		32421BC52BC555150053DDC0 /* EditCategoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditCategoryViewController.swift; sourceTree = "<group>"; };
 		328C0EBB2BB3DA4B006ECD5B /* HideKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideKeyboard.swift; sourceTree = "<group>"; };
 		328C0EE42BB50149006ECD5B /* TrackerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerStore.swift; sourceTree = "<group>"; };
 		328C0EE62BB5015E006ECD5B /* TrackerCategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCategoryStore.swift; sourceTree = "<group>"; };
@@ -120,6 +122,7 @@
 				321C38C22BAB97E100F86B02 /* CategoriesViewController.swift */,
 				32F27CF52BC2A60C00E352A7 /* CategoriesViewModel.swift */,
 				321C38C52BABBBBD00F86B02 /* NewCategoryViewController.swift */,
+				32421BC52BC555150053DDC0 /* EditCategoryViewController.swift */,
 				321C38C42BAB984200F86B02 /* Cells */,
 			);
 			path = TrackersView;
@@ -318,6 +321,7 @@
 				321C38C12BAA950A00F86B02 /* ScheduleTableViewCell.swift in Sources */,
 				32F27CBB2BBCF19500E352A7 /* ColorsForTrackerCreation.swift in Sources */,
 				328C0F112BB67498006ECD5B /* TrackerCoreDataProperties.swift in Sources */,
+				32421BC62BC555150053DDC0 /* EditCategoryViewController.swift in Sources */,
 				32D7D1442B76E89B00D1FBF1 /* AppDelegate.swift in Sources */,
 				328C0EE72BB5015E006ECD5B /* TrackerCategoryStore.swift in Sources */,
 				32F27CF22BC17F0E00E352A7 /* OnboardingHelper.swift in Sources */,

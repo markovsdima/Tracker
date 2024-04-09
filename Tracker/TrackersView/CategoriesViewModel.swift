@@ -59,6 +59,14 @@ final class CategoriesViewModel {
         delegate?.selectCategory(title: title)
     }
     
+    func editCategory(title: String, for existingTitle: String) {
+        do {
+            try trackerCategoryStore.editCategory(title: title, for: existingTitle)
+        } catch {
+            print("Неизвестная ошибка: \(error)")
+        }
+    }
+    
     func deleteCategory(name: String) {
         do {
             try trackerCategoryStore.deleteCategory(title: name)

@@ -212,7 +212,10 @@ extension CategoriesViewController: UITableViewDelegate {
         return UIContextMenuConfiguration(actionProvider:  { suggestedActions in
             
             let editAction = UIAction(title: "Редактировать") { action in
+                let view = EditCategoryViewController(name: categoryTitle)
+                view.delegate = self
                 
+                self.present(view, animated: true)
             }
             
             let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { action in
@@ -229,5 +232,12 @@ extension CategoriesViewController: UITableViewDelegate {
 extension CategoriesViewController: NewCategoryViewControllerDelegate{
     func addNewCategory(name: String) {
         viewModel?.addNewCategory(name: name)
+    }
+}
+
+// MARK: - EditCategoryViewControllerDelegate
+extension CategoriesViewController: EditCategoryViewControllerDelegate{
+    func editCategory(newName: String, existingCategory: String) {
+        viewModel?.editCategory(title: newName, for: existingCategory)
     }
 }
