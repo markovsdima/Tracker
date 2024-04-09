@@ -17,13 +17,6 @@ final class CategoriesViewController: UIViewController {
         }
     }
     
-    private var trackerCategoriesViewModelError: String = "" {
-        didSet {
-            //showErrorAlert(text: trackerCategoriesViewModelError)
-            //delegate?.showError()
-        }
-    }
-    
     private var viewModel: CategoriesViewModel?
     
     // MARK: - UI Properties
