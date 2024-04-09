@@ -80,6 +80,16 @@ final class CreateEventViewController: UIViewController {
         return button
     }()
     
+    private lazy var categoryButtonSubtitle: UILabel = {
+        let label = UILabel()
+        label.text = "Категория"
+        label.font = .systemFont(ofSize: 17, weight: .regular)
+        label.textColor = .ypGray
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        return label
+    }()
+    
     private lazy var categoryButtonImage: UIImageView = {
         let imageView = UIImageView()
         imageView.image = .chevron
@@ -346,6 +356,25 @@ final class CreateEventViewController: UIViewController {
         }
     }
     
+    private func updateCategoryButtonSubtitle() {
+        if category == "" {
+            categoryButtonSubtitle.isHidden = true
+            categoryButton.titleEdgeInsets.top = 0
+        } else {
+            print("Not nill!!!")
+            categoryButton.addSubview(categoryButtonSubtitle)
+            categoryButton.titleEdgeInsets = UIEdgeInsets(top: -24, left: 16, bottom: 0, right: 0)
+            categoryButtonSubtitle.text = category
+            categoryButtonSubtitle.isHidden = false
+            
+            NSLayoutConstraint.activate([
+                categoryButtonSubtitle.bottomAnchor.constraint(equalTo: categoryButton.bottomAnchor, constant: -16),
+                categoryButtonSubtitle.leadingAnchor.constraint(equalTo: categoryButton.leadingAnchor, constant: 16),
+                categoryButtonSubtitle.heightAnchor.constraint(equalToConstant: 22)
+            ])
+        }
+    }
+    
     private func addTracker() throws {
         let uuid = UUID()
         
@@ -464,6 +493,7 @@ extension CreateEventViewController: CategoriesViewModelDelegate {
     func selectCategory(title: String?) {
         guard let title else { return }
         self.category = title
+        self.updateCategoryButtonSubtitle()
         self.updateCreateButton()
     }
 }

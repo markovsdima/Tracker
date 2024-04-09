@@ -48,9 +48,12 @@ final class NewCategoryViewController: UIViewController {
     private lazy var finishButton: UIButton = {
         let button = UIButton()
         button.setTitle("Готово", for: .normal)
-        button.backgroundColor = .ypBlack
+        button.backgroundColor = .ypGray
         button.tintColor = .ypWhite
         button.setTitleColor(.ypWhite, for: .normal)
+        button.setTitleColor(.ypWhiteOnly, for: .disabled)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
+        button.isEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 16
         button.addTarget(self, action: #selector(didTapFinishButton), for: .touchUpInside)
@@ -95,6 +98,12 @@ final class NewCategoryViewController: UIViewController {
         ])
     }
     
+    private func updateFinishButton() {
+        let isNotEmptyInfo = categoryName != ""
+        finishButton.isEnabled = isNotEmptyInfo
+        finishButton.backgroundColor = isNotEmptyInfo ? .ypBlack : .ypGray
+    }
+    
     private func showErrorAlert() {
         let alert = UIAlertController(
             title: nil,
@@ -128,5 +137,6 @@ final class NewCategoryViewController: UIViewController {
     
     @objc private func didChangedNameField() {
         self.categoryName = categoryNameTextField.text
+        updateFinishButton()
     }
 }
