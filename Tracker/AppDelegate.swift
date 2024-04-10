@@ -16,11 +16,21 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         
         window = UIWindow()
-        window?.rootViewController = TabBarViewController()
+        window?.rootViewController = chooseInitialViewController()
         window?.makeKeyAndVisible()
         
         return true
     }
+    
+    // MARK: - Choose Initial ViewController
+    func chooseInitialViewController() -> UIViewController {
+        let firstLaunchTookPlace = UserDefaults.standard.bool(forKey: "firstLaunchTookPlace")
+        
+        let controller = firstLaunchTookPlace ? TabBarViewController() : OnboardingViewController()
+        
+        return controller
+    }
+    
     
     // MARK: - Core Data stack
     lazy var persistentContainer: NSPersistentContainer = {

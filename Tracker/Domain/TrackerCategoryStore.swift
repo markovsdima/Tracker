@@ -15,6 +15,9 @@ enum TrackerCategoryStoreError: Error {
     case getTrackerCategoriesFromCoreDataError
     case categoryExist
     case fetchCategoriesFailed
+    case getContextError
+    case categoryDeleteError
+    case categoryEditError
     case otherError
 }
 
@@ -61,7 +64,7 @@ final class TrackerCategoryStore: NSObject {
     private var categories = [TrackerCategory]()
     
     // MARK: - Public Methods
-    public func fetchCategories() throws -> [TrackerCategory] {
+    func fetchCategories() throws -> [TrackerCategory] {
         guard let objects = fetchedResultsController?.fetchedObjects else {
             throw TrackerCategoryStoreError.fetchCategoriesFailed
         }
@@ -70,8 +73,8 @@ final class TrackerCategoryStore: NSObject {
         return categories
     }
     
-    public func addCategory(title: String) throws {
-        guard let context else { throw TrackerCategoryStoreError.otherError }
+    func addCategory(title: String) throws {
+        guard let context else { throw TrackerCategoryStoreError.getContextError }
         //check unique
         let fetchRequest = TrackerCategoryCoreData.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), title)
@@ -85,6 +88,46 @@ final class TrackerCategoryStore: NSObject {
             trackerCategory = TrackerCategoryCoreData(context: context)
             trackerCategory.title = title
             trackerCategory.trackers = NSSet()
+        }
+        
+        appDelegate?.saveContext()
+    }
+    
+    func editCategory(title: String, for existingTitle: String) throws {
+        guard let context = context else { throw TrackerCategoryStoreError.getContextError }
+        
+        let fetchRequest = TrackerCategoryCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), existingTitle)
+        
+        let findCategory = try? context.fetch(fetchRequest)
+        guard let categoryToEdit = findCategory?.first else {
+            throw TrackerCategoryStoreError.categoryEditError
+        }
+        
+        categoryToEdit.title = title
+        
+        appDelegate?.saveContext()
+    }
+    
+    
+    func deleteCategory(title: String) throws {
+        guard let context else { throw TrackerCategoryStoreError.getContextError }
+        
+        let fetchRequest = TrackerCategoryCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), title)
+        
+        let findCategory = try? context.fetch(fetchRequest)
+        
+        guard let findCategory else { throw TrackerCategoryStoreError.categoryDeleteError }
+        
+        if (findCategory.first) != nil {
+            guard let category = findCategory.first else { throw TrackerCategoryStoreError.categoryDeleteError }
+            if category.trackers?.count ?? 0 > 0 {
+                throw TrackerCategoryStoreError.otherError
+            }
+            context.delete(category)
+        } else {
+            throw TrackerCategoryStoreError.categoryDeleteError
         }
         
         appDelegate?.saveContext()

@@ -31,7 +31,7 @@ enum WeekDay: Int, Hashable, CaseIterable {
         for day in weekDays {
             scheduleString.append(contentsOf: "\(day.rawValue),")
         }
-        
+        //print("Schedule String--------------: \(scheduleString)")
         return scheduleString
     }
     

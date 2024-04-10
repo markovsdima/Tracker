@@ -1,22 +1,13 @@
 //
-//  CreateEventViewController.swift
+//  EditEventViewController.swift
 //  Tracker
 //
-//  Created by Dmitry Markovskiy on 08.03.2024.
+//  Created by Dmitry Markovskiy on 09.04.2024.
 //
 
 import UIKit
 
-protocol CreateEventViewControllerDelegate: AnyObject {
-    func dismissAnimated()
-}
-
-enum Category: String, CaseIterable {
-    case emojies = "Emojies"
-    case colors = "Colors"
-}
-
-final class CreateEventViewController: UIViewController {
+final class EditEventViewController: UIViewController {
     
     // MARK: - Public properties
     weak var delegate: CreateEventViewControllerDelegate?
@@ -27,7 +18,7 @@ final class CreateEventViewController: UIViewController {
     // MARK: - UI Properties
     private lazy var mainTitle: UILabel = {
         let label = UILabel()
-        label.text = eventType.name
+        label.text = "Редактирование привычки"
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .ypBlack
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -48,6 +39,15 @@ final class CreateEventViewController: UIViewController {
         view.translatesAutoresizingMaskIntoConstraints = false
         
         return view
+    }()
+    
+    private lazy var daysCountLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 32, weight: .bold)
+        label.textColor = .ypBlack
+        label.translatesAutoresizingMaskIntoConstraints = false
+        
+        return label
     }()
     
     private lazy var trackerNameTextField: UITextField = {
@@ -159,9 +159,9 @@ final class CreateEventViewController: UIViewController {
         return button
     }()
     
-    private lazy var createButton: UIButton = {
+    private lazy var saveButton: UIButton = {
         let button = UIButton()
-        button.setTitle("Создать", for: .normal)
+        button.setTitle("Сохранить", for: .normal)
         button.setTitleColor(.ypWhite, for: .normal)
         button.setTitleColor(.ypWhiteOnly, for: .disabled)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
@@ -183,15 +183,35 @@ final class CreateEventViewController: UIViewController {
     private var tracker: Tracker?
     private var selectedEmojiIndex: Int?
     private var selectedColorIndex: Int?
+    private var preselectedEmoji: String?
+    private var preselectedColor: UIColor?
+    private let trackerId: UUID?
     
     private var dataSource: UICollectionViewDiffableDataSource<Category, EmojiesAndColorsItem>?
     private var collectionView: UICollectionView?
     private var snapshot: NSDiffableDataSourceSnapshot<Category, EmojiesAndColorsItem>?
     
     // MARK: - Initializers
-    init(eventType: TrackerTypes) {
-        self.eventType = eventType
+    init(tracker: Tracker, daysCount: Int) {
+        self.trackerId = tracker.id
+        self.eventType = tracker.trackerType
+        self.trackerTitle = tracker.title
+        
+        if let schedule = tracker.schedule {
+            self.schedule = schedule
+        }
+        
+        if let category = TrackerStore.shared.recognizeTrackerCategory(uuid: tracker.id) {
+            self.category = category
+        }
+        
+        self.preselectedEmoji = tracker.emoji
+        self.preselectedColor = tracker.color
+        
         super.init(nibName: nil, bundle: nil)
+        
+        self.trackerNameTextField.text = self.trackerTitle
+        self.daysCountLabel.text = generateDaysCountLabelText(with: daysCount)
     }
     
     required init?(coder: NSCoder) {
@@ -205,9 +225,19 @@ final class CreateEventViewController: UIViewController {
         self.hideKeyboardWhenTappedAround()
         configureCollection()
         configureUI(with: eventType)
+        updateCategoryButtonSubtitle()
+        updateScheduleButtonSubtitle()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        updateSaveButton()
     }
     
     // MARK: - Private Methods
+    private func selectCollectionItems(at indexPath: IndexPath) {
+        collectionView?.selectItem(at: indexPath, animated: false, scrollPosition: .centeredHorizontally)
+    }
+    
     private func configureCollection() {
         configureHierarchy()
         configureDataSource()
@@ -227,6 +257,7 @@ final class CreateEventViewController: UIViewController {
         
         scrollView.addSubview(contentView)
         
+        contentView.addSubview(daysCountLabel)
         contentView.addSubview(trackerNameTextField)
         contentView.addSubview(categoryButton)
         
@@ -235,9 +266,9 @@ final class CreateEventViewController: UIViewController {
         
         contentView.addSubview(collectionView)
         contentView.addSubview(cancelButton)
-        contentView.addSubview(createButton)
+        contentView.addSubview(saveButton)
         
-        let baseContentViewHeight: CGFloat = 794
+        let baseContentViewHeight: CGFloat = 874
         
         if eventType == .regularEvent {
             categoryButton.addSubview(categoryButtonBottomLineView)
@@ -290,7 +321,10 @@ final class CreateEventViewController: UIViewController {
             mainTitle.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 27),
             mainTitle.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
             
-            trackerNameTextField.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
+            daysCountLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            daysCountLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
+            
+            trackerNameTextField.topAnchor.constraint(equalTo: daysCountLabel.bottomAnchor, constant: 40),
             trackerNameTextField.heightAnchor.constraint(equalToConstant: 75),
             trackerNameTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             trackerNameTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
@@ -311,13 +345,13 @@ final class CreateEventViewController: UIViewController {
             
             cancelButton.heightAnchor.constraint(equalToConstant: 60),
             cancelButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
-            cancelButton.trailingAnchor.constraint(equalTo: createButton.leadingAnchor, constant: -8),
+            cancelButton.trailingAnchor.constraint(equalTo: saveButton.leadingAnchor, constant: -8),
             cancelButton.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 16),
             
-            createButton.heightAnchor.constraint(equalToConstant: 60),
-            createButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            createButton.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 16),
-            createButton.widthAnchor.constraint(equalTo: cancelButton.widthAnchor)
+            saveButton.heightAnchor.constraint(equalToConstant: 60),
+            saveButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            saveButton.topAnchor.constraint(equalTo: collectionView.bottomAnchor, constant: 16),
+            saveButton.widthAnchor.constraint(equalTo: cancelButton.widthAnchor)
         ])
     }
     
@@ -335,6 +369,18 @@ final class CreateEventViewController: UIViewController {
         }
         
         return daysSelected.joined(separator: ", ")
+    }
+    
+    private func generateDaysCountLabelText(with count: Int) -> String {
+        if count%10 == 1 && count != 11 {
+            return "\(count) день"
+        } else if count > 10 && count < 15 {
+            return "\(count) дней"
+        } else if count%10 > 0 && count%10 < 5 && count != 11 {
+            return "\(count) дня"
+        } else {
+            return "\(count) дней"
+        }
     }
     
     private func updateScheduleButtonSubtitle() {
@@ -361,7 +407,6 @@ final class CreateEventViewController: UIViewController {
             categoryButtonSubtitle.isHidden = true
             categoryButton.titleEdgeInsets.top = 0
         } else {
-            print("Not nill!!!")
             categoryButton.addSubview(categoryButtonSubtitle)
             categoryButton.titleEdgeInsets = UIEdgeInsets(top: -24, left: 16, bottom: 0, right: 0)
             categoryButtonSubtitle.text = category
@@ -375,7 +420,7 @@ final class CreateEventViewController: UIViewController {
         }
     }
     
-    private func addTracker() throws {
+    private func editTracker() throws {
         let uuid = UUID()
         
         let categoryName = category
@@ -412,12 +457,11 @@ final class CreateEventViewController: UIViewController {
         
         guard let tracker else { return }
         
-        let newCategory = TrackerCategory(title: categoryName, trackers: [tracker])
-        try TrackerStore.shared.addTracker(tracker, to: newCategory)
+        try TrackerStore.shared.editTracker(tracker, id: trackerId, newCategory: categoryName)
         
     }
     
-    private func updateCreateButton() {
+    private func updateSaveButton() {
         switch eventType {
         case .oneTimeEvent:
             let isNotEmptyInfo =
@@ -426,18 +470,18 @@ final class CreateEventViewController: UIViewController {
             && selectedColorIndex != nil
             && selectedEmojiIndex != nil
             
-            createButton.isEnabled = isNotEmptyInfo
-            createButton.backgroundColor = isNotEmptyInfo ? .ypBlack : .ypGray
+            saveButton.isEnabled = isNotEmptyInfo
+            saveButton.backgroundColor = isNotEmptyInfo ? .ypBlack : .ypGray
         case .regularEvent:
-            let isNotEmptyInfo = 
+            let isNotEmptyInfo =
             trackerTitle != ""
             && category != ""
             && schedule != []
             && selectedColorIndex != nil
             && selectedEmojiIndex != nil
             
-            createButton.isEnabled = isNotEmptyInfo
-            createButton.backgroundColor = isNotEmptyInfo ? .ypBlack : .ypGray
+            saveButton.isEnabled = isNotEmptyInfo
+            saveButton.backgroundColor = isNotEmptyInfo ? .ypBlack : .ypGray
         }
     }
     
@@ -466,7 +510,7 @@ final class CreateEventViewController: UIViewController {
     
     @objc private func didTapCreateButton() throws {
         willDismiss?()
-        try addTracker()
+        try editTracker()
         dismiss(animated: true) {
             self.didDismiss?()
         }
@@ -475,32 +519,32 @@ final class CreateEventViewController: UIViewController {
     
     @objc private func didChangedNameField() {
         self.trackerTitle = trackerNameTextField.text
-        updateCreateButton()
+        updateSaveButton()
     }
 }
 
 // MARK: - ScheduleViewControllerDelegate
-extension CreateEventViewController: ScheduleViewControllerDelegate {
+extension EditEventViewController: ScheduleViewControllerDelegate {
     func configWeekDays(_ schedule: [WeekDay]) {
         self.schedule = schedule
         self.updateScheduleButtonSubtitle()
-        self.updateCreateButton()
+        self.updateSaveButton()
     }
 }
 
 // MARK: - CategoriesViewModelDelegate
-extension CreateEventViewController: CategoriesViewModelDelegate {
+extension EditEventViewController: CategoriesViewModelDelegate {
     func selectCategory(title: String?) {
         guard let title else { return }
         self.category = title
         self.updateCategoryButtonSubtitle()
-        self.updateCreateButton()
+        self.updateSaveButton()
     }
 }
 
 // MARK: - UICollectionViewLayout
 ///(EmojiesAndColorsCollection)
-extension CreateEventViewController {
+extension EditEventViewController {
     private func createLayout() -> UICollectionViewLayout {
         let itemSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1/6),
                                               heightDimension: .fractionalWidth(1/6))
@@ -526,7 +570,7 @@ extension CreateEventViewController {
 
 // MARK: - UICollectionViewConfiguration
 ///(EmojiesAndColorsCollection)
-extension CreateEventViewController {
+extension EditEventViewController {
     private func configureHierarchy() {
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: createLayout())
         collectionView?.translatesAutoresizingMaskIntoConstraints = false
@@ -570,11 +614,19 @@ extension CreateEventViewController {
             case .emojies:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiesSectionViewCell", for: indexPath) as? EmojiesSectionViewCell
                 cell?.configure(with: item.emoji ?? "❓")
+                if item.emoji == self.preselectedEmoji {
+                    self.selectCollectionItems(at: indexPath)
+                    self.selectedEmojiIndex = indexPath.row
+                }
                 
                 return cell
             case .colors:
                 let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ColorsSectionViewCell", for: indexPath) as? ColorsSectionViewCell
                 cell?.configure(with: item.color ?? .ypGray)
+                if item.color == self.preselectedColor {
+                    self.selectCollectionItems(at: indexPath)
+                    self.selectedColorIndex = indexPath.row + 18
+                }
                 
                 return cell
             }
@@ -594,7 +646,7 @@ extension CreateEventViewController {
 
 // MARK: - UICollectionViewDelegate
 ///(EmojiesAndColorsCollection)
-extension CreateEventViewController: UICollectionViewDelegate {
+extension EditEventViewController: UICollectionViewDelegate {
     func collectionView(
         _ collectionView: UICollectionView,
         shouldSelectItemAt indexPath: IndexPath
@@ -610,10 +662,11 @@ extension CreateEventViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         if indexPath.section == 0 {
             self.selectedEmojiIndex = indexPath.row
-            updateCreateButton()
+            updateSaveButton()
         } else {
             self.selectedColorIndex = indexPath.row + 18
-            updateCreateButton()
+            updateSaveButton()
         }
     }
 }
+

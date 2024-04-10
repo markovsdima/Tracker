@@ -9,6 +9,8 @@ import UIKit
 
 protocol TrackersCollectionViewCellDelegate: AnyObject {
     func changeTrackerCompletionState(tracker: Tracker)
+    func editTrackerAction(tracker: Tracker?, daysCount: Int?)
+    func deleteTrackerAction(id: UUID?)
 }
 
 class TrackersCollectionViewCell: UICollectionViewCell {
@@ -57,7 +59,7 @@ class TrackersCollectionViewCell: UICollectionViewCell {
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.text = ""
-        label.textColor = .ypWhite
+        label.textColor = .ypWhiteOnly
         label.font = .systemFont(ofSize: 12, weight: .medium)
         label.numberOfLines = 2
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -99,6 +101,7 @@ class TrackersCollectionViewCell: UICollectionViewCell {
         emojiView.addSubview(emojiLabel)
         
         setupConstraints()
+        configureContextMenu()
     }
     
     required init?(coder: NSCoder) {
@@ -132,6 +135,11 @@ class TrackersCollectionViewCell: UICollectionViewCell {
     }
     
     // MARK: - Private methods
+    private func configureContextMenu() {
+        let contextMenu = UIContextMenuInteraction(delegate: self)
+        cardView.addInteraction(contextMenu)
+    }
+    
     private func generateDaysCountLabelText(with count: Int) -> String {
         if count%10 == 1 && count != 11 {
             return "\(count) день"
@@ -195,4 +203,29 @@ class TrackersCollectionViewCell: UICollectionViewCell {
         
         delegate?.changeTrackerCompletionState(tracker: tracker)
     }
+}
+
+extension TrackersCollectionViewCell: UIContextMenuInteractionDelegate {
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        
+        return UIContextMenuConfiguration(actionProvider:  { suggestedActions in
+            
+            let pinAction = UIAction(title: "Закрепить") { action in
+                
+            }
+            
+            let editAction = UIAction(title: "Редактировать") { action in
+                self.delegate?.editTrackerAction(tracker: self.tracker, daysCount: self.trackerCompletedDaysCount)
+            }
+            
+            let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { action in
+                self.delegate?.deleteTrackerAction(id: self.trackerId)
+                //self.showActionSheet()
+            }
+            
+            return UIMenu(children: [pinAction, editAction, deleteAction])
+        })
+    }
+    
+    
 }

@@ -90,7 +90,8 @@ final class TrackerStore: NSObject {
             
             categories.append(trackerCategory)
         }
-        
+        //print("Categories2: \(categories2)")
+        //print("Categories: \(categories)")
         categories = filterEmptySections(categories)
         
         
@@ -126,6 +127,80 @@ final class TrackerStore: NSObject {
         appDelegate?.saveContext()
     }
     
+    func editTracker(_ tracker: Tracker, id: UUID?, newCategory: String) throws {
+        guard let context, let id else { throw TrackerStoreError.otherError }
+        
+        // Fetch the tracker to edit by UUID
+        let fetchRequest = TrackerCoreData.fetchRequest()
+        
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCoreData.id), id as CVarArg)
+        
+        let trackers = try context.fetch(fetchRequest)
+        
+        guard let trackerToEdit = trackers.first else {
+            throw TrackerStoreError.otherError
+        }
+        
+        // Update tracker properties
+        trackerToEdit.title = tracker.title
+        trackerToEdit.color = tracker.color
+        trackerToEdit.emoji = tracker.emoji
+        trackerToEdit.schedule = WeekDay.convertScheduleToString(tracker.schedule ?? nil)
+        trackerToEdit.trackerType = TrackerTypes.convertTrackerTypeToString(trackerType: tracker.trackerType)
+        
+        // Fetch the new category
+        let newCategoryFetchRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+        newCategoryFetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCategoryCoreData.title), newCategory)
+        
+        guard let newCategoryCoreData = try context.fetch(newCategoryFetchRequest).first else {
+            throw TrackerStoreError.otherError
+        }
+        
+        // Update tracker's category (optional check for existing category)
+        if trackerToEdit.category != newCategoryCoreData {
+            trackerToEdit.category = newCategoryCoreData
+        }
+        
+        try context.save()
+    }
+    
+    func deleteTracker(with uuid: UUID?) throws {
+        guard let context, let uuid else { throw TrackerStoreError.otherError }
+        
+        let fetchRequest = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCoreData.id), uuid as CVarArg)
+        
+        let trackers = try context.fetch(fetchRequest)
+        
+        guard let trackerToDelete = trackers.first else {
+            throw TrackerStoreError.otherError
+        }
+        
+        context.delete(trackerToDelete)
+        try context.save()
+    }
+    
+    func recognizeTrackerCategory(uuid: UUID) -> String? {
+        guard let context else {
+            return nil
+        }
+        
+        let fetchRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCoreData.id), uuid as CVarArg)
+        
+        do {
+            let tracker = try context.fetch(fetchRequest).first
+            guard let category = tracker?.category else {
+                throw TrackerStoreError.otherError
+            }
+            return category.title
+        } catch {
+            print("Error: \(error)")
+            return nil
+        }
+    }
+    
     func tracker(from trackerCoreData: TrackerCoreData) throws -> Tracker {
         guard
             let id = trackerCoreData.id,
@@ -135,12 +210,14 @@ final class TrackerStore: NSObject {
             let trackerType = trackerCoreData.trackerType
         else { throw TrackerStoreError.decodingTrackerError }
         
+        
+        
         return Tracker(
             id: id,
             title: title,
             color: color,
             emoji: emoji,
-            schedule: WeekDay.getScheduleFromString(daysString: "2"),
+            schedule: WeekDay.getScheduleFromString(daysString: trackerCoreData.schedule ?? ""),
             trackerType: TrackerTypes.getTrackerTypeFromString(string: trackerType))
     }
     
@@ -180,8 +257,10 @@ final class TrackerStore: NSObject {
             
             array.append(try tracker(from: i))
         }
+        //print("Array--------------:\(array)")
         
         let filteredArray = filterTrackers(trackers: array, records: records, currentDate: date)
+        //print("Filtered Array--------------:\(filteredArray)")
         
         return filteredArray
     }

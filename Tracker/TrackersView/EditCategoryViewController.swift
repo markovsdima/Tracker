@@ -1,29 +1,29 @@
 //
-//  NewCategoryViewController.swift
+//  EditCategoryViewController.swift
 //  Tracker
 //
-//  Created by Dmitry Markovskiy on 21.03.2024.
+//  Created by Dmitry Markovskiy on 09.04.2024.
 //
 
 import UIKit
 
-protocol NewCategoryViewControllerDelegate: AnyObject {
-    func addNewCategory(name: String)
+protocol EditCategoryViewControllerDelegate: AnyObject {
+    func editCategory(newName: String, existingCategory: String)
 }
 
-final class NewCategoryViewController: UIViewController {
+final class EditCategoryViewController: UIViewController {
     
     // MARK: - Public Properties
-    weak var delegate: NewCategoryViewControllerDelegate?
-    private var trackerCategoriesNames: [String]? = []
+    weak var delegate: EditCategoryViewControllerDelegate?
     
     // MARK: - Private Properties
     private var categoryName: String?
+    private var newName: String?
     
     // MARK: - UI Properties
     private lazy var mainTitle: UILabel = {
         let label = UILabel()
-        label.text = "Новая категория"
+        label.text = "Редактирование категории"
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .ypBlack
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -32,12 +32,14 @@ final class NewCategoryViewController: UIViewController {
     }()
     
     private lazy var categoryNameTextField: UITextField = {
-        let field = UITextField()
-        field.placeholder = "Введите название категории"
+        let field = CustomTextField()
+        
+        field.placeholder = ""
         field.backgroundColor = .ypGrayAlpha
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: field.frame.height))
         field.leftViewMode = .always
         field.layer.cornerRadius = 16
+        field.clearButtonMode = .always
         field.addTarget(self, action: #selector(didChangedNameField), for: .editingChanged)
         field.translatesAutoresizingMaskIntoConstraints = false
         
@@ -61,9 +63,10 @@ final class NewCategoryViewController: UIViewController {
     }()
     
     // MARK: Initializers
-    convenience init(trackerCategoriesNames: [String]?) {
+    convenience init(name: String?) {
         self.init(nibName: nil, bundle: nil)
-        self.trackerCategoriesNames = trackerCategoriesNames
+        self.categoryName = name
+        self.categoryNameTextField.text = self.categoryName
     }
     
     // MARK: - View Life Cycles
@@ -98,44 +101,20 @@ final class NewCategoryViewController: UIViewController {
     }
     
     private func updateFinishButton() {
-        let isNotEmptyInfo = categoryName != ""
+        let isNotEmptyInfo = newName != "" && newName != categoryName
         finishButton.isEnabled = isNotEmptyInfo
         finishButton.backgroundColor = isNotEmptyInfo ? .ypBlack : .ypGray
     }
     
-    private func showErrorAlert() {
-        let alert = UIAlertController(
-            title: nil,
-            message: "Категория с таким именем уже есть",
-            preferredStyle: .alert
-        )
-        let action = UIAlertAction(
-            title: "Ок",
-            style: .default) { _ in
-                alert.dismiss(animated: true)
-            }
-        alert.addAction(action)
-        self.present(alert, animated: true)
-    }
-    
     @objc private func didTapFinishButton() {
-        guard let categoryName else { return }
+        guard let categoryName, let newName else { return }
         
-        if let names = trackerCategoriesNames {
-            if names.contains(categoryName) {
-                showErrorAlert()
-            } else {
-                delegate?.addNewCategory(name: categoryName)
-                dismiss(animated: true)
-            }
-        } else {
-            delegate?.addNewCategory(name: categoryName)
-            dismiss(animated: true)
-        }
+        delegate?.editCategory(newName: newName, existingCategory: categoryName)
+        dismiss(animated: true)
     }
     
     @objc private func didChangedNameField() {
-        self.categoryName = categoryNameTextField.text
+        self.newName = categoryNameTextField.text
         updateFinishButton()
     }
 }
