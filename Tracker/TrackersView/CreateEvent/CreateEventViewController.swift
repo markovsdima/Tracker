@@ -399,7 +399,8 @@ final class CreateEventViewController: UIViewController {
                 color: color,
                 emoji: emoji,
                 schedule: schedule,
-                trackerType: self.eventType)
+                trackerType: self.eventType, 
+                pin: false)
         } else {
             self.tracker = Tracker(
                 id: uuid,
@@ -407,7 +408,8 @@ final class CreateEventViewController: UIViewController {
                 color: color,
                 emoji: emoji,
                 schedule: nil,
-                trackerType: self.eventType)
+                trackerType: self.eventType, 
+                pin: false)
         }
         
         guard let tracker else { return }

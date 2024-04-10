@@ -70,7 +70,78 @@ final class TrackerStore: NSObject {
     }
     
     // MARK: - Public methods
+    
+    
+    
     func getTrackerCategories(_ day: Int, currentDate: Date) throws -> [TrackerCategory] {
+        self.currentDay = day
+        
+        guard let objects = fetchedResultsController?.fetchedObjects else {
+            throw TrackerStoreError.otherError
+        }
+        
+        // Group trackers by category title
+        let categories2 = Dictionary(grouping: objects, by: { $0.category?.title })
+        
+        var categories = [TrackerCategory]()
+        
+        // Create a pinned category (if it doesn't exist)
+        var pinnedCategory: TrackerCategory?
+        if !categories2.keys.contains("Закрепленные") {
+            pinnedCategory = TrackerCategory(title: "Закрепленные", trackers: [])
+        }
+        
+        // Process categories and trackers
+        for (key, trackersCoreData) in categories2 {
+            let filteredTrackers = trackersCoreData.filter { tracker -> Bool in
+                // Pinned trackers go to the pinned category
+                return !tracker.pin || (pinnedCategory == nil)
+            }
+            
+            // Create category objects
+            if let key = key {
+                let category = TrackerCategory(
+                    title: key,
+                    trackers: try trackersCoreDataToTrackers(from: filteredTrackers, currentDate: currentDate)
+                )
+                categories.append(category)
+            } else {
+                throw TrackerStoreError.otherError
+            }
+        }
+        
+        // Add pinned category (if needed) with pinned trackers
+        print("CATEGORIES 2 dict ------- : \(categories2)")
+        if pinnedCategory != nil {
+            
+            //let pinnedTrackers = try trackersCoreDataToTrackers(from: categories2["Закрепленные"] ?? [], currentDate: currentDate)
+            var pinnedTrackers = [Tracker]()
+            
+            for (key, trackersCoreData) in categories2 {
+                for trackerCoreData in trackersCoreData {
+                    if trackerCoreData.pin {
+                        let tracker = try tracker(from: trackerCoreData)
+                        pinnedTrackers.append(tracker)
+                    }
+                }
+            }
+            
+            
+            
+            print("PINNED TRACKERS---------: \(pinnedTrackers)")
+            let newPinnedCategory = TrackerCategory(title: "Закрепленные", trackers: pinnedTrackers)
+            categories.insert(newPinnedCategory, at: 0)
+        }
+        print(categories)
+        categories = filterEmptySections(categories)
+        
+        return categories
+    }
+    
+    
+    
+    
+    func getTrackerCategoriesOld(_ day: Int, currentDate: Date) throws -> [TrackerCategory] {
         self.currentDay = day
         
         guard let objects = fetchedResultsController?.fetchedObjects else {
@@ -80,6 +151,11 @@ final class TrackerStore: NSObject {
         let categories2 = Dictionary(grouping: objects, by: { $0.category?.title })
         
         categories = [TrackerCategory]()
+        
+        
+        
+        
+        
         
         for i in categories2 {
             guard let key = i.key else { throw TrackerStoreError.otherError }
@@ -96,7 +172,24 @@ final class TrackerStore: NSObject {
         
         
         return categories
+        
     }
+    
+    func updateTrackerPin(trackerId: UUID, isPinned: Bool) throws {
+        guard let context else { throw TrackerStoreError.otherError }
+        
+        let fetchRequest = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCoreData.id), trackerId as CVarArg)
+        
+        guard let tracker = try context.fetch(fetchRequest).first else {
+            throw TrackerStoreError.otherError
+        }
+        
+        tracker.pin = isPinned
+        
+        try context.save()
+    }
+    
     
     func addTracker(_ tracker: Tracker, to category: TrackerCategory) throws {
         guard let context else { throw TrackerStoreError.otherError }
@@ -210,15 +303,14 @@ final class TrackerStore: NSObject {
             let trackerType = trackerCoreData.trackerType
         else { throw TrackerStoreError.decodingTrackerError }
         
-        
-        
         return Tracker(
             id: id,
             title: title,
             color: color,
             emoji: emoji,
             schedule: WeekDay.getScheduleFromString(daysString: trackerCoreData.schedule ?? ""),
-            trackerType: TrackerTypes.getTrackerTypeFromString(string: trackerType))
+            trackerType: TrackerTypes.getTrackerTypeFromString(string: trackerType),
+            pin: trackerCoreData.pin)
     }
     
     func filterCategoriesByWeekDay(selectedWeekDay: Int?) {

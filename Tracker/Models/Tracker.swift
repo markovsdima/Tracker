@@ -14,6 +14,7 @@ struct Tracker: Hashable {
     let emoji: String
     let schedule: [WeekDay]?
     let trackerType: TrackerTypes
+    let pin: Bool
 }
 
 enum WeekDay: Int, Hashable, CaseIterable {

@@ -26,7 +26,7 @@ final class MockData {
                     color: .ypGreen,
                     emoji: "🌏",
                     schedule: [.monday],
-                    trackerType: .oneTimeEvent
+                    trackerType: .oneTimeEvent, pin: false
                 ),
                 Tracker(
                     id: UUID(uuidString: "3325cfd0-3e72-49ad-8d66-48f2d9b6ca77")!,
@@ -34,7 +34,7 @@ final class MockData {
                     color: .ypOrange,
                     emoji: "🌒",
                     schedule: [.sunday, .thursday, .friday],
-                    trackerType: .oneTimeEvent
+                    trackerType: .oneTimeEvent, pin: false
                 )
             ]
         ),
@@ -47,7 +47,7 @@ final class MockData {
                     color: .ypGray,
                     emoji: "☃️",
                     schedule: [.wednesday],
-                    trackerType: .oneTimeEvent
+                    trackerType: .oneTimeEvent, pin: false
                 ),
                 Tracker(
                     id: UUID(uuidString: "78c2a018-b10a-4a45-af80-ed55e8de9de2")!,
@@ -55,7 +55,7 @@ final class MockData {
                     color: .ypGray,
                     emoji: "🧊",
                     schedule: nil,
-                    trackerType: .oneTimeEvent
+                    trackerType: .oneTimeEvent, pin: false
                 )
             ]
         ),

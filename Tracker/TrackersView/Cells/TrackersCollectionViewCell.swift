@@ -9,8 +9,14 @@ import UIKit
 
 protocol TrackersCollectionViewCellDelegate: AnyObject {
     func changeTrackerCompletionState(tracker: Tracker)
+    func updateTrackerPinAction(id: UUID?, isPinned: Bool)
     func editTrackerAction(tracker: Tracker?, daysCount: Int?)
     func deleteTrackerAction(id: UUID?)
+}
+
+private enum PinActionTitles: String {
+    case pinned = "Открепить"
+    case notPinned = "Закрепить"
 }
 
 class TrackersCollectionViewCell: UICollectionViewCell {
@@ -26,6 +32,8 @@ class TrackersCollectionViewCell: UICollectionViewCell {
     private var isFuture: Bool?
     private var trackerType: TrackerTypes?
     private var tracker: Tracker?
+    private var isPinned: Bool = false
+    private var pinActionTitle: PinActionTitles?
     
     // MARK: - UI Properties
     private lazy var cardView: UIView = {
@@ -54,6 +62,14 @@ class TrackersCollectionViewCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         
         return label
+    }()
+    
+    private lazy var pinView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = .pinIcon
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        return imageView
     }()
     
     private lazy var titleLabel: UILabel = {
@@ -97,8 +113,10 @@ class TrackersCollectionViewCell: UICollectionViewCell {
         contentView.addSubview(taskCompletedButton)
         contentView.addSubview(daysCountLabel)
         cardView.addSubview(emojiView)
+        cardView.addSubview(pinView)
         cardView.addSubview(titleLabel)
         emojiView.addSubview(emojiLabel)
+        
         
         setupConstraints()
         configureContextMenu()
@@ -121,6 +139,18 @@ class TrackersCollectionViewCell: UICollectionViewCell {
         self.trackerCompletion = completion
         self.trackerCompletedDaysCount = count
         self.isFuture = isFuture
+        
+        
+        self.isPinned = tracker.pin
+        pinView.isHidden = !isPinned
+        switch self.isPinned {
+        case true:
+            self.pinActionTitle = .pinned
+        case false:
+            self.pinActionTitle = .notPinned
+
+        }
+        
         self.daysCountLabel.text = generateDaysCountLabelText(with: trackerCompletedDaysCount)
         if isFuture {
             taskCompletedButton.setImage(UIImage(systemName: "plus"), for: .normal)
@@ -167,6 +197,11 @@ class TrackersCollectionViewCell: UICollectionViewCell {
             emojiLabel.centerXAnchor.constraint(equalTo: emojiView.centerXAnchor),
             emojiLabel.centerYAnchor.constraint(equalTo: emojiView.centerYAnchor),
             
+            pinView.centerYAnchor.constraint(equalTo: emojiView.centerYAnchor),
+            pinView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -4),
+            pinView.heightAnchor.constraint(equalToConstant: 24),
+            pinView.widthAnchor.constraint(equalToConstant: 24),
+            
             titleLabel.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -12),
             titleLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
             titleLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -12),
@@ -210,8 +245,9 @@ extension TrackersCollectionViewCell: UIContextMenuInteractionDelegate {
         
         return UIContextMenuConfiguration(actionProvider:  { suggestedActions in
             
-            let pinAction = UIAction(title: "Закрепить") { action in
-                
+            let pinAction = UIAction(title: self.pinActionTitle?.rawValue ?? "Закрепить") { action in
+                //guard let isPinned = self.isPinned else { return }
+                self.delegate?.updateTrackerPinAction(id: self.trackerId, isPinned: !self.isPinned)
             }
             
             let editAction = UIAction(title: "Редактировать") { action in

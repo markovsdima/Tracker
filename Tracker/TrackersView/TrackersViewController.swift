@@ -353,6 +353,7 @@ final class TrackersViewController: UIViewController {
 
 // MARK: - TrackersCollectionViewCellDelegate
 extension TrackersViewController: TrackersCollectionViewCellDelegate {
+
     func changeTrackerCompletionState(tracker: Tracker) {
         guard let date = currentDate.onlyDate else { return }
         
@@ -373,6 +374,16 @@ extension TrackersViewController: TrackersCollectionViewCellDelegate {
                 completedTrackers = try trackerRecordStore.fetchTrackerRecord()
                 snapshot?.reloadItems([tracker])
             } catch { print("Error: \(error) in TrackersViewController.changeTrackerCompletionState()") }
+            
+        }
+        
+    }
+    
+    func updateTrackerPinAction(id: UUID?, isPinned: Bool) {
+        guard let id else { return }
+        do {
+            try trackerStore.updateTrackerPin(trackerId: id, isPinned: isPinned)
+        } catch {
             
         }
         

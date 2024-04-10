@@ -19,6 +19,7 @@ public class TrackerCoreData: NSManagedObject {
     @NSManaged public var trackerType: String?
     @NSManaged public var category: TrackerCategoryCoreData?
     @NSManaged public var records: NSSet?
+    @NSManaged public var pin: Bool
     
     @nonobjc
     public class func fetchRequest() -> NSFetchRequest<TrackerCoreData> {

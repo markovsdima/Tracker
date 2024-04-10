@@ -8,6 +8,7 @@
         <attribute name="color" optional="YES" attributeType="Transformable" valueTransformerName="UIColorTransformer" customClassName="UIColor"/>
         <attribute name="emoji" optional="YES" attributeType="String"/>
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="pin" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="schedule" optional="YES" attributeType="String" customClassName="[WeekDay]"/>
         <attribute name="title" optional="YES" attributeType="String"/>
         <attribute name="trackerType" optional="YES" attributeType="String" customClassName="TrackerTypes"/>
