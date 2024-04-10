@@ -146,6 +146,31 @@ final class CategoriesViewController: UIViewController {
         ])
     }
     
+    private func showActionSheet(name: String) {
+        let alert = UIAlertController(
+            title: nil,
+            message: "Эта категория точно не нужна?",
+            preferredStyle: .actionSheet
+        )
+        let deleteAction = UIAlertAction(
+            title: "Удалить",
+            style: .destructive
+        ) { _ in
+            self.viewModel?.deleteCategory(name: name)
+            alert.dismiss(animated: true)
+        }
+        let cancelAction = UIAlertAction(
+            title: "Отменить",
+            style: .cancel
+        ) { _ in
+            alert.dismiss(animated: true)
+        }
+        
+        alert.addAction(deleteAction)
+        alert.addAction(cancelAction)
+        self.present(alert, animated: true)
+    }
+    
     @objc private func didTapAddCategoryButton() {
         let view = NewCategoryViewController(trackerCategoriesNames: trackerCategoriesNames)
         
@@ -219,7 +244,8 @@ extension CategoriesViewController: UITableViewDelegate {
             }
             
             let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { action in
-                self.viewModel?.deleteCategory(name: categoryTitle)
+                
+                self.showActionSheet(name: categoryTitle)
             }
             
             return UIMenu(children: [editAction, deleteAction])

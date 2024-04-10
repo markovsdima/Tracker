@@ -65,7 +65,6 @@ final class TrackersViewController: UIViewController {
     
     private lazy var datePicker: UIDatePicker = {
         let datePicker = UIDatePicker()
-        //datePicker.tintColor = .ypRed
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .compact
         datePicker.locale = Locale(identifier: "ru_RU")
@@ -75,9 +74,18 @@ final class TrackersViewController: UIViewController {
         return datePicker
     }()
     
+    
+    // TODO: - Customize
     private lazy var datePickerButton: UIBarButtonItem = {
+        
         let button = UIBarButtonItem(customView: datePicker)
-        button.tintColor = .ypBlack
+        
+//        button.customView?.backgroundColor = .ypGrayAndWhite
+//        
+//        button.customView?.layer.cornerRadius = 8
+//        button.customView?.layer.masksToBounds = true
+//        button.tintColor = .ypBlackOnly
+//        button.customView?.tintColor = .ypBlackOnly
         
         return button
     }()
@@ -153,6 +161,8 @@ final class TrackersViewController: UIViewController {
         } catch {
             print("FetchingTrackersRecordsError")
         }
+        
+        
         
     }
     
@@ -288,8 +298,40 @@ final class TrackersViewController: UIViewController {
         trackerStore.filterCategoriesByWeekDay(selectedWeekDay: selectedWeekDay)
         filteredCategories = try trackerStore.getTrackerCategories(selectedWeekDay, currentDate: currentDate)
         reloadData()
-        
+        //print("Filtered categories-----------: \(filteredCategories)")
         emptyCheck(isEmpty: filteredCategories.isEmpty)
+    }
+    
+    private func showDeleteActionSheet(id: UUID?) {
+        let alert = UIAlertController(
+            title: nil,
+            message: "Уверены что хотите удалить трекер?",
+            preferredStyle: .actionSheet
+        )
+        let deleteAction = UIAlertAction(
+            title: "Удалить",
+            style: .destructive
+        ) { _ in
+            
+            do {
+                try self.trackerStore.deleteTracker(with: id)
+                self.reloadData()
+            } catch {
+                print("Unable to delete tracker. Error: \(error)")
+            }
+            
+            alert.dismiss(animated: true)
+        }
+        let cancelAction = UIAlertAction(
+            title: "Отменить",
+            style: .cancel
+        ) { _ in
+            alert.dismiss(animated: true)
+        }
+        
+        alert.addAction(deleteAction)
+        alert.addAction(cancelAction)
+        self.present(alert, animated: true)
     }
     
     @objc private func didTapAddTrackerButton() {
@@ -334,6 +376,18 @@ extension TrackersViewController: TrackersCollectionViewCellDelegate {
             
         }
         
+    }
+    
+    func editTrackerAction(tracker: Tracker?, daysCount: Int?) {
+        guard let tracker, let daysCount else { return }
+        
+        let view = EditEventViewController(tracker: tracker, daysCount: daysCount)
+        
+        present(view, animated: true)
+    }
+    
+    func deleteTrackerAction(id: UUID?) {
+        showDeleteActionSheet(id: id)
     }
 }
 

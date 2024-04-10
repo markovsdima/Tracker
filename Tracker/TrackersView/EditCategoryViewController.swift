@@ -15,7 +15,6 @@ final class EditCategoryViewController: UIViewController {
     
     // MARK: - Public Properties
     weak var delegate: EditCategoryViewControllerDelegate?
-    //private var trackerCategorieName: String?
     
     // MARK: - Private Properties
     private var categoryName: String?
@@ -33,12 +32,14 @@ final class EditCategoryViewController: UIViewController {
     }()
     
     private lazy var categoryNameTextField: UITextField = {
-        let field = UITextField()
+        let field = CustomTextField()
+        
         field.placeholder = ""
         field.backgroundColor = .ypGrayAlpha
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: field.frame.height))
         field.leftViewMode = .always
         field.layer.cornerRadius = 16
+        field.clearButtonMode = .always
         field.addTarget(self, action: #selector(didChangedNameField), for: .editingChanged)
         field.translatesAutoresizingMaskIntoConstraints = false
         
