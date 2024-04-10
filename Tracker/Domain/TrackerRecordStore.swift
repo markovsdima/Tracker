@@ -74,7 +74,7 @@ final class TrackerRecordStore: NSObject {
                 date: $0.date ?? Date()
             )
         })
-        
+
         return trackersRecords
     }
     

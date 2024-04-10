@@ -13,6 +13,12 @@ private enum TrackerStoreError: Error {
     case otherError
 }
 
+enum trackerStoreFiltrationType {
+    case all
+    case uncompleted
+    case completed
+}
+
 protocol TrackerStoreDelegate: AnyObject {
     func didChangeData(in store: TrackerStore)
 }
@@ -70,10 +76,7 @@ final class TrackerStore: NSObject {
     }
     
     // MARK: - Public methods
-    
-    
-    
-    func getTrackerCategories(_ day: Int, currentDate: Date) throws -> [TrackerCategory] {
+    func getTrackerCategories(_ day: Int, currentDate: Date, filtrationType: trackerStoreFiltrationType) throws -> [TrackerCategory] {
         self.currentDay = day
         
         guard let objects = fetchedResultsController?.fetchedObjects else {
@@ -93,9 +96,31 @@ final class TrackerStore: NSObject {
         
         // Process categories and trackers
         for (key, trackersCoreData) in categories2 {
-            let filteredTrackers = trackersCoreData.filter { tracker -> Bool in
+            var filteredTrackers = trackersCoreData.filter { tracker -> Bool in
                 // Pinned trackers go to the pinned category
                 return !tracker.pin || (pinnedCategory == nil)
+            }
+            
+            switch filtrationType {
+            case .all:
+                break
+            case .completed:
+                filteredTrackers = filteredTrackers.filter { trackerCoreData in
+                    // Check if there's a record for this tracker on current date in trackerRecordStore
+                    //guard let id = trackerCoreData.id else { return false }
+                    if let id = trackerCoreData.id {
+                        return !records(for: id, at: currentDate).isEmpty
+                    }
+                    return false
+                }
+            case .uncompleted:
+                filteredTrackers = filteredTrackers.filter { trackerCoreData in
+                    // Check if there's NO record for this tracker on current date in trackerRecordStore
+                    if let id = trackerCoreData.id {
+                        return records(for: id, at: currentDate).isEmpty
+                    }
+                    return false
+                }
             }
             
             // Create category objects
@@ -111,13 +136,11 @@ final class TrackerStore: NSObject {
         }
         
         // Add pinned category (if needed) with pinned trackers
-        print("CATEGORIES 2 dict ------- : \(categories2)")
         if pinnedCategory != nil {
             
-            //let pinnedTrackers = try trackersCoreDataToTrackers(from: categories2["Закрепленные"] ?? [], currentDate: currentDate)
             var pinnedTrackers = [Tracker]()
             
-            for (key, trackersCoreData) in categories2 {
+            for (_, trackersCoreData) in categories2 {
                 for trackerCoreData in trackersCoreData {
                     if trackerCoreData.pin {
                         let tracker = try tracker(from: trackerCoreData)
@@ -126,20 +149,25 @@ final class TrackerStore: NSObject {
                 }
             }
             
-            
-            
-            print("PINNED TRACKERS---------: \(pinnedTrackers)")
             let newPinnedCategory = TrackerCategory(title: "Закрепленные", trackers: pinnedTrackers)
             categories.insert(newPinnedCategory, at: 0)
         }
-        print(categories)
         categories = filterEmptySections(categories)
         
         return categories
     }
     
-    
-    
+    private func records(for trackerID: UUID, at date: Date) -> [TrackerRecord] {
+        let date = date.onlyDate
+        do {
+            let records = try trackerRecordStore.fetchTrackerRecord()
+            let filteredRecords = Array(records)
+
+            return filteredRecords.filter { $0.id == trackerID && $0.date == date }
+        } catch {
+            return []
+        }
+    }
     
     func getTrackerCategoriesOld(_ day: Int, currentDate: Date) throws -> [TrackerCategory] {
         self.currentDay = day
@@ -152,13 +180,9 @@ final class TrackerStore: NSObject {
         
         categories = [TrackerCategory]()
         
-        
-        
-        
-        
-        
         for i in categories2 {
             guard let key = i.key else { throw TrackerStoreError.otherError }
+            
             let trackerCategory = TrackerCategory(
                 title: key,
                 trackers: try trackersCoreDataToTrackers(from: i.value, currentDate: currentDate)
@@ -166,8 +190,7 @@ final class TrackerStore: NSObject {
             
             categories.append(trackerCategory)
         }
-        //print("Categories2: \(categories2)")
-        //print("Categories: \(categories)")
+        
         categories = filterEmptySections(categories)
         
         
@@ -346,13 +369,10 @@ final class TrackerStore: NSObject {
         let records = Array(try trackerRecordStore.fetchTrackerRecord())
         
         for i in trackersCoreData {
-            
             array.append(try tracker(from: i))
         }
-        //print("Array--------------:\(array)")
         
         let filteredArray = filterTrackers(trackers: array, records: records, currentDate: date)
-        //print("Filtered Array--------------:\(filteredArray)")
         
         return filteredArray
     }
