@@ -77,7 +77,7 @@ final class TrackersViewController: UIViewController {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .date
         datePicker.preferredDatePickerStyle = .compact
-        datePicker.locale = Locale(identifier: "ru_RU")
+        datePicker.locale = Locale.current
         datePicker.addTarget(self, action: #selector(datePickerValueChanged), for: .valueChanged)
         datePicker.translatesAutoresizingMaskIntoConstraints = false
         
@@ -88,14 +88,6 @@ final class TrackersViewController: UIViewController {
         let button = UIBarButtonItem(customView: datePicker)
         
         return button
-    }()
-    
-    private lazy var largeTitle: UILabel = {
-        let label = UILabel()
-        label.text = "Трекеры"
-        label.font = UIFont.systemFont(ofSize: 34, weight: .bold)
-        
-        return label
     }()
     
     private lazy var searchField: UISearchTextField = {
@@ -372,7 +364,7 @@ final class TrackersViewController: UIViewController {
     }
     
     private func configureNavBar() {
-        self.navigationItem.title = "Трекеры"
+        self.navigationItem.title = NSLocalizedString("Trackers", comment: "")
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationItem.leftBarButtonItem = addTrackerButton
         navigationItem.rightBarButtonItem = datePickerButton

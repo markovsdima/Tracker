@@ -29,6 +29,8 @@
 		32421BD92BC8397B0053DDC0 /* TrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32421BD82BC8397B0053DDC0 /* TrackerTests.swift */; };
 		32421BE12BC83A140053DDC0 /* InlineSnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 32421BE02BC83A140053DDC0 /* InlineSnapshotTesting */; };
 		32421BE32BC83A140053DDC0 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 32421BE22BC83A140053DDC0 /* SnapshotTesting */; };
+		32421BE72BC83F7C0053DDC0 /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32421BE92BC83F7C0053DDC0 /* Localizable.strings */; };
+		32421BED2BC846D80053DDC0 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 32421BEF2BC846D80053DDC0 /* Localizable.stringsdict */; };
 		328C0EBC2BB3DA4B006ECD5B /* HideKeyboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328C0EBB2BB3DA4B006ECD5B /* HideKeyboard.swift */; };
 		328C0EE52BB50149006ECD5B /* TrackerStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328C0EE42BB50149006ECD5B /* TrackerStore.swift */; };
 		328C0EE72BB5015E006ECD5B /* TrackerCategoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 328C0EE62BB5015E006ECD5B /* TrackerCategoryStore.swift */; };
@@ -86,6 +88,10 @@
 		32421BCE2BC6B51A0053DDC0 /* FiltersTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiltersTableViewCell.swift; sourceTree = "<group>"; };
 		32421BD62BC8397A0053DDC0 /* TrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		32421BD82BC8397B0053DDC0 /* TrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerTests.swift; sourceTree = "<group>"; };
+		32421BE82BC83F7C0053DDC0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		32421BEA2BC83F910053DDC0 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		32421BEE2BC846D80053DDC0 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		32421BF02BC846DC0053DDC0 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ru; path = ru.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		328C0EBB2BB3DA4B006ECD5B /* HideKeyboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HideKeyboard.swift; sourceTree = "<group>"; };
 		328C0EE42BB50149006ECD5B /* TrackerStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerStore.swift; sourceTree = "<group>"; };
 		328C0EE62BB5015E006ECD5B /* TrackerCategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCategoryStore.swift; sourceTree = "<group>"; };
@@ -204,6 +210,15 @@
 			path = TrackerTests;
 			sourceTree = "<group>";
 		};
+		32421BE42BC83EBD0053DDC0 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				32421BE92BC83F7C0053DDC0 /* Localizable.strings */,
+				32421BEF2BC846D80053DDC0 /* Localizable.stringsdict */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		328C0EE22BB500FC006ECD5B /* Domain */ = {
 			isa = PBXGroup;
 			children = (
@@ -245,6 +260,7 @@
 		32D7D1422B76E89B00D1FBF1 /* Tracker */ = {
 			isa = PBXGroup;
 			children = (
+				32421BE42BC83EBD0053DDC0 /* Resources */,
 				321C38AA2B7C90D300F86B02 /* Models */,
 				32F27CEE2BC17C0400E352A7 /* OnboardingView */,
 				321C38B52B94AB7000F86B02 /* TrackersView */,
@@ -365,6 +381,7 @@
 			knownRegions = (
 				en,
 				Base,
+				ru,
 			);
 			mainGroup = 32D7D1372B76E89B00D1FBF1;
 			packageReferences = (
@@ -393,6 +410,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				32D7D1502B76E89C00D1FBF1 /* LaunchScreen.storyboard in Resources */,
+				32421BED2BC846D80053DDC0 /* Localizable.stringsdict in Resources */,
+				32421BE72BC83F7C0053DDC0 /* Localizable.strings in Resources */,
 				32D7D14D2B76E89C00D1FBF1 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -466,6 +485,24 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		32421BE92BC83F7C0053DDC0 /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32421BE82BC83F7C0053DDC0 /* en */,
+				32421BEA2BC83F910053DDC0 /* ru */,
+			);
+			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		32421BEF2BC846D80053DDC0 /* Localizable.stringsdict */ = {
+			isa = PBXVariantGroup;
+			children = (
+				32421BEE2BC846D80053DDC0 /* en */,
+				32421BF02BC846DC0053DDC0 /* ru */,
+			);
+			name = Localizable.stringsdict;
+			sourceTree = "<group>";
+		};
 		32D7D14E2B76E89C00D1FBF1 /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -518,6 +555,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
@@ -581,6 +619,7 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";

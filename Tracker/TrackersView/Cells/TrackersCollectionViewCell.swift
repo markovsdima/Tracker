@@ -151,7 +151,11 @@ class TrackersCollectionViewCell: UICollectionViewCell {
 
         }
         
-        self.daysCountLabel.text = generateDaysCountLabelText(with: trackerCompletedDaysCount)
+        //self.daysCountLabel.text = generateDaysCountLabelText(with: trackerCompletedDaysCount)
+        self.daysCountLabel.text = String.localizedStringWithFormat(
+            NSLocalizedString("daysCount", comment: ""),
+            trackerCompletedDaysCount
+        )
         if isFuture {
             taskCompletedButton.setImage(UIImage(systemName: "plus"), for: .normal)
             taskCompletedButton.backgroundColor = trackerColor.withAlphaComponent(0.3)
@@ -227,13 +231,19 @@ class TrackersCollectionViewCell: UICollectionViewCell {
             taskCompletedButton.backgroundColor = trackerColor
             trackerCompletion?.toggle()
             trackerCompletedDaysCount -= 1
-            daysCountLabel.text = generateDaysCountLabelText(with: trackerCompletedDaysCount)
+            daysCountLabel.text = String.localizedStringWithFormat(
+                NSLocalizedString("daysCount", comment: ""),
+                trackerCompletedDaysCount
+            )
         } else {
             taskCompletedButton.setImage(UIImage(systemName: "checkmark"), for: .normal)
             taskCompletedButton.backgroundColor = trackerColor.withAlphaComponent(0.3)
             trackerCompletion?.toggle()
             trackerCompletedDaysCount += 1
-            daysCountLabel.text = generateDaysCountLabelText(with: trackerCompletedDaysCount)
+            daysCountLabel.text = String.localizedStringWithFormat(
+                NSLocalizedString("daysCount", comment: ""),
+                trackerCompletedDaysCount
+            )
         }
         
         delegate?.changeTrackerCompletionState(tracker: tracker)
