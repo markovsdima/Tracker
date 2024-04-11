@@ -14,6 +14,8 @@ class TabBarViewController: UITabBarController {
         super.viewDidLoad()
         
         configureTabs()
+        
+        
     }
     
     // MARK: - Private Methods

@@ -26,6 +26,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func chooseInitialViewController() -> UIViewController {
         let firstLaunchTookPlace = UserDefaults.standard.bool(forKey: "firstLaunchTookPlace")
         
+        // Set filtration type to default(allTrackers)
+        UserDefaults.standard.set(0, forKey: "filterType")
+        
         let controller = firstLaunchTookPlace ? TabBarViewController() : OnboardingViewController()
         
         return controller

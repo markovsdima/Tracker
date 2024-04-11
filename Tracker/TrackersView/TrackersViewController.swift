@@ -12,6 +12,7 @@ final class TrackersViewController: UIViewController {
     // MARK: - Private Properties
     private var categories: [TrackerCategory] = MockData.shared.mockCategories
     private var filteredCategories: [TrackerCategory] = []
+    private var filteredCategoriesBeforeSearch: [TrackerCategory] = []
     private var completedTrackers = Set<TrackerRecord>()
     private var currentDate = Date()
     private var dataSource: UICollectionViewDiffableDataSource<TrackerCategory, Tracker>?
@@ -19,10 +20,15 @@ final class TrackersViewController: UIViewController {
     private var trackerStore = TrackerStore.shared
     private var trackerRecordStore = TrackerRecordStore.shared
     
+    private let filterTypes: [FilterType] = [.allTrackers, .todayTrackers, .completed, .uncompleted]
+    private var userDefaultsFilterType = UserDefaults.standard.integer(forKey: "filterType")
     private var filtrationType: FilterType = .allTrackers {
         didSet { updateFiltrationType() }
     }
     
+    //UserDefaults.standard.set("allTrackers", forKey: "filterType")
+    //UserDefaults.standard.set(true, forKey: "firstLaunchTookPlace")
+    //let firstLaunchTookPlace = UserDefaults.standard.bool(forKey: "firstLaunchTookPlace")
     private var trackerStoreFiltrationType: trackerStoreFiltrationType = .all
     
     // MARK: - UI Properties
@@ -104,18 +110,12 @@ final class TrackersViewController: UIViewController {
         return label
     }()
     
-    private lazy var searchBar: UISearchBar = {
-        let searchBar = UISearchBar()
-        searchBar.placeholder = "Поиск"
-        searchBar.searchBarStyle = .minimal
-        
-        
-        return searchBar
-    }()
-    
     private lazy var searchField: UISearchTextField = {
         let field = UISearchTextField()
         field.placeholder = "Поиск"
+        field.addTarget(self, action: #selector(didChangedSearchField), for: .editingChanged)
+        field.addTarget(self, action: #selector(didBeginSearchField), for: .editingDidBegin)
+        field.addTarget(self, action: #selector(didEndSearchField), for: .editingDidEnd)
         
         return field
     }()
@@ -152,12 +152,19 @@ final class TrackersViewController: UIViewController {
         
         return button
     }()
+    private var isAnimating = false
+    // MARK: Initializers
+    //    convenience init() {
+    //        self.init()
+    //        //self.filtrationType = filterTypes[userDefaultsFilterType]
+    //    }
     
     // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
         self.hideKeyboardWhenTappedAround()
+        
         
         trackerStore.delegate = self
         configureNavBar()
@@ -166,8 +173,10 @@ final class TrackersViewController: UIViewController {
         setupDataSource()
         configureHeader()
         
+        filtrationType = filterTypes[userDefaultsFilterType]
+        
         do {
-            try filterCategoriesByWeekDay(.all)
+            try filterCategoriesByWeekDay(trackerStoreFiltrationType)
         } catch {
             print("filterCategoriesByWeekDayWhenViewDidLoadError")
         }
@@ -189,6 +198,13 @@ final class TrackersViewController: UIViewController {
             filtersButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             filtersButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
         ])
+        
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        animateButton(
+            filtrationType == .completed || filtrationType == .uncompleted
+        )
     }
     
     // MARK: - Private Methods
@@ -197,8 +213,8 @@ final class TrackersViewController: UIViewController {
         case .allTrackers:
             do {
                 trackerStoreFiltrationType = .all
+                UserDefaults.standard.set(0, forKey: "filterType")
                 try filterCategoriesByWeekDay(trackerStoreFiltrationType)
-                filtersButton.setTitleColor(.ypWhiteOnly, for: .normal)
                 animateButton(false)
             } catch {
                 print("updateFiltrationTypeToAllError")
@@ -207,8 +223,8 @@ final class TrackersViewController: UIViewController {
             datePicker.date = Date()
             do {
                 trackerStoreFiltrationType = .all
+                UserDefaults.standard.set(1, forKey: "filterType")
                 try filterCategoriesByWeekDay(trackerStoreFiltrationType)
-                filtersButton.setTitleColor(.ypWhiteOnly, for: .normal)
                 animateButton(false)
             } catch {
                 print("updateFiltrationTypeToAllAndDateToTodayError")
@@ -216,6 +232,7 @@ final class TrackersViewController: UIViewController {
         case .completed:
             do {
                 trackerStoreFiltrationType = .completed
+                UserDefaults.standard.set(2, forKey: "filterType")
                 try filterCategoriesByWeekDay(trackerStoreFiltrationType)
                 animateButton(true)
             } catch {
@@ -224,6 +241,7 @@ final class TrackersViewController: UIViewController {
         case .uncompleted:
             do {
                 trackerStoreFiltrationType = .uncompleted
+                UserDefaults.standard.set(3, forKey: "filterType")
                 try filterCategoriesByWeekDay(trackerStoreFiltrationType)
                 animateButton(true)
             } catch {
@@ -240,16 +258,16 @@ final class TrackersViewController: UIViewController {
             filtersButton.layer.shadowColor = CGColor(red: 1, green: 0, blue: 0, alpha: 1)
             filtersButton.layer.shadowOffset = CGSize.zero
             filtersButton.layer.shadowOpacity = 1
-
-
+            
+            
             let shadowRadiusAnimation = CABasicAnimation(keyPath: "shadowRadius")
-
+            
             shadowRadiusAnimation.fromValue = 0
             shadowRadiusAnimation.toValue = 10
             shadowRadiusAnimation.duration = 2
             shadowRadiusAnimation.autoreverses = true
             shadowRadiusAnimation.repeatCount = .infinity
-
+            
             filtersButton.layer.add(shadowRadiusAnimation, forKey: "shadowRadius")
         } else {
             filtersButton.layer.removeAnimation(forKey: "shadowRadius")
@@ -264,7 +282,7 @@ final class TrackersViewController: UIViewController {
         return identifiers
     }
     
-    private func emptyCheck(isEmpty: Bool) {
+    private func emptyCheck(isEmpty: Bool, afterSearch: Bool) {
         
         view.addSubview(noTrackersYetImageView)
         view.addSubview(noTrackersYetLabel)
@@ -288,6 +306,8 @@ final class TrackersViewController: UIViewController {
             filtersButton.isHidden = isEmpty
         }
         
+        noTrackersYetLabel.text = afterSearch ? "Ничего не найдено" : "Что будем отслеживать?"
+        noTrackersYetImageView.image = afterSearch ? .notFound : .noTrackersYet
         
     }
     
@@ -391,7 +411,14 @@ final class TrackersViewController: UIViewController {
         trackerStore.filterCategoriesByWeekDay(selectedWeekDay: selectedWeekDay)
         filteredCategories = try trackerStore.getTrackerCategories(selectedWeekDay, currentDate: currentDate, filtrationType: filtrationType)
         reloadData()
-        emptyCheck(isEmpty: filteredCategories.isEmpty)
+        var isAfterSearch = false
+        if filtrationType == .completed || filtrationType == .uncompleted {
+            isAfterSearch = true
+        }
+        
+        emptyCheck(isEmpty: filteredCategories.isEmpty, afterSearch: isAfterSearch)
+        filteredCategoriesBeforeSearch = filteredCategories
+        checkSearchText()
     }
     
     private func showDeleteActionSheet(id: UUID?) {
@@ -447,6 +474,49 @@ final class TrackersViewController: UIViewController {
         view.delegate = self
         
         present(view, animated: true)
+    }
+    
+    @objc private func didBeginSearchField() {
+        //filteredCategoriesBeforeSearch = filteredCategories
+    }
+    
+    @objc private func didEndSearchField() {
+        if searchField.text == "" || searchField.text == nil {
+            filteredCategories = filteredCategoriesBeforeSearch
+            reloadData()
+        }
+    }
+    
+    @objc private func didChangedSearchField() {
+        
+        checkSearchText()
+        if searchField.text == "" {
+            filteredCategories = filteredCategoriesBeforeSearch
+            reloadData()
+        }
+        
+    }
+    
+    func checkSearchText() {
+        if searchField.text != "", let searchText = searchField.text {
+            var searchFilteredCategories: [TrackerCategory] = []
+            
+            for category in filteredCategoriesBeforeSearch {
+                var filteredTrackers: [Tracker] = []
+                for tracker in category.trackers {
+                    if tracker.title.lowercased().contains(searchText.lowercased()) {
+                        filteredTrackers.append(tracker)
+                    }
+                }
+                if !filteredTrackers.isEmpty {
+                    searchFilteredCategories.append(TrackerCategory(title: category.title, trackers: filteredTrackers))
+                }
+            }
+            filteredCategories = searchFilteredCategories
+            reloadData()
+            emptyCheck(isEmpty: filteredCategories.isEmpty, afterSearch: true)
+            
+        }
     }
 }
 
