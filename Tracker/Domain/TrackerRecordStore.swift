@@ -63,7 +63,7 @@ final class TrackerRecordStore: NSObject {
     
     
     // MARK: - Public Methods
-    public func fetchTrackerRecord() throws -> Set<TrackerRecord> {
+    func fetchTrackerRecord() throws -> Set<TrackerRecord> {
         guard let objects = fetchedResultsController?.fetchedObjects else {
             return []
         }
@@ -74,11 +74,19 @@ final class TrackerRecordStore: NSObject {
                 date: $0.date ?? Date()
             )
         })
-
+        
         return trackersRecords
     }
     
-    public func addTrackerRecord(for tracker: Tracker, date: Date) {
+    func getTrackerRecordCount() throws -> Int {
+        guard let fetchedResultsController = fetchedResultsController else {
+            throw TrackerRecordStoreError.otherError
+        }
+        return fetchedResultsController.fetchedObjects?.count ?? 0
+    }
+    
+    
+    func addTrackerRecord(for tracker: Tracker, date: Date) {
         
         guard let context else { return }
         
@@ -119,7 +127,7 @@ final class TrackerRecordStore: NSObject {
         
     }
     
-    public func removeRecord(id: UUID, date: Date) throws {
+    func removeRecord(id: UUID, date: Date) throws {
         guard let context else { return }
         
         let request: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()

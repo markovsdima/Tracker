@@ -26,10 +26,8 @@ final class TrackersViewController: UIViewController {
         didSet { updateFiltrationType() }
     }
     
-    //UserDefaults.standard.set("allTrackers", forKey: "filterType")
-    //UserDefaults.standard.set(true, forKey: "firstLaunchTookPlace")
-    //let firstLaunchTookPlace = UserDefaults.standard.bool(forKey: "firstLaunchTookPlace")
     private var trackerStoreFiltrationType: trackerStoreFiltrationType = .all
+    private var isAnimating = false
     
     // MARK: - UI Properties
     private let collectionView: UICollectionView = {
@@ -86,18 +84,8 @@ final class TrackersViewController: UIViewController {
         return datePicker
     }()
     
-    
-    // TODO: - Customize
     private lazy var datePickerButton: UIBarButtonItem = {
-        
         let button = UIBarButtonItem(customView: datePicker)
-        
-        //        button.customView?.backgroundColor = .ypGrayAndWhite
-        //
-        //        button.customView?.layer.cornerRadius = 8
-        //        button.customView?.layer.masksToBounds = true
-        //        button.tintColor = .ypBlackOnly
-        //        button.customView?.tintColor = .ypBlackOnly
         
         return button
     }()
@@ -152,12 +140,8 @@ final class TrackersViewController: UIViewController {
         
         return button
     }()
-    private var isAnimating = false
-    // MARK: Initializers
-    //    convenience init() {
-    //        self.init()
-    //        //self.filtrationType = filterTypes[userDefaultsFilterType]
-    //    }
+    
+    
     
     // MARK: - View Life Cycles
     override func viewDidLoad() {

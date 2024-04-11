@@ -164,6 +164,14 @@
 			path = CategoriesView;
 			sourceTree = "<group>";
 		};
+		32421BD12BC8195C0053DDC0 /* StatisticsView */ = {
+			isa = PBXGroup;
+			children = (
+				32D7D1572B770BF700D1FBF1 /* StatisticsViewController.swift */,
+			);
+			path = StatisticsView;
+			sourceTree = "<group>";
+		};
 		328C0EE22BB500FC006ECD5B /* Domain */ = {
 			isa = PBXGroup;
 			children = (
@@ -206,10 +214,10 @@
 				321C38AA2B7C90D300F86B02 /* Models */,
 				32F27CEE2BC17C0400E352A7 /* OnboardingView */,
 				321C38B52B94AB7000F86B02 /* TrackersView */,
+				32421BD12BC8195C0053DDC0 /* StatisticsView */,
 				328C0EE22BB500FC006ECD5B /* Domain */,
 				328C0EE32BB50114006ECD5B /* CoreData */,
 				32D7D1592B770D4900D1FBF1 /* TabBarViewController.swift */,
-				32D7D1572B770BF700D1FBF1 /* StatisticsViewController.swift */,
 				32D7D1432B76E89B00D1FBF1 /* AppDelegate.swift */,
 				32D7D15B2B77129600D1FBF1 /* Helpers */,
 				32D7D14C2B76E89C00D1FBF1 /* Assets.xcassets */,
