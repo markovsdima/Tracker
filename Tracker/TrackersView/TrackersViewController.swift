@@ -28,6 +28,7 @@ final class TrackersViewController: UIViewController {
     
     private var trackerStoreFiltrationType: trackerStoreFiltrationType = .all
     private var isAnimating = false
+    private let analyticsService = AnalyticsService.shared
     
     // MARK: - UI Properties
     private let collectionView: UICollectionView = {
@@ -178,9 +179,15 @@ final class TrackersViewController: UIViewController {
     }
     
     override func viewDidAppear(_ animated: Bool) {
+        analyticsService.report(event: "open", params: ["screen" : "Main"])
+        
         animateButton(
             filtrationType == .completed || filtrationType == .uncompleted
         )
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        analyticsService.report(event: "close", params: ["screen" : "Main"])
     }
     
     // MARK: - Private Methods
@@ -430,6 +437,7 @@ final class TrackersViewController: UIViewController {
     }
     
     @objc private func didTapAddTrackerButton() {
+        analyticsService.report(event: "click", params: ["screen" : "Main", "item" : "add_track"])
         let view = CreateTrackerViewController()
         
         present(view, animated: true)
@@ -446,6 +454,8 @@ final class TrackersViewController: UIViewController {
     }
     
     @objc private func didTapFiltersButton() {
+        analyticsService.report(event: "click", params: ["screen" : "Main", "item" : "filter"])
+        
         let view = FiltersViewController(currentFilter: self.filtrationType)
         view.delegate = self
         

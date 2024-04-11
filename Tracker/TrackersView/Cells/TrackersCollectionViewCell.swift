@@ -34,6 +34,7 @@ class TrackersCollectionViewCell: UICollectionViewCell {
     private var tracker: Tracker?
     private var isPinned: Bool = false
     private var pinActionTitle: PinActionTitles?
+    private var analyticsService = AnalyticsService.shared
     
     // MARK: - UI Properties
     private lazy var cardView: UIView = {
@@ -222,6 +223,7 @@ class TrackersCollectionViewCell: UICollectionViewCell {
     }
     
     @objc private func taskCompletedButtonDidTap() {
+        analyticsService.report(event: "click", params: ["screen" : "Main", "item" : "track"])
         guard let tracker else { return }
         
         if isFuture == true { return }
@@ -261,10 +263,12 @@ extension TrackersCollectionViewCell: UIContextMenuInteractionDelegate {
             }
             
             let editAction = UIAction(title: "Редактировать") { action in
+                self.analyticsService.report(event: "click", params: ["screen" : "Main", "item" : "edit"])
                 self.delegate?.editTrackerAction(tracker: self.tracker, daysCount: self.trackerCompletedDaysCount)
             }
             
             let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { action in
+                self.analyticsService.report(event: "click", params: ["screen" : "Main", "item" : "delete"])
                 self.delegate?.deleteTrackerAction(id: self.trackerId)
                 //self.showActionSheet()
             }
