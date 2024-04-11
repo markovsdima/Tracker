@@ -95,8 +95,8 @@ final class TrackersViewController: UIViewController {
         let field = UISearchTextField()
         field.placeholder = "Поиск"
         field.addTarget(self, action: #selector(didChangedSearchField), for: .editingChanged)
-        field.addTarget(self, action: #selector(didBeginSearchField), for: .editingDidBegin)
         field.addTarget(self, action: #selector(didEndSearchField), for: .editingDidEnd)
+        field.delegate = self
         
         return field
     }()
@@ -134,14 +134,11 @@ final class TrackersViewController: UIViewController {
         return button
     }()
     
-    
-    
     // MARK: - View Life Cycles
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .ypWhite
         self.hideKeyboardWhenTappedAround()
-        
         
         trackerStore.delegate = self
         configureNavBar()
@@ -241,7 +238,6 @@ final class TrackersViewController: UIViewController {
             filtersButton.layer.shadowColor = CGColor(red: 1, green: 0, blue: 0, alpha: 1)
             filtersButton.layer.shadowOffset = CGSize.zero
             filtersButton.layer.shadowOpacity = 1
-            
             
             let shadowRadiusAnimation = CABasicAnimation(keyPath: "shadowRadius")
             
@@ -436,6 +432,28 @@ final class TrackersViewController: UIViewController {
         self.present(alert, animated: true)
     }
     
+    private func checkSearchText() {
+        if searchField.text != "", let searchText = searchField.text {
+            var searchFilteredCategories: [TrackerCategory] = []
+            
+            for category in filteredCategoriesBeforeSearch {
+                var filteredTrackers: [Tracker] = []
+                for tracker in category.trackers {
+                    if tracker.title.lowercased().contains(searchText.lowercased()) {
+                        filteredTrackers.append(tracker)
+                    }
+                }
+                if !filteredTrackers.isEmpty {
+                    searchFilteredCategories.append(TrackerCategory(title: category.title, trackers: filteredTrackers))
+                }
+            }
+            filteredCategories = searchFilteredCategories
+            reloadData()
+            emptyCheck(isEmpty: filteredCategories.isEmpty, afterSearch: true)
+            
+        }
+    }
+    
     @objc private func didTapAddTrackerButton() {
         analyticsService.report(event: "click", params: ["screen" : "Main", "item" : "add_track"])
         let view = CreateTrackerViewController()
@@ -462,11 +480,8 @@ final class TrackersViewController: UIViewController {
         present(view, animated: true)
     }
     
-    @objc private func didBeginSearchField() {
-        //filteredCategoriesBeforeSearch = filteredCategories
-    }
-    
     @objc private func didEndSearchField() {
+        checkSearchText()
         if searchField.text == "" || searchField.text == nil {
             filteredCategories = filteredCategoriesBeforeSearch
             reloadData()
@@ -474,41 +489,25 @@ final class TrackersViewController: UIViewController {
     }
     
     @objc private func didChangedSearchField() {
-        
         checkSearchText()
         if searchField.text == "" {
             filteredCategories = filteredCategoriesBeforeSearch
             reloadData()
         }
-        
     }
     
-    func checkSearchText() {
-        if searchField.text != "", let searchText = searchField.text {
-            var searchFilteredCategories: [TrackerCategory] = []
-            
-            for category in filteredCategoriesBeforeSearch {
-                var filteredTrackers: [Tracker] = []
-                for tracker in category.trackers {
-                    if tracker.title.lowercased().contains(searchText.lowercased()) {
-                        filteredTrackers.append(tracker)
-                    }
-                }
-                if !filteredTrackers.isEmpty {
-                    searchFilteredCategories.append(TrackerCategory(title: category.title, trackers: filteredTrackers))
-                }
-            }
-            filteredCategories = searchFilteredCategories
-            reloadData()
-            emptyCheck(isEmpty: filteredCategories.isEmpty, afterSearch: true)
-            
-        }
+}
+
+// MARK: - UITextFieldDelegate
+extension TrackersViewController: UITextFieldDelegate {
+    func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        emptyCheck(isEmpty: false, afterSearch: true)
+        return true
     }
 }
 
 // MARK: - TrackersCollectionViewCellDelegate
 extension TrackersViewController: TrackersCollectionViewCellDelegate {
-    
     func changeTrackerCompletionState(tracker: Tracker) {
         guard let date = currentDate.onlyDate else { return }
         

@@ -118,7 +118,6 @@ class TrackersCollectionViewCell: UICollectionViewCell {
         cardView.addSubview(titleLabel)
         emojiView.addSubview(emojiLabel)
         
-        
         setupConstraints()
         configureContextMenu()
     }
@@ -141,7 +140,6 @@ class TrackersCollectionViewCell: UICollectionViewCell {
         self.trackerCompletedDaysCount = count
         self.isFuture = isFuture
         
-        
         self.isPinned = tracker.pin
         pinView.isHidden = !isPinned
         switch self.isPinned {
@@ -149,10 +147,9 @@ class TrackersCollectionViewCell: UICollectionViewCell {
             self.pinActionTitle = .pinned
         case false:
             self.pinActionTitle = .notPinned
-
+            
         }
         
-        //self.daysCountLabel.text = generateDaysCountLabelText(with: trackerCompletedDaysCount)
         self.daysCountLabel.text = String.localizedStringWithFormat(
             NSLocalizedString("daysCount", comment: ""),
             trackerCompletedDaysCount
@@ -258,7 +255,6 @@ extension TrackersCollectionViewCell: UIContextMenuInteractionDelegate {
         return UIContextMenuConfiguration(actionProvider:  { suggestedActions in
             
             let pinAction = UIAction(title: self.pinActionTitle?.rawValue ?? "Закрепить") { action in
-                //guard let isPinned = self.isPinned else { return }
                 self.delegate?.updateTrackerPinAction(id: self.trackerId, isPinned: !self.isPinned)
             }
             
@@ -270,12 +266,9 @@ extension TrackersCollectionViewCell: UIContextMenuInteractionDelegate {
             let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { action in
                 self.analyticsService.report(event: "click", params: ["screen" : "Main", "item" : "delete"])
                 self.delegate?.deleteTrackerAction(id: self.trackerId)
-                //self.showActionSheet()
             }
             
             return UIMenu(children: [pinAction, editAction, deleteAction])
         })
     }
-    
-    
 }
