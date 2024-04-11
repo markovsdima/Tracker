@@ -361,7 +361,6 @@ final class CreateEventViewController: UIViewController {
             categoryButtonSubtitle.isHidden = true
             categoryButton.titleEdgeInsets.top = 0
         } else {
-            print("Not nill!!!")
             categoryButton.addSubview(categoryButtonSubtitle)
             categoryButton.titleEdgeInsets = UIEdgeInsets(top: -24, left: 16, bottom: 0, right: 0)
             categoryButtonSubtitle.text = category

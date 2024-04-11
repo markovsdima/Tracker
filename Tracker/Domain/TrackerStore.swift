@@ -88,17 +88,28 @@ final class TrackerStore: NSObject {
         
         var categories = [TrackerCategory]()
         
-        // Create a pinned category (if it doesn't exist)
-        var pinnedCategory: TrackerCategory?
-        if !categories2.keys.contains("Закрепленные") {
-            pinnedCategory = TrackerCategory(title: "Закрепленные", trackers: [])
+        // Filter pinned trackers based on filtrationType
+        var filteredPinnedTrackers: [TrackerCoreData] = []
+        for tracker in objects where tracker.pin {
+            switch filtrationType {
+            case .all:
+                filteredPinnedTrackers.append(tracker)
+            case .completed:
+                if let id = tracker.id, !records(for: id, at: currentDate).isEmpty {
+                    filteredPinnedTrackers.append(tracker)
+                }
+            case .uncompleted:
+                if let id = tracker.id, records(for: id, at: currentDate).isEmpty {
+                    filteredPinnedTrackers.append(tracker)
+                }
+            }
         }
         
-        // Process categories and trackers
-        for (key, trackersCoreData) in categories2 {
+        // Process remaining categories and trackers
+        for (key, trackersCoreData) in categories2 where key != "Закрепленные" {
             var filteredTrackers = trackersCoreData.filter { tracker -> Bool in
-                // Pinned trackers go to the pinned category
-                return !tracker.pin || (pinnedCategory == nil)
+                // Pinned trackers go to the pinned category (already filtered)
+                return !tracker.pin
             }
             
             switch filtrationType {
@@ -106,24 +117,20 @@ final class TrackerStore: NSObject {
                 break
             case .completed:
                 filteredTrackers = filteredTrackers.filter { trackerCoreData in
-                    // Check if there's a record for this tracker on current date in trackerRecordStore
-                    //guard let id = trackerCoreData.id else { return false }
-                    if let id = trackerCoreData.id {
-                        return !records(for: id, at: currentDate).isEmpty
+                    if let id = trackerCoreData.id, !records(for: id, at: currentDate).isEmpty {
+                        return true
                     }
                     return false
                 }
             case .uncompleted:
                 filteredTrackers = filteredTrackers.filter { trackerCoreData in
-                    // Check if there's NO record for this tracker on current date in trackerRecordStore
-                    if let id = trackerCoreData.id {
-                        return records(for: id, at: currentDate).isEmpty
+                    if let id = trackerCoreData.id, records(for: id, at: currentDate).isEmpty {
+                        return true
                     }
                     return false
                 }
             }
             
-            // Create category objects
             if let key = key {
                 let category = TrackerCategory(
                     title: key,
@@ -135,23 +142,15 @@ final class TrackerStore: NSObject {
             }
         }
         
-        // Add pinned category (if needed) with pinned trackers
-        if pinnedCategory != nil {
-            
-            var pinnedTrackers = [Tracker]()
-            
-            for (_, trackersCoreData) in categories2 {
-                for trackerCoreData in trackersCoreData {
-                    if trackerCoreData.pin {
-                        let tracker = try tracker(from: trackerCoreData)
-                        pinnedTrackers.append(tracker)
-                    }
-                }
-            }
-            
-            let newPinnedCategory = TrackerCategory(title: "Закрепленные", trackers: pinnedTrackers)
-            categories.insert(newPinnedCategory, at: 0)
+        // 3. Add filtered pinned category (if any) as the first category
+        if !filteredPinnedTrackers.isEmpty {
+            let pinnedCategory = TrackerCategory(
+                title: "Закрепленные",
+                trackers: try trackersCoreDataToTrackers(from: filteredPinnedTrackers, currentDate: currentDate)
+            )
+            categories.insert(pinnedCategory, at: 0)
         }
+        
         categories = filterEmptySections(categories)
         
         return categories
@@ -162,40 +161,11 @@ final class TrackerStore: NSObject {
         do {
             let records = try trackerRecordStore.fetchTrackerRecord()
             let filteredRecords = Array(records)
-
+            
             return filteredRecords.filter { $0.id == trackerID && $0.date == date }
         } catch {
             return []
         }
-    }
-    
-    func getTrackerCategoriesOld(_ day: Int, currentDate: Date) throws -> [TrackerCategory] {
-        self.currentDay = day
-        
-        guard let objects = fetchedResultsController?.fetchedObjects else {
-            throw TrackerStoreError.otherError
-        }
-        
-        let categories2 = Dictionary(grouping: objects, by: { $0.category?.title })
-        
-        categories = [TrackerCategory]()
-        
-        for i in categories2 {
-            guard let key = i.key else { throw TrackerStoreError.otherError }
-            
-            let trackerCategory = TrackerCategory(
-                title: key,
-                trackers: try trackersCoreDataToTrackers(from: i.value, currentDate: currentDate)
-            )
-            
-            categories.append(trackerCategory)
-        }
-        
-        categories = filterEmptySections(categories)
-        
-        
-        return categories
-        
     }
     
     func updateTrackerPin(trackerId: UUID, isPinned: Bool) throws {
@@ -212,7 +182,6 @@ final class TrackerStore: NSObject {
         
         try context.save()
     }
-    
     
     func addTracker(_ tracker: Tracker, to category: TrackerCategory) throws {
         guard let context else { throw TrackerStoreError.otherError }
