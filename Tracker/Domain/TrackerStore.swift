@@ -13,6 +13,12 @@ private enum TrackerStoreError: Error {
     case otherError
 }
 
+enum trackerStoreFiltrationType {
+    case all
+    case uncompleted
+    case completed
+}
+
 protocol TrackerStoreDelegate: AnyObject {
     func didChangeData(in store: TrackerStore)
 }
@@ -70,32 +76,111 @@ final class TrackerStore: NSObject {
     }
     
     // MARK: - Public methods
-    func getTrackerCategories(_ day: Int, currentDate: Date) throws -> [TrackerCategory] {
+    func getTrackerCategories(_ day: Int, currentDate: Date, filtrationType: trackerStoreFiltrationType) throws -> [TrackerCategory] {
         self.currentDay = day
         
         guard let objects = fetchedResultsController?.fetchedObjects else {
             throw TrackerStoreError.otherError
         }
         
+        // Group trackers by category title
         let categories2 = Dictionary(grouping: objects, by: { $0.category?.title })
         
-        categories = [TrackerCategory]()
+        var categories = [TrackerCategory]()
         
-        for i in categories2 {
-            guard let key = i.key else { throw TrackerStoreError.otherError }
-            let trackerCategory = TrackerCategory(
-                title: key,
-                trackers: try trackersCoreDataToTrackers(from: i.value, currentDate: currentDate)
-            )
-            
-            categories.append(trackerCategory)
+        // Filter pinned trackers based on filtrationType
+        var filteredPinnedTrackers: [TrackerCoreData] = []
+        for tracker in objects where tracker.pin {
+            switch filtrationType {
+            case .all:
+                filteredPinnedTrackers.append(tracker)
+            case .completed:
+                if let id = tracker.id, !records(for: id, at: currentDate).isEmpty {
+                    filteredPinnedTrackers.append(tracker)
+                }
+            case .uncompleted:
+                if let id = tracker.id, records(for: id, at: currentDate).isEmpty {
+                    filteredPinnedTrackers.append(tracker)
+                }
+            }
         }
-        //print("Categories2: \(categories2)")
-        //print("Categories: \(categories)")
+        
+        // Process remaining categories and trackers
+        for (key, trackersCoreData) in categories2 where key != "Закрепленные" {
+            var filteredTrackers = trackersCoreData.filter { tracker -> Bool in
+                // Pinned trackers go to the pinned category (already filtered)
+                return !tracker.pin
+            }
+            
+            switch filtrationType {
+            case .all:
+                break
+            case .completed:
+                filteredTrackers = filteredTrackers.filter { trackerCoreData in
+                    if let id = trackerCoreData.id, !records(for: id, at: currentDate).isEmpty {
+                        return true
+                    }
+                    return false
+                }
+            case .uncompleted:
+                filteredTrackers = filteredTrackers.filter { trackerCoreData in
+                    if let id = trackerCoreData.id, records(for: id, at: currentDate).isEmpty {
+                        return true
+                    }
+                    return false
+                }
+            }
+            
+            if let key = key {
+                let category = TrackerCategory(
+                    title: key,
+                    trackers: try trackersCoreDataToTrackers(from: filteredTrackers, currentDate: currentDate)
+                )
+                categories.append(category)
+            } else {
+                throw TrackerStoreError.otherError
+            }
+        }
+        
+        // 3. Add filtered pinned category (if any) as the first category
+        if !filteredPinnedTrackers.isEmpty {
+            let pinnedCategory = TrackerCategory(
+                title: "Закрепленные",
+                trackers: try trackersCoreDataToTrackers(from: filteredPinnedTrackers, currentDate: currentDate)
+            )
+            categories.insert(pinnedCategory, at: 0)
+        }
+        
         categories = filterEmptySections(categories)
         
-        
         return categories
+    }
+    
+    private func records(for trackerID: UUID, at date: Date) -> [TrackerRecord] {
+        let date = date.onlyDate
+        do {
+            let records = try trackerRecordStore.fetchTrackerRecord()
+            let filteredRecords = Array(records)
+            
+            return filteredRecords.filter { $0.id == trackerID && $0.date == date }
+        } catch {
+            return []
+        }
+    }
+    
+    func updateTrackerPin(trackerId: UUID, isPinned: Bool) throws {
+        guard let context else { throw TrackerStoreError.otherError }
+        
+        let fetchRequest = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCoreData.id), trackerId as CVarArg)
+        
+        guard let tracker = try context.fetch(fetchRequest).first else {
+            throw TrackerStoreError.otherError
+        }
+        
+        tracker.pin = isPinned
+        
+        try context.save()
     }
     
     func addTracker(_ tracker: Tracker, to category: TrackerCategory) throws {
@@ -210,15 +295,14 @@ final class TrackerStore: NSObject {
             let trackerType = trackerCoreData.trackerType
         else { throw TrackerStoreError.decodingTrackerError }
         
-        
-        
         return Tracker(
             id: id,
             title: title,
             color: color,
             emoji: emoji,
             schedule: WeekDay.getScheduleFromString(daysString: trackerCoreData.schedule ?? ""),
-            trackerType: TrackerTypes.getTrackerTypeFromString(string: trackerType))
+            trackerType: TrackerTypes.getTrackerTypeFromString(string: trackerType),
+            pin: trackerCoreData.pin)
     }
     
     func filterCategoriesByWeekDay(selectedWeekDay: Int?) {
@@ -254,13 +338,10 @@ final class TrackerStore: NSObject {
         let records = Array(try trackerRecordStore.fetchTrackerRecord())
         
         for i in trackersCoreData {
-            
             array.append(try tracker(from: i))
         }
-        //print("Array--------------:\(array)")
         
         let filteredArray = filterTrackers(trackers: array, records: records, currentDate: date)
-        //print("Filtered Array--------------:\(filteredArray)")
         
         return filteredArray
     }

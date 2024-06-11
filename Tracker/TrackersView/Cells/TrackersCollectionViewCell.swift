@@ -9,8 +9,14 @@ import UIKit
 
 protocol TrackersCollectionViewCellDelegate: AnyObject {
     func changeTrackerCompletionState(tracker: Tracker)
+    func updateTrackerPinAction(id: UUID?, isPinned: Bool)
     func editTrackerAction(tracker: Tracker?, daysCount: Int?)
     func deleteTrackerAction(id: UUID?)
+}
+
+private enum PinActionTitles: String {
+    case pinned = "Открепить"
+    case notPinned = "Закрепить"
 }
 
 class TrackersCollectionViewCell: UICollectionViewCell {
@@ -26,6 +32,9 @@ class TrackersCollectionViewCell: UICollectionViewCell {
     private var isFuture: Bool?
     private var trackerType: TrackerTypes?
     private var tracker: Tracker?
+    private var isPinned: Bool = false
+    private var pinActionTitle: PinActionTitles?
+    private var analyticsService = AnalyticsService.shared
     
     // MARK: - UI Properties
     private lazy var cardView: UIView = {
@@ -54,6 +63,14 @@ class TrackersCollectionViewCell: UICollectionViewCell {
         label.translatesAutoresizingMaskIntoConstraints = false
         
         return label
+    }()
+    
+    private lazy var pinView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = .pinIcon
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        
+        return imageView
     }()
     
     private lazy var titleLabel: UILabel = {
@@ -97,6 +114,7 @@ class TrackersCollectionViewCell: UICollectionViewCell {
         contentView.addSubview(taskCompletedButton)
         contentView.addSubview(daysCountLabel)
         cardView.addSubview(emojiView)
+        cardView.addSubview(pinView)
         cardView.addSubview(titleLabel)
         emojiView.addSubview(emojiLabel)
         
@@ -121,7 +139,21 @@ class TrackersCollectionViewCell: UICollectionViewCell {
         self.trackerCompletion = completion
         self.trackerCompletedDaysCount = count
         self.isFuture = isFuture
-        self.daysCountLabel.text = generateDaysCountLabelText(with: trackerCompletedDaysCount)
+        
+        self.isPinned = tracker.pin
+        pinView.isHidden = !isPinned
+        switch self.isPinned {
+        case true:
+            self.pinActionTitle = .pinned
+        case false:
+            self.pinActionTitle = .notPinned
+            
+        }
+        
+        self.daysCountLabel.text = String.localizedStringWithFormat(
+            NSLocalizedString("daysCount", comment: ""),
+            trackerCompletedDaysCount
+        )
         if isFuture {
             taskCompletedButton.setImage(UIImage(systemName: "plus"), for: .normal)
             taskCompletedButton.backgroundColor = trackerColor.withAlphaComponent(0.3)
@@ -167,6 +199,11 @@ class TrackersCollectionViewCell: UICollectionViewCell {
             emojiLabel.centerXAnchor.constraint(equalTo: emojiView.centerXAnchor),
             emojiLabel.centerYAnchor.constraint(equalTo: emojiView.centerYAnchor),
             
+            pinView.centerYAnchor.constraint(equalTo: emojiView.centerYAnchor),
+            pinView.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -4),
+            pinView.heightAnchor.constraint(equalToConstant: 24),
+            pinView.widthAnchor.constraint(equalToConstant: 24),
+            
             titleLabel.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -12),
             titleLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
             titleLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -12),
@@ -183,6 +220,7 @@ class TrackersCollectionViewCell: UICollectionViewCell {
     }
     
     @objc private func taskCompletedButtonDidTap() {
+        analyticsService.report(event: "click", params: ["screen" : "Main", "item" : "track"])
         guard let tracker else { return }
         
         if isFuture == true { return }
@@ -192,13 +230,19 @@ class TrackersCollectionViewCell: UICollectionViewCell {
             taskCompletedButton.backgroundColor = trackerColor
             trackerCompletion?.toggle()
             trackerCompletedDaysCount -= 1
-            daysCountLabel.text = generateDaysCountLabelText(with: trackerCompletedDaysCount)
+            daysCountLabel.text = String.localizedStringWithFormat(
+                NSLocalizedString("daysCount", comment: ""),
+                trackerCompletedDaysCount
+            )
         } else {
             taskCompletedButton.setImage(UIImage(systemName: "checkmark"), for: .normal)
             taskCompletedButton.backgroundColor = trackerColor.withAlphaComponent(0.3)
             trackerCompletion?.toggle()
             trackerCompletedDaysCount += 1
-            daysCountLabel.text = generateDaysCountLabelText(with: trackerCompletedDaysCount)
+            daysCountLabel.text = String.localizedStringWithFormat(
+                NSLocalizedString("daysCount", comment: ""),
+                trackerCompletedDaysCount
+            )
         }
         
         delegate?.changeTrackerCompletionState(tracker: tracker)
@@ -210,22 +254,21 @@ extension TrackersCollectionViewCell: UIContextMenuInteractionDelegate {
         
         return UIContextMenuConfiguration(actionProvider:  { suggestedActions in
             
-            let pinAction = UIAction(title: "Закрепить") { action in
-                
+            let pinAction = UIAction(title: self.pinActionTitle?.rawValue ?? "Закрепить") { action in
+                self.delegate?.updateTrackerPinAction(id: self.trackerId, isPinned: !self.isPinned)
             }
             
             let editAction = UIAction(title: "Редактировать") { action in
+                self.analyticsService.report(event: "click", params: ["screen" : "Main", "item" : "edit"])
                 self.delegate?.editTrackerAction(tracker: self.tracker, daysCount: self.trackerCompletedDaysCount)
             }
             
             let deleteAction = UIAction(title: "Удалить", attributes: .destructive) { action in
+                self.analyticsService.report(event: "click", params: ["screen" : "Main", "item" : "delete"])
                 self.delegate?.deleteTrackerAction(id: self.trackerId)
-                //self.showActionSheet()
             }
             
             return UIMenu(children: [pinAction, editAction, deleteAction])
         })
     }
-    
-    
 }

@@ -361,7 +361,6 @@ final class CreateEventViewController: UIViewController {
             categoryButtonSubtitle.isHidden = true
             categoryButton.titleEdgeInsets.top = 0
         } else {
-            print("Not nill!!!")
             categoryButton.addSubview(categoryButtonSubtitle)
             categoryButton.titleEdgeInsets = UIEdgeInsets(top: -24, left: 16, bottom: 0, right: 0)
             categoryButtonSubtitle.text = category
@@ -399,7 +398,8 @@ final class CreateEventViewController: UIViewController {
                 color: color,
                 emoji: emoji,
                 schedule: schedule,
-                trackerType: self.eventType)
+                trackerType: self.eventType, 
+                pin: false)
         } else {
             self.tracker = Tracker(
                 id: uuid,
@@ -407,7 +407,8 @@ final class CreateEventViewController: UIViewController {
                 color: color,
                 emoji: emoji,
                 schedule: nil,
-                trackerType: self.eventType)
+                trackerType: self.eventType, 
+                pin: false)
         }
         
         guard let tracker else { return }

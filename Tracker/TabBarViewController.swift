@@ -14,6 +14,8 @@ class TabBarViewController: UITabBarController {
         super.viewDidLoad()
         
         configureTabs()
+        
+        
     }
     
     // MARK: - Private Methods
@@ -26,8 +28,8 @@ class TabBarViewController: UITabBarController {
         statisticsViewController.tabBarItem.image = UIImage(named: "Statistics Tab Icon")
         
         // Set Titles
-        trackersViewController.tabBarItem.title = "Трекеры"
-        statisticsViewController.tabBarItem.title = "Статистика"
+        trackersViewController.tabBarItem.title = NSLocalizedString("Trackers", comment: "")
+        statisticsViewController.tabBarItem.title = NSLocalizedString("Statistics", comment: "")
         
         tabBar.tintColor = UIColor.ypBlue
         tabBar.backgroundColor = UIColor.ypWhite

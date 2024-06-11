@@ -7,6 +7,7 @@
 
 import CoreData
 import UIKit
+import YandexMobileMetrica
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -14,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        
+        AnalyticsService.activate()
         window = UIWindow()
         window?.rootViewController = chooseInitialViewController()
         window?.makeKeyAndVisible()
@@ -25,6 +26,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - Choose Initial ViewController
     func chooseInitialViewController() -> UIViewController {
         let firstLaunchTookPlace = UserDefaults.standard.bool(forKey: "firstLaunchTookPlace")
+        
+        // Set filtration type to default(allTrackers)
+        UserDefaults.standard.set(0, forKey: "filterType")
         
         let controller = firstLaunchTookPlace ? TabBarViewController() : OnboardingViewController()
         

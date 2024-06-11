@@ -82,8 +82,7 @@ final class CategoriesViewController: UIViewController {
         super.viewDidLoad()
         bind()
         view.backgroundColor = .ypWhite
-        tableView.dataSource = self
-        tableView.delegate = self
+        
         configureUI()
         emptyCheck()
         tableView.dataSource = self
