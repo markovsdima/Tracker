@@ -32,6 +32,6 @@ iOS 13.4 и выше
 
 ## Скриншоты
 
-<img width="270" align="left" src="https://github.com/user-attachments/assets/fc2bd4f1-70e2-4100-b077-e3d4e5a6438c" />
-<img width="270" align="left" src="https://github.com/user-attachments/assets/0cac00f3-a7c1-45bf-83ba-eb0717deaa7e" />
-<img width="270" align="left" src="https://github.com/user-attachments/assets/5322d834-8ecf-4bd0-9a4d-5b7937e5f9a9" />
+<img width="250" align="left" src="https://github.com/user-attachments/assets/fc2bd4f1-70e2-4100-b077-e3d4e5a6438c" />
+<img width="250" align="left" src="https://github.com/user-attachments/assets/0cac00f3-a7c1-45bf-83ba-eb0717deaa7e" />
+<img width="250" align="left" src="https://github.com/user-attachments/assets/5322d834-8ecf-4bd0-9a4d-5b7937e5f9a9" />
